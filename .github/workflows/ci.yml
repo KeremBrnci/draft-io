@@ -22,6 +22,8 @@ jobs:
           node-version: 20
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @draft-io/shared-types build
+      - run: pnpm --filter @draft-io/shared-utils build
       - run: pnpm lint
       - run: pnpm format:check
 
@@ -81,6 +83,8 @@ jobs:
           node-version: 20
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @draft-io/shared-types build
+      - run: pnpm --filter @draft-io/shared-utils build
       - run: pnpm --filter @draft-io/backend db:generate
       - run: pnpm --filter @draft-io/backend test:coverage
 
@@ -111,6 +115,8 @@ jobs:
           node-version: 20
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @draft-io/shared-types build
+      - run: pnpm --filter @draft-io/shared-utils build
       - run: pnpm --filter @draft-io/backend db:generate
       - run: pnpm --filter @draft-io/backend exec prisma db push --skip-generate
       - run: pnpm test:integration
@@ -145,5 +151,7 @@ jobs:
           node-version: 20
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @draft-io/shared-types build
+      - run: pnpm --filter @draft-io/shared-utils build
       - run: pnpm --filter @draft-io/backend db:generate
       - run: pnpm build

@@ -11,6 +11,7 @@ import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { HttpExceptionFilter } from '../../src/common/filters/http-exception.filter';
 import { LoggerService } from '../../src/common/logging/logger.service';
 import { ExternalProvider } from '../../src/core/external-reference/external-provider';
+import { EnrichPlayersFromSquadUseCase } from '../../src/modules/data-providers/application/use-cases/enrich-players-from-squad.use-case';
 import { GetImportJobUseCase } from '../../src/modules/data-providers/application/use-cases/get-import-job.use-case';
 import { ImportAllTargetCompetitionsUseCase } from '../../src/modules/data-providers/application/use-cases/import-all-target-competitions.use-case';
 import { ImportClubPlayersUseCase } from '../../src/modules/data-providers/application/use-cases/import-club-players.use-case';
@@ -32,6 +33,7 @@ import { RetryImportJobUseCase } from '../../src/modules/data-providers/applicat
 import { SearchLeaguesUseCase } from '../../src/modules/data-providers/application/use-cases/search-leagues.use-case';
 import { SearchPlayersUseCase } from '../../src/modules/data-providers/application/use-cases/search-players.use-case';
 import { SearchTeamsUseCase } from '../../src/modules/data-providers/application/use-cases/search-teams.use-case';
+import { SyncMissingSquadPlayersUseCase } from '../../src/modules/data-providers/application/use-cases/sync-missing-squad-players.use-case';
 import { SyncPlayerProfileUseCase } from '../../src/modules/data-providers/application/use-cases/sync-player-profile.use-case';
 import { ImportJob } from '../../src/modules/data-providers/domain/entities/import-job.entity';
 import { ImportJobType } from '../../src/modules/data-providers/domain/enums/import-job-type';
@@ -94,6 +96,8 @@ describe('Admin Imports API (E2E)', () => {
   };
   const importTeamUseCase = { execute: vi.fn().mockResolvedValue(mockTeam) };
   const importClubPlayersUseCase = { execute: vi.fn().mockResolvedValue({ count: 0 }) };
+  const syncMissingSquadPlayersUseCase = { execute: vi.fn().mockResolvedValue({ count: 0 }) };
+  const enrichPlayersFromSquadUseCase = { execute: vi.fn().mockResolvedValue({ count: 0 }) };
   const searchLeaguesUseCase = {
     execute: vi.fn().mockResolvedValue([
       {
@@ -154,6 +158,8 @@ describe('Admin Imports API (E2E)', () => {
         { provide: SearchTeamsUseCase, useValue: searchTeamsUseCase },
         { provide: ImportTeamUseCase, useValue: importTeamUseCase },
         { provide: ImportClubPlayersUseCase, useValue: importClubPlayersUseCase },
+        { provide: SyncMissingSquadPlayersUseCase, useValue: syncMissingSquadPlayersUseCase },
+        { provide: EnrichPlayersFromSquadUseCase, useValue: enrichPlayersFromSquadUseCase },
         { provide: SearchLeaguesUseCase, useValue: searchLeaguesUseCase },
         { provide: ListProviderCountriesUseCase, useValue: listProviderCountriesUseCase },
         { provide: ImportCountriesUseCase, useValue: importCountriesUseCase },
