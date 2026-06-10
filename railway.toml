@@ -4,6 +4,6 @@ dockerfilePath = "Dockerfile.backend"
 
 [deploy]
 startCommand = "node dist/main.js"
-preDeployCommand = "npx prisma db push --skip-generate"
+preDeployCommand = "sh scripts/railway-predeploy.sh"
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 3
