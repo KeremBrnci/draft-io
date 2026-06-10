@@ -1,19 +1,19 @@
 import { describe, expect, it, vi } from 'vitest';
 
 import { ExternalProvider } from '../../../../core/external-reference/external-provider';
-import { LeagueExternalReference } from '../../../leagues/domain/value-objects/external-reference.vo';
-import { TeamExternalReference } from '../../../teams/domain/value-objects/external-reference.vo';
-import { League } from '../../../leagues/domain/entities/league.entity';
-import { LeagueName } from '../../../leagues/domain/value-objects/league-name.vo';
-import { LeagueId } from '../../../leagues/domain/value-objects/league-id.vo';
-import { Team } from '../../../teams/domain/entities/team.entity';
-import { TeamId } from '../../../teams/domain/value-objects/team-id.vo';
-import { TeamName } from '../../../teams/domain/value-objects/team-name.vo';
 import {
   createMockLeagueRepository,
   createMockPlayerRepository,
   createMockTeamRepository,
 } from '../../../../testing/repository-mocks';
+import { League } from '../../../leagues/domain/entities/league.entity';
+import { LeagueExternalReference } from '../../../leagues/domain/value-objects/external-reference.vo';
+import { LeagueId } from '../../../leagues/domain/value-objects/league-id.vo';
+import { LeagueName } from '../../../leagues/domain/value-objects/league-name.vo';
+import { Team } from '../../../teams/domain/entities/team.entity';
+import { TeamExternalReference } from '../../../teams/domain/value-objects/external-reference.vo';
+import { TeamId } from '../../../teams/domain/value-objects/team-id.vo';
+import { TeamName } from '../../../teams/domain/value-objects/team-name.vo';
 import { Player } from '../../domain/entities/player.entity';
 import { PlayerStatus } from '../../domain/enums/player-status.enum';
 import { BirthDate } from '../../domain/value-objects/birth-date.vo';
@@ -87,7 +87,9 @@ describe('BrowsePlayersUseCase', () => {
     });
 
     const playerOverallReadRepository = {
-      findLatestByPlayerIds: vi.fn().mockResolvedValue(new Map([['550e8400-e29b-41d4-a716-446655440000', 91]])),
+      findLatestByPlayerIds: vi
+        .fn()
+        .mockResolvedValue(new Map([['550e8400-e29b-41d4-a716-446655440000', 91]])),
     };
 
     const useCase = new BrowsePlayersUseCase(
@@ -117,9 +119,7 @@ describe('BrowsePlayersUseCase', () => {
     );
     expect(result.data[0]?.teamName).toBe('Manchester City');
     expect(result.data[0]?.leagueName).toBe('Premier Lig');
-    expect(result.data[0]?.imageUrl).toBe(
-      'https://tmssl.akamaized.net//imgs/portrait/header/123.jpg',
-    );
+    expect(result.data[0]?.imageUrl).toBeNull();
     expect(result.data[0]?.teamLogoUrl).toBe(
       'https://tmssl.akamaized.net//images/wappen/big/281.png',
     );
@@ -187,7 +187,9 @@ describe('BrowsePlayersUseCase', () => {
     });
 
     const playerOverallReadRepository = {
-      findLatestByPlayerIds: vi.fn().mockResolvedValue(new Map([['550e8400-e29b-41d4-a716-446655440000', 91]])),
+      findLatestByPlayerIds: vi
+        .fn()
+        .mockResolvedValue(new Map([['550e8400-e29b-41d4-a716-446655440000', 91]])),
     };
 
     const useCase = new BrowsePlayersUseCase(

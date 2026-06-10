@@ -1,7 +1,4 @@
-import {
-  NATIONALITY_DISPLAY_TR,
-  NATIONALITY_KEY_ALIASES,
-} from './tr-nationalities';
+import { NATIONALITY_DISPLAY_TR, NATIONALITY_KEY_ALIASES } from './tr-nationalities';
 import { TEAM_DISPLAY_TR_BY_EXTERNAL_ID } from './tr-team-names';
 
 /** Transfermarkt competition external id → Turkish display name. */
@@ -18,22 +15,20 @@ const LEAGUE_DISPLAY_TR_BY_EXTERNAL_ID: Readonly<Record<string, string>> = {
 
 const LEAGUE_DISPLAY_TR_BY_NAME: Readonly<Record<string, string>> = {
   'Premier League': 'Premier Lig',
-  'LaLiga': 'La Liga',
+  LaLiga: 'La Liga',
   'La Liga': 'La Liga',
-  'Bundesliga': 'Bundesliga',
+  Bundesliga: 'Bundesliga',
   'Serie A': 'Serie A',
   'Ligue 1': 'Ligue 1',
   'Süper Lig': 'Süper Lig',
   'Super Lig': 'Süper Lig',
-  'Eredivisie': 'Eredivisie',
+  Eredivisie: 'Eredivisie',
   'Primeira Liga': 'Primeira Liga',
   'Liga Portugal': 'Primeira Liga',
 };
 
 function normalizeNationalityKey(value: string): string {
-  const withoutDiacritics = value
-    .normalize('NFKD')
-    .replace(/[\u0300-\u036f]/g, '');
+  const withoutDiacritics = value.normalize('NFKD').replace(/[\u0300-\u036f]/g, '');
 
   return withoutDiacritics
     .trim()
@@ -152,9 +147,7 @@ export function translateNationality(value: string | null | undefined): string {
 }
 
 /** Returns provider nationality labels that still have no Turkish mapping. */
-export function findUntranslatedNationalities(
-  values: readonly string[],
-): readonly string[] {
+export function findUntranslatedNationalities(values: readonly string[]): readonly string[] {
   const untranslated: string[] = [];
 
   for (const value of values) {

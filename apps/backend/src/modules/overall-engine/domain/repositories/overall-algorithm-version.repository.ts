@@ -7,7 +7,11 @@ export interface OverallAlgorithmVersionRecord {
 }
 
 export interface OverallAlgorithmVersionRepository {
-  ensureVersion(code: string, name: string, description?: string): Promise<OverallAlgorithmVersionRecord>;
+  ensureVersion(
+    code: string,
+    name: string,
+    description?: string,
+  ): Promise<OverallAlgorithmVersionRecord>;
   findById(id: string): Promise<OverallAlgorithmVersionRecord | null>;
   findByCode(code: string): Promise<OverallAlgorithmVersionRecord | null>;
 }

@@ -1,7 +1,7 @@
 import { Entity } from '../../../../common/domain/entity';
 import { ImportJobStatus } from '../enums/import-job-status';
 import type { ImportJobType } from '../enums/import-job-type';
-import { ImportJobId } from '../value-objects/import-job-id.vo';
+import { type ImportJobId } from '../value-objects/import-job-id.vo';
 
 export interface ImportJobProps {
   readonly id: ImportJobId;
@@ -163,8 +163,7 @@ export class ImportJob extends Entity<ImportJobId> {
 
   markFinished(): void {
     const now = new Date();
-    this._status =
-      this._failedRecords > 0 ? ImportJobStatus.PARTIAL : ImportJobStatus.COMPLETED;
+    this._status = this._failedRecords > 0 ? ImportJobStatus.PARTIAL : ImportJobStatus.COMPLETED;
     this._finishedAt = now;
     this._updatedAt = now;
   }

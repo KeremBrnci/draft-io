@@ -18,6 +18,7 @@ import { EnrichPlayersFromSquadUseCase } from '../modules/data-providers/applica
 import { CalculatePlayerOverallUseCase } from '../modules/overall-engine/application/use-cases/calculate-player-overall.use-case';
 import { PLAYER_REPOSITORY } from '../modules/players/domain/repositories/player.repository';
 import type { PlayerRepository } from '../modules/players/domain/repositories/player.repository';
+
 import { SeedAppModule } from './seed-app.module';
 
 const logger = new Logger('BackfillPlayerMetadata');

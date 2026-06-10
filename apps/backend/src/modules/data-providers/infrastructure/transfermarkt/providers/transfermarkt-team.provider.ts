@@ -4,13 +4,13 @@ import { ProviderResponseError } from '../../../domain/errors/data-provider.erro
 import type { ExternalTeamRecord } from '../../../domain/models/external-team-record';
 import type { TeamSearchResult } from '../../../domain/models/team-search-result';
 import type { TeamProvider } from '../../../domain/ports/team-provider.port';
+import { TransfermarktConfigService } from '../config/transfermarkt.config';
 import type {
   TransfermarktClubProfileDto,
   TransfermarktClubSearchResultDto,
   TransfermarktCompetitionClubsDto,
   TransfermarktListResponse,
 } from '../dtos/transfermarkt.dto';
-import { TransfermarktConfigService } from '../config/transfermarkt.config';
 import { TransfermarktHttpClient } from '../http/transfermarkt-http.client';
 import {
   extractListItems,
@@ -41,7 +41,9 @@ export class TransfermarktTeamProvider implements TeamProvider {
     return this.fetchClubProfile(externalId);
   }
 
-  async listClubsByCompetition(competitionExternalId: string): Promise<readonly TeamSearchResult[]> {
+  async listClubsByCompetition(
+    competitionExternalId: string,
+  ): Promise<readonly TeamSearchResult[]> {
     const seasonCandidates = resolveTransfermarktCompetitionSeasonCandidates(
       this.configService.getConfig().seasonId,
     );
@@ -51,7 +53,8 @@ export class TransfermarktTeamProvider implements TeamProvider {
     for (const seasonId of seasonCandidates) {
       try {
         const response = await this.httpClient.getJson<
-          TransfermarktCompetitionClubsDto | TransfermarktListResponse<TransfermarktClubSearchResultDto>
+          | TransfermarktCompetitionClubsDto
+          | TransfermarktListResponse<TransfermarktClubSearchResultDto>
         >(
           `competitions/${encodeURIComponent(competitionExternalId)}/clubs?${buildTransfermarktSeasonQuery(seasonId)}`,
         );

@@ -1,8 +1,8 @@
 import type { Lobby } from '../../domain/entities/lobby.entity';
-import type { LobbyCode } from '../../domain/value-objects/lobby-code.vo';
 import { LobbyExpiredError, LobbyNotFoundError } from '../../domain/errors/lobby.errors';
 import type { LobbyRepository } from '../../domain/repositories/lobby.repository';
 import { LobbyExpirationService } from '../../domain/services/lobby-expiration.service';
+import type { LobbyCode } from '../../domain/value-objects/lobby-code.vo';
 
 export class LobbyLifecycleService {
   private readonly expiration = new LobbyExpirationService();

@@ -9,7 +9,12 @@ import { browseCoaches } from '@/lib/api/coaches';
 import { browsePlayers } from '@/lib/api/players';
 
 const BASE_THEME = CARD_VARIANT_THEMES.base;
-const FEATURED_PLAYER_NAMES = ["N'Golo Kanté", 'Kevin De Bruyne', 'Robert Lewandowski', 'Lamine Yamal'];
+const FEATURED_PLAYER_NAMES = [
+  "N'Golo Kanté",
+  'Kevin De Bruyne',
+  'Robert Lewandowski',
+  'Lamine Yamal',
+];
 
 export default function AdminCardsPage(): React.ReactElement {
   const [featuredPlayer, setFeaturedPlayer] = useState<PlayerBrowserItemDto | null>(null);
@@ -38,7 +43,9 @@ export default function AdminCardsPage(): React.ReactElement {
         }),
         Promise.all(
           FEATURED_PLAYER_NAMES.map((name) =>
-            browsePlayers({ name, hasImage: true, pageSize: 1 }).then((page) => page.data[0] ?? null),
+            browsePlayers({ name, hasImage: true, pageSize: 1 }).then(
+              (page) => page.data[0] ?? null,
+            ),
           ),
         ),
       ]);
@@ -80,15 +87,18 @@ export default function AdminCardsPage(): React.ReactElement {
         <div className="card-showcase-hero__copy">
           <h2>{BASE_THEME.label} Template</h2>
           <p>
-            Modern luxury trading card silueti: geniş yatay üst kenar, hafif yan taper ve minimal alt
-            uzantı. Şampanya altın malzeme, ince border ve saten yansımalar. Kulüp logosu yok;
+            Modern luxury trading card silueti: geniş yatay üst kenar, hafif yan taper ve minimal
+            alt uzantı. Şampanya altın malzeme, ince border ve saten yansımalar. Kulüp logosu yok;
             yalnızca ülke bayrağı, lig göstergesi ve kart tipi. Hero, Icon, TOTY ve Event ileride
             güncelleme olarak eklenecek.
           </p>
         </div>
         <div className="card-showcase-hero__card">
           {loading || featuredPlayer === null ? (
-            <div className="fc-card fc-card--md fc-card--base" style={{ width: 220, opacity: 0.35 }} />
+            <div
+              className="fc-card fc-card--md fc-card--base"
+              style={{ width: 220, opacity: 0.35 }}
+            />
           ) : (
             <PlayerCard player={featuredPlayer} size="lg" />
           )}

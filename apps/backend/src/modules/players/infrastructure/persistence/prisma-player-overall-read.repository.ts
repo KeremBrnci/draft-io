@@ -23,9 +23,7 @@ export class PrismaPlayerOverallReadRepository implements PlayerOverallReadRepos
         player_id::text AS player_id,
         final_overall
       FROM overall_calculations
-      WHERE player_id = ANY(ARRAY[${Prisma.join(
-        playerIds.map((id) => Prisma.sql`${id}::uuid`),
-      )}])
+      WHERE player_id = ANY(ARRAY[${Prisma.join(playerIds.map((id) => Prisma.sql`${id}::uuid`))}])
       ORDER BY player_id, created_at DESC
     `;
 

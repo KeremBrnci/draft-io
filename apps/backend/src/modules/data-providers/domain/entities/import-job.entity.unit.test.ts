@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { ImportJobStatus } from '../enums/import-job-status';
 import { ImportJobType } from '../enums/import-job-type';
 import { ImportJobId } from '../value-objects/import-job-id.vo';
+
 import { ImportJob } from './import-job.entity';
 
 describe('ImportJob', () => {

@@ -42,7 +42,11 @@ export class TransfermarktHttpClient {
 
     for (let attempt = 0; attempt <= config.retryAttempts; attempt += 1) {
       try {
-        const response = await this.fetchWithTimeout(url.toString(), config.timeoutMs, config.apiKey);
+        const response = await this.fetchWithTimeout(
+          url.toString(),
+          config.timeoutMs,
+          config.apiKey,
+        );
 
         if (response.ok) {
           return (await response.json()) as T;

@@ -13,17 +13,17 @@ See [docs/architecture/card-migration-plan.md](../../docs/architecture/card-migr
 
 ## Card Model (target)
 
-| Column | Type |
-|--------|------|
-| `player_id` | UUID FK → players |
-| `card_type_id` | UUID FK → card_types |
-| `card_rarity_id` | UUID FK → card_rarities |
+| Column             | Type                     |
+| ------------------ | ------------------------ |
+| `player_id`        | UUID FK → players        |
+| `card_type_id`     | UUID FK → card_types     |
+| `card_rarity_id`   | UUID FK → card_rarities  |
 | `card_template_id` | UUID FK → card_templates |
-| `overall` | SMALLINT |
-| `overall_source` | VARCHAR |
-| `card_version` | VARCHAR |
-| `release_date` | DATE nullable |
-| `is_active` | BOOLEAN |
+| `overall`          | SMALLINT                 |
+| `overall_source`   | VARCHAR                  |
+| `card_version`     | VARCHAR                  |
+| `release_date`     | DATE nullable            |
+| `is_active`        | BOOLEAN                  |
 
 ## Indexes
 

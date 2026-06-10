@@ -8,10 +8,10 @@ Match simulation resolves competitive encounters between two teams, producing sc
 
 **Simulation uses Card overall values, not Player entities.**
 
-| Wrong | Right |
-|-------|-------|
-| Load `Player.overallRating` | Load `Card.overall` for each starting slot |
-| Identity row drives strength | Playable card edition drives strength |
+| Wrong                        | Right                                      |
+| ---------------------------- | ------------------------------------------ |
+| Load `Player.overallRating`  | Load `Card.overall` for each starting slot |
+| Identity row drives strength | Playable card edition drives strength      |
 
 Player identity is used only when simulation needs person-level data (e.g. nationality for chemistry links) — resolved via `card.playerId`.
 
@@ -24,23 +24,23 @@ Player identity is used only when simulation needs person-level data (e.g. natio
 
 ### Planned Inputs
 
-| Input | Source |
-|-------|--------|
-| Team A starting eleven | `Team.startingEleven` — **card IDs** |
-| Team B starting eleven | `Team.startingEleven` — **card IDs** |
-| Card strength | `Card.overall` per slot |
-| Formation | `Team.formationCode` |
-| Chemistry | `Team.chemistryScore` (future) — derived from cards' players |
-| Team overall | `Team.teamOverall` (future) — aggregate of card overalls + chemistry |
+| Input                  | Source                                                               |
+| ---------------------- | -------------------------------------------------------------------- |
+| Team A starting eleven | `Team.startingEleven` — **card IDs**                                 |
+| Team B starting eleven | `Team.startingEleven` — **card IDs**                                 |
+| Card strength          | `Card.overall` per slot                                              |
+| Formation              | `Team.formationCode`                                                 |
+| Chemistry              | `Team.chemistryScore` (future) — derived from cards' players         |
+| Team overall           | `Team.teamOverall` (future) — aggregate of card overalls + chemistry |
 
 ### Planned Outputs
 
-| Output | Description |
-|--------|-------------|
-| Final score | Goals for each team |
-| Match events | Goals, cards, substitutions (future) |
-| Performance grades | Per-**card** performance (future) |
-| Statistics | Possession, shots, passes (future) |
+| Output             | Description                          |
+| ------------------ | ------------------------------------ |
+| Final score        | Goals for each team                  |
+| Match events       | Goals, cards, substitutions (future) |
+| Performance grades | Per-**card** performance (future)    |
+| Statistics         | Possession, shots, passes (future)   |
 
 ### Resolution flow (planned)
 

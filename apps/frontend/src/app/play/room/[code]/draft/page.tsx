@@ -63,42 +63,48 @@ export default function DraftRoomPage(): React.ReactElement {
     skipPollBoardUpdateRef.current = activeSlotIndex !== null || pickingCardId !== null;
   }, [activeSlotIndex, pickingCardId]);
 
-  const loadBoard = useCallback(async (force = false): Promise<void> => {
-    if (session === null) {
-      setError('Bu odayı yönetmek için aynı tarayıcıdan odaya katılmış olmalısın.');
-      return;
-    }
-
-    try {
-      const nextBoard = await getDraftBoard(code, session.sessionToken);
-      setBoard((current) =>
-        !force && skipPollBoardUpdateRef.current && current !== null ? current : nextBoard,
-      );
-      setError(null);
-
-      if (nextBoard.phase === 'COACH_SELECTION') {
-        router.replace(`/play/room/${code}/coach-selection`);
+  const loadBoard = useCallback(
+    async (force = false): Promise<void> => {
+      if (session === null) {
+        setError('Bu odayı yönetmek için aynı tarayıcıdan odaya katılmış olmalısın.');
         return;
       }
 
-      if (nextBoard.phase === 'TEAM_REVIEW') {
-        router.replace(`/play/room/${code}/team-review`);
-        return;
-      }
+      try {
+        const nextBoard = await getDraftBoard(code, session.sessionToken);
+        setBoard((current) =>
+          !force && skipPollBoardUpdateRef.current && current !== null ? current : nextBoard,
+        );
+        setError(null);
 
-      if (nextBoard.phase === 'MATCHES') {
-        router.replace(`/play/room/${code}/league`);
-      }
-    } catch (loadError) {
-      if (loadError instanceof ApiClientError && (loadError.statusCode === 410 || loadError.statusCode === 404)) {
-        clearLobbySession(code);
-        setError('Oda bulunamadı veya süresi doldu.');
-        return;
-      }
+        if (nextBoard.phase === 'COACH_SELECTION') {
+          router.replace(`/play/room/${code}/coach-selection`);
+          return;
+        }
 
-      setError('Draft ekranı yüklenemedi.');
-    }
-  }, [code, router, session]);
+        if (nextBoard.phase === 'TEAM_REVIEW') {
+          router.replace(`/play/room/${code}/team-review`);
+          return;
+        }
+
+        if (nextBoard.phase === 'MATCHES') {
+          router.replace(`/play/room/${code}/league`);
+        }
+      } catch (loadError) {
+        if (
+          loadError instanceof ApiClientError &&
+          (loadError.statusCode === 410 || loadError.statusCode === 404)
+        ) {
+          clearLobbySession(code);
+          setError('Oda bulunamadı veya süresi doldu.');
+          return;
+        }
+
+        setError('Draft ekranı yüklenemedi.');
+      }
+    },
+    [code, router, session],
+  );
 
   useEffect(() => {
     void loadBoard();
@@ -307,7 +313,10 @@ export default function DraftRoomPage(): React.ReactElement {
                             : 'Draft devam ediyor'}
                         </span>
                       </div>
-                      <div className="play-roster__status" aria-label={participant.isReady ? 'Hazır' : 'Bekliyor'}>
+                      <div
+                        className="play-roster__status"
+                        aria-label={participant.isReady ? 'Hazır' : 'Bekliyor'}
+                      >
                         {participant.isReady ? (
                           <span className="play-ready-icon" title="Hazır">
                             ✓

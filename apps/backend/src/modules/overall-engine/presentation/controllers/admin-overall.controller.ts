@@ -62,7 +62,10 @@ export class AdminOverallController {
     @Param('playerId') playerId: string,
   ): Promise<ApiResponse<readonly ReturnType<typeof toOverallCalculationDto>[]>> {
     const calculations = await this.getOverallHistoryUseCase.execute(playerId);
-    const versionCache = new Map<string, Awaited<ReturnType<OverallAlgorithmVersionRepository['findById']>>>();
+    const versionCache = new Map<
+      string,
+      Awaited<ReturnType<OverallAlgorithmVersionRepository['findById']>>
+    >();
 
     const data = await Promise.all(
       calculations.map(async (calculation) => {
@@ -73,7 +76,9 @@ export class AdminOverallController {
           versionCache.set(calculation.algorithmVersionId, version);
         }
 
-        const versionRecord = version ?? (await this.algorithmVersionRepository.ensureVersion('V1', 'Overall Engine V1'));
+        const versionRecord =
+          version ??
+          (await this.algorithmVersionRepository.ensureVersion('V1', 'Overall Engine V1'));
         return toOverallCalculationDto(calculation, versionRecord);
       }),
     );

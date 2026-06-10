@@ -1,8 +1,8 @@
+import { type PlayerPosition as PrismaPlayerPosition } from '@prisma/client';
 import { describe, expect, it } from 'vitest';
 
-import { PlayerPosition as PrismaPlayerPosition } from '@prisma/client';
-
 import { PlayerId } from '../../domain/value-objects/player-id.vo';
+
 import { toPlayerPositionsDomain } from './player-position.mapper';
 
 const PLAYER_ID = PlayerId.create('550e8400-e29b-41d4-a716-446655440000');

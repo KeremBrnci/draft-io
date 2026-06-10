@@ -30,7 +30,9 @@ export class Formation extends Entity<string> {
     const code = FormationCode.create(props.code);
 
     if (props.slotDefinitions.length !== 11) {
-      throw new Error(`Formation must have exactly 11 slots, received: ${String(props.slotDefinitions.length)}`);
+      throw new Error(
+        `Formation must have exactly 11 slots, received: ${String(props.slotDefinitions.length)}`,
+      );
     }
 
     const slots = props.slotDefinitions.map((definition, index) =>

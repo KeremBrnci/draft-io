@@ -6,12 +6,12 @@ Player positions are modeled as a **first-class relationship** between `Player` 
 
 ## Why the array approach was removed
 
-| Problem | Array model | Relationship model |
-|---------|-------------|-------------------|
-| Validation | Ad-hoc VO on parallel fields | Central `PlayerPositions` rules |
-| Querying | Filter only primary easily | Filter primary, secondary, any, multi-position |
-| Extension | Hard to add metadata per role | Add columns on `player_positions` later |
-| Gameplay hooks | Chemistry/simulation need role context | `isPrimary` + future modifiers per row |
+| Problem        | Array model                            | Relationship model                             |
+| -------------- | -------------------------------------- | ---------------------------------------------- |
+| Validation     | Ad-hoc VO on parallel fields           | Central `PlayerPositions` rules                |
+| Querying       | Filter only primary easily             | Filter primary, secondary, any, multi-position |
+| Extension      | Hard to add metadata per role          | Add columns on `player_positions` later        |
+| Gameplay hooks | Chemistry/simulation need role context | `isPrimary` + future modifiers per row         |
 
 ## Domain model
 
@@ -57,11 +57,11 @@ Repository saves positions with replace strategy inside a transaction (delete + 
 
 Browse filters (backend ready, UI not built):
 
-| Query param | Behavior |
-|-------------|----------|
-| `position` | Any assigned position |
-| `primaryPosition` | Primary only |
-| `secondaryPosition` | Secondary only |
+| Query param            | Behavior                 |
+| ---------------------- | ------------------------ |
+| `position`             | Any assigned position    |
+| `primaryPosition`      | Primary only             |
+| `secondaryPosition`    | Secondary only           |
 | `hasMultiplePositions` | More than one assignment |
 
 ## Import pipeline

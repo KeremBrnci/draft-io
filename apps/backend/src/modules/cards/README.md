@@ -6,11 +6,11 @@ Own **playable game assets** — card editions linked to player identities. Game
 
 ## Boundaries
 
-| In scope | Out of scope (other modules / future) |
-|----------|--------------------------------------|
-| Card domain entity, types, rarity | Pack opening |
-| Card ↔ Player relationship rules | Draft, simulation, lobby |
-| Repository port | Automatic card generation on import |
+| In scope                          | Out of scope (other modules / future) |
+| --------------------------------- | ------------------------------------- |
+| Card domain entity, types, rarity | Pack opening                          |
+| Card ↔ Player relationship rules  | Draft, simulation, lobby              |
+| Repository port                   | Automatic card generation on import   |
 
 ## Import rule
 

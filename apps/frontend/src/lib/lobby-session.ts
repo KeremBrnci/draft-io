@@ -54,7 +54,11 @@ function migrateLegacySession(): void {
       Pick<StoredLobbySession, 'lobbyCode' | 'participantId' | 'sessionToken' | 'displayName'>;
     const code = normalizeCode(session.lobbyCode);
     const store = JSON.parse(window.localStorage.getItem(SESSIONS_KEY) ?? '{}') as SessionStore;
-    store[code] = { ...session, lobbyCode: code, savedAt: session.savedAt ?? new Date().toISOString() };
+    store[code] = {
+      ...session,
+      lobbyCode: code,
+      savedAt: session.savedAt ?? new Date().toISOString(),
+    };
     window.localStorage.setItem(SESSIONS_KEY, JSON.stringify(store));
   } catch {
     // ignore invalid legacy payload

@@ -134,7 +134,9 @@ export default function DataQualityPage(): React.ReactElement {
 
           <div className="admin-section">
             <h2 className="admin-section-title">Yaş dağılımı</h2>
-            <BreakdownTable rows={summary.ageDistribution.map((r) => [r.bucket, String(r.count)])} />
+            <BreakdownTable
+              rows={summary.ageDistribution.map((r) => [r.bucket, String(r.count)])}
+            />
           </div>
         </>
       ) : null}
@@ -155,7 +157,13 @@ export default function DataQualityPage(): React.ReactElement {
   );
 }
 
-function Stat({ label, value }: { readonly label: string; readonly value: number }): React.ReactElement {
+function Stat({
+  label,
+  value,
+}: {
+  readonly label: string;
+  readonly value: number;
+}): React.ReactElement {
   return (
     <div className="admin-card admin-stat-card">
       <div className="admin-stat-card__label">{label}</div>
@@ -164,7 +172,11 @@ function Stat({ label, value }: { readonly label: string; readonly value: number
   );
 }
 
-function BreakdownTable({ rows }: { readonly rows: readonly (readonly string[])[] }): React.ReactElement {
+function BreakdownTable({
+  rows,
+}: {
+  readonly rows: readonly (readonly string[])[];
+}): React.ReactElement {
   const columns: DataTableColumn<{ key: string; label: string; count: string }>[] = [
     { id: 'label', header: 'Etiket', cell: (r) => r.label },
     { id: 'count', header: 'Adet', align: 'right', cell: (r) => r.count },
@@ -176,12 +188,5 @@ function BreakdownTable({ rows }: { readonly rows: readonly (readonly string[])[
     count: count ?? '0',
   }));
 
-  return (
-    <DataTable
-      columns={columns}
-      data={data}
-      rowKey={(r) => r.key}
-      emptyMessage="Veri yok."
-    />
-  );
+  return <DataTable columns={columns} data={data} rowKey={(r) => r.key} emptyMessage="Veri yok." />;
 }

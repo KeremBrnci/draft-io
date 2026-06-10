@@ -1,13 +1,9 @@
 import type { DraftCardFaceDto, DraftPickOptionsDto } from '@draft-io/shared-types';
 
-import { ApplyDraftPickUseCase } from '../../../draft/application/use-cases/apply-draft-pick.use-case';
-import { CalculateTeamStrengthUseCase } from '../../../draft/application/use-cases/calculate-team-strength.use-case';
-import { GeneratePickOptionsUseCase } from '../../../draft/application/use-cases/generate-pick-options.use-case';
-import { GetDraftSessionByLobbyUseCase } from '../../../draft/application/use-cases/get-draft-session-by-lobby.use-case';
-import type { Formation } from '../../../formations/domain/entities/formation.entity';
-import type { FormationRepository } from '../../../formations/domain/repositories/formation.repository';
-import { computePitchCoordinates } from '../../../formations/domain/services/formation-pitch-layout.service';
-import { toDraftCardFace } from '../../../draft/infrastructure/mappers/draft-card-face.mapper';
+import { type ApplyDraftPickUseCase } from '../../../draft/application/use-cases/apply-draft-pick.use-case';
+import { type CalculateTeamStrengthUseCase } from '../../../draft/application/use-cases/calculate-team-strength.use-case';
+import { type GeneratePickOptionsUseCase } from '../../../draft/application/use-cases/generate-pick-options.use-case';
+import { type GetDraftSessionByLobbyUseCase } from '../../../draft/application/use-cases/get-draft-session-by-lobby.use-case';
 import { InvalidDraftPickError } from '../../../draft/domain/errors/draft.errors';
 import {
   findNextEmptySlotIndex,
@@ -15,14 +11,18 @@ import {
   remainingBudget,
 } from '../../../draft/domain/models/participant-draft-state';
 import type { DraftPoolRepository } from '../../../draft/domain/repositories/draft-pool.repository';
+import { toDraftCardFace } from '../../../draft/infrastructure/mappers/draft-card-face.mapper';
+import type { Formation } from '../../../formations/domain/entities/formation.entity';
+import type { FormationRepository } from '../../../formations/domain/repositories/formation.repository';
+import { computePitchCoordinates } from '../../../formations/domain/services/formation-pitch-layout.service';
+import type { CheckDraftCompletionUseCase } from '../../../matches/application/use-cases/room-league.use-cases';
+import type { LobbyParticipant } from '../../domain/entities/lobby-participant.entity';
+import type { Lobby } from '../../domain/entities/lobby.entity';
 import { RoomPhase } from '../../domain/enums/room-phase.enum';
 import { InvalidLobbySessionError, LobbyNotFoundError } from '../../domain/errors/lobby.errors';
-import type { Lobby } from '../../domain/entities/lobby.entity';
-import type { LobbyParticipant } from '../../domain/entities/lobby-participant.entity';
 import type { LobbyRepository } from '../../domain/repositories/lobby.repository';
 import { LobbyCode } from '../../domain/value-objects/lobby-code.vo';
 import { SessionToken } from '../../domain/value-objects/session-token.vo';
-import type { CheckDraftCompletionUseCase } from '../../../matches/application/use-cases/room-league.use-cases';
 import { LobbyLifecycleService } from '../services/lobby-lifecycle.service';
 
 export interface DraftBoardQuery {
@@ -76,7 +76,9 @@ export class GetDraftBoardUseCase {
       throw new InvalidDraftPickError('Lobby is not in draft phase');
     }
 
-    const participant = lobby.findParticipantBySessionToken(SessionToken.reconstitute(query.sessionToken));
+    const participant = lobby.findParticipantBySessionToken(
+      SessionToken.reconstitute(query.sessionToken),
+    );
     if (participant === null) {
       throw new InvalidLobbySessionError();
     }
@@ -105,7 +107,7 @@ export class GetDraftBoardUseCase {
       draftedCards.map((card) => {
         const assignment = draftState.slotAssignments.find((entry) => entry.cardId === card.cardId);
         const positionCode = assignment?.positionCode ?? card.positions[0]?.positionCode ?? 'CM';
-        return [card.cardId, toDraftCardFace(card, positionCode) as DraftCardFaceDto];
+        return [card.cardId, toDraftCardFace(card, positionCode)];
       }),
     );
 
@@ -130,7 +132,9 @@ export class GetDraftBoardUseCase {
     const nextSlotIndex = findNextEmptySlotIndex(slotIndexes, draftState.slotAssignments);
 
     const participantReadiness = lobby.participants.map((entry) => {
-      const entryDraftState = session.participants.find((state) => state.participantId === entry.id);
+      const entryDraftState = session.participants.find(
+        (state) => state.participantId === entry.id,
+      );
       const isRosterComplete =
         entryDraftState !== undefined && picksRemaining(entryDraftState, session.rosterSize) <= 0;
 
@@ -198,13 +202,16 @@ export class GetDraftPickOptionsForSlotUseCase {
       throw new InvalidDraftPickError('Invalid formation slot');
     }
 
-    const alreadyFilled = board.slotAssignments.some((assignment) => assignment.slotIndex === query.slotIndex);
+    const alreadyFilled = board.slotAssignments.some(
+      (assignment) => assignment.slotIndex === query.slotIndex,
+    );
     if (alreadyFilled) {
       throw new InvalidDraftPickError('Formation slot is already filled');
     }
 
     const positionCode = slot.label;
-    const positionCodes = slot.allowedPositions.length > 0 ? [...slot.allowedPositions] : [positionCode];
+    const positionCodes =
+      slot.allowedPositions.length > 0 ? [...slot.allowedPositions] : [positionCode];
     const result = await this.generatePickOptionsUseCase.execute({
       lobbyId: board.lobby.id.value,
       participantId: board.participant.id,
@@ -212,7 +219,9 @@ export class GetDraftPickOptionsForSlotUseCase {
       positionCodes,
     });
 
-    const poolCards = await this.draftPoolRepository.findByIds(result.options.map((option) => option.cardId));
+    const poolCards = await this.draftPoolRepository.findByIds(
+      result.options.map((option) => option.cardId),
+    );
     const cardById = new Map(poolCards.map((card) => [card.cardId, card]));
 
     return {
@@ -249,7 +258,7 @@ export class GetDraftPickOptionsForSlotUseCase {
           projectedChemistry: option.projectedChemistry,
           positionWeight: option.positionWeight,
           isWildcard: option.isWildcard,
-          face: toDraftCardFace(card ?? fallbackCard, positionCode) as DraftCardFaceDto,
+          face: toDraftCardFace(card ?? fallbackCard, positionCode),
         };
       }),
       remainingBudget: result.remainingBudget,
@@ -284,7 +293,9 @@ export class ApplyLobbyDraftPickUseCase {
       throw new InvalidDraftPickError('Lobby is not in draft phase');
     }
 
-    const participant = lobby.findParticipantBySessionToken(SessionToken.reconstitute(command.sessionToken));
+    const participant = lobby.findParticipantBySessionToken(
+      SessionToken.reconstitute(command.sessionToken),
+    );
     if (participant === null) {
       throw new InvalidLobbySessionError();
     }
@@ -313,7 +324,9 @@ export class ApplyLobbyDraftPickUseCase {
       throw new InvalidDraftPickError('Participant draft state not found');
     }
 
-    if (draftState.slotAssignments.some((assignment) => assignment.slotIndex === command.slotIndex)) {
+    if (
+      draftState.slotAssignments.some((assignment) => assignment.slotIndex === command.slotIndex)
+    ) {
       throw new InvalidDraftPickError('Formation slot is already filled');
     }
 
@@ -322,7 +335,8 @@ export class ApplyLobbyDraftPickUseCase {
     }
 
     const positionCode = slot.label;
-    const positionCodes = slot.allowedPositions.length > 0 ? [...slot.allowedPositions] : [positionCode];
+    const positionCodes =
+      slot.allowedPositions.length > 0 ? [...slot.allowedPositions] : [positionCode];
     await this.applyDraftPickUseCase.execute({
       lobbyId: lobby.id.value,
       participantId: participant.id,

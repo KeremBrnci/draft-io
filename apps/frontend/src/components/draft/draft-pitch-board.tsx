@@ -1,6 +1,5 @@
 import type { DraftBoardStateDto, DraftSlotStateDto } from '@draft-io/shared-types';
 
-
 import { DraftEmptyCard } from './draft-empty-card';
 import { mapCardTypeToVariant } from './map-card-type-to-variant';
 

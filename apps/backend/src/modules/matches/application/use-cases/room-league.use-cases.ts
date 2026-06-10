@@ -1,30 +1,33 @@
 import type { RoomLeagueStateDto, TeamReviewStateDto } from '@draft-io/shared-types';
 
-import { CalculateTeamStrengthUseCase } from '../../../draft/application/use-cases/calculate-team-strength.use-case';
-import { GetDraftSessionByLobbyUseCase } from '../../../draft/application/use-cases/get-draft-session-by-lobby.use-case';
-import type { DraftPoolRepository } from '../../../draft/domain/repositories/draft-pool.repository';
+import type { CoachRepository } from '../../../coaches/domain/repositories/coach.repository';
+import { CoachId } from '../../../coaches/domain/value-objects/coach-id.vo';
+import { type CalculateTeamStrengthUseCase } from '../../../draft/application/use-cases/calculate-team-strength.use-case';
+import { type GetDraftSessionByLobbyUseCase } from '../../../draft/application/use-cases/get-draft-session-by-lobby.use-case';
 import { picksRemaining } from '../../../draft/domain/models/participant-draft-state';
+import type { DraftPoolRepository } from '../../../draft/domain/repositories/draft-pool.repository';
 import type { FormationRepository } from '../../../formations/domain/repositories/formation.repository';
+import { LobbyLifecycleService } from '../../../lobbies/application/services/lobby-lifecycle.service';
+import type { RoomEventsPublisher } from '../../../lobbies/application/services/room-events.publisher';
+import { RoomPhase } from '../../../lobbies/domain/enums/room-phase.enum';
 import {
   InvalidLobbySessionError,
   InvalidRoomPhaseTransitionError,
   LobbyNotFoundError,
 } from '../../../lobbies/domain/errors/lobby.errors';
-import { RoomPhase } from '../../../lobbies/domain/enums/room-phase.enum';
 import { RoomEventName } from '../../../lobbies/domain/events/room.events';
 import type { LobbyRepository } from '../../../lobbies/domain/repositories/lobby.repository';
-import type { RoomEventsPublisher } from '../../../lobbies/application/services/room-events.publisher';
-import { LobbyLifecycleService } from '../../../lobbies/application/services/lobby-lifecycle.service';
+import { CoachPoolService } from '../../../lobbies/domain/services/coach-pool.service';
 import { LobbyCode } from '../../../lobbies/domain/value-objects/lobby-code.vo';
 import { SessionToken } from '../../../lobbies/domain/value-objects/session-token.vo';
-import { CoachPoolService } from '../../../lobbies/domain/services/coach-pool.service';
-import type { CoachRepository } from '../../../coaches/domain/repositories/coach.repository';
-import { CoachId } from '../../../coaches/domain/value-objects/coach-id.vo';
-import { MatchSimulationEngine } from '../../../simulation/domain/services/match-simulation-engine.service';
+import { type MatchSimulationEngine } from '../../../simulation/domain/services/match-simulation-engine.service';
 import type { RoomLeagueRepository } from '../../domain/repositories/room-league.repository';
-import { MatchPlaybackService } from '../services/match-playback.service';
+import {
+  toRoomLeagueStateDto,
+  toTeamReviewStateDto,
+} from '../../presentation/mappers/room-league-response.mapper';
+import { type MatchPlaybackService } from '../services/match-playback.service';
 import { buildParticipantTeamSnapshot } from '../services/team-snapshot.builder';
-import { toRoomLeagueStateDto, toTeamReviewStateDto } from '../../presentation/mappers/room-league-response.mapper';
 
 export class GetTeamReviewUseCase {
   private readonly lifecycle: LobbyLifecycleService;
@@ -39,9 +42,14 @@ export class GetTeamReviewUseCase {
     this.lifecycle = new LobbyLifecycleService(lobbyRepository);
   }
 
-  async execute(query: { readonly code: string; readonly sessionToken: string }): Promise<TeamReviewStateDto> {
+  async execute(query: {
+    readonly code: string;
+    readonly sessionToken: string;
+  }): Promise<TeamReviewStateDto> {
     const lobby = await this.lifecycle.requireActiveLobby(LobbyCode.create(query.code));
-    const participant = lobby.findParticipantBySessionToken(SessionToken.reconstitute(query.sessionToken));
+    const participant = lobby.findParticipantBySessionToken(
+      SessionToken.reconstitute(query.sessionToken),
+    );
     if (participant === null) {
       throw new InvalidLobbySessionError();
     }
@@ -71,8 +79,13 @@ export class GetTeamReviewUseCase {
         const formation = await this.formationRepository.findById(formationId);
         const strength =
           draftState.draftedCardIds.length === 0
-            ? { matchPower: { teamAverageOverall: 0, matchPower: 0 }, chemistry: { teamChemistry: 0 } }
-            : await this.calculateTeamStrengthUseCase.execute({ cardIds: draftState.draftedCardIds });
+            ? {
+                matchPower: { teamAverageOverall: 0, matchPower: 0 },
+                chemistry: { teamChemistry: 0 },
+              }
+            : await this.calculateTeamStrengthUseCase.execute({
+                cardIds: draftState.draftedCardIds,
+              });
 
         return {
           participantId: entry.id,
@@ -130,7 +143,10 @@ export class StartLeagueUseCase {
     this.lifecycle = new LobbyLifecycleService(lobbyRepository);
   }
 
-  async execute(command: { readonly code: string; readonly sessionToken: string }): Promise<RoomLeagueStateDto> {
+  async execute(command: {
+    readonly code: string;
+    readonly sessionToken: string;
+  }): Promise<RoomLeagueStateDto> {
     const lobby = await this.lifecycle.requireActiveLobby(LobbyCode.create(command.code));
     lobby.startMatches(SessionToken.reconstitute(command.sessionToken));
     await this.lobbyRepository.save(lobby);
@@ -253,14 +269,22 @@ export class StartNextMatchUseCase {
       throw new LobbyNotFoundError(lobby.id.value);
     }
 
-    const homeParticipant = lobby.participants.find((entry) => entry.id === fixture.homeParticipantId);
-    const awayParticipant = lobby.participants.find((entry) => entry.id === fixture.awayParticipantId);
+    const homeParticipant = lobby.participants.find(
+      (entry) => entry.id === fixture.homeParticipantId,
+    );
+    const awayParticipant = lobby.participants.find(
+      (entry) => entry.id === fixture.awayParticipantId,
+    );
     if (homeParticipant === undefined || awayParticipant === undefined) {
       throw new LobbyNotFoundError(fixture.id);
     }
 
-    const homeDraft = session.participants.find((entry) => entry.participantId === homeParticipant.id);
-    const awayDraft = session.participants.find((entry) => entry.participantId === awayParticipant.id);
+    const homeDraft = session.participants.find(
+      (entry) => entry.participantId === homeParticipant.id,
+    );
+    const awayDraft = session.participants.find(
+      (entry) => entry.participantId === awayParticipant.id,
+    );
     if (homeDraft === undefined || awayDraft === undefined) {
       throw new LobbyNotFoundError(fixture.id);
     }
@@ -293,7 +317,11 @@ export class StartNextMatchUseCase {
     });
 
     const seed = Date.now() % 1_000_000;
-    const simulation = this.matchSimulationEngine.simulate({ home: homeSnapshot, away: awaySnapshot, seed });
+    const simulation = this.matchSimulationEngine.simulate({
+      home: homeSnapshot,
+      away: awaySnapshot,
+      seed,
+    });
     const match = await this.roomLeagueRepository.createMatch({
       leagueId: league.id,
       fixtureId: fixture.id,

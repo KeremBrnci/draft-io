@@ -1,26 +1,23 @@
+import { buildTransfermarktNationalityFlagUrl, translateNationality } from '@draft-io/shared-utils';
+
+import type { CoachBrowserItem } from '../../../coaches/application/read-models/coach-browser-item';
 import type { CoachRepository } from '../../../coaches/domain/repositories/coach.repository';
 import { CoachId } from '../../../coaches/domain/value-objects/coach-id.vo';
 import type { LeagueRepository } from '../../../leagues/domain/repositories/league.repository';
+import { LeagueId } from '../../../leagues/domain/value-objects/league-id.vo';
+import type { StartNextMatchUseCase } from '../../../matches/application/use-cases/room-league.use-cases';
+import type { RoomLeagueRepository } from '../../../matches/domain/repositories/room-league.repository';
 import type { TeamRepository } from '../../../teams/domain/repositories/team.repository';
 import { TeamId } from '../../../teams/domain/value-objects/team-id.vo';
-import { LeagueId } from '../../../leagues/domain/value-objects/league-id.vo';
-import {
-  buildTransfermarktNationalityFlagUrl,
-  translateNationality,
-} from '@draft-io/shared-utils';
-
-import type { CoachBrowserItem } from '../../../coaches/application/read-models/coach-browser-item';
+import type { LobbyParticipant } from '../../domain/entities/lobby-participant.entity';
+import type { Lobby } from '../../domain/entities/lobby.entity';
 import { RoomPhase } from '../../domain/enums/room-phase.enum';
 import { RoomEventName, type RoomEventPayload } from '../../domain/events/room.events';
-import type { Lobby } from '../../domain/entities/lobby.entity';
-import type { LobbyParticipant } from '../../domain/entities/lobby-participant.entity';
 import type { LobbyRepository } from '../../domain/repositories/lobby.repository';
 import { LobbyCode } from '../../domain/value-objects/lobby-code.vo';
 import { SessionToken } from '../../domain/value-objects/session-token.vo';
 import { LobbyLifecycleService } from '../services/lobby-lifecycle.service';
 import type { RoomEventsPublisher } from '../services/room-events.publisher';
-import type { RoomLeagueRepository } from '../../../matches/domain/repositories/room-league.repository';
-import type { StartNextMatchUseCase } from '../../../matches/application/use-cases/room-league.use-cases';
 
 export interface SelectCoachCommand {
   readonly code: string;
@@ -105,7 +102,9 @@ export class GetCoachSelectionUseCase {
     let myCoachOptions: readonly CoachBrowserItem[] = [];
     if (participant !== null) {
       const coaches = await Promise.all(
-        participant.coachOptionIds.map((coachId) => this.coachRepository.findById(CoachId.create(coachId))),
+        participant.coachOptionIds.map((coachId) =>
+          this.coachRepository.findById(CoachId.create(coachId)),
+        ),
       );
       const teams = await Promise.all(
         coaches.map((coach) =>
@@ -117,7 +116,9 @@ export class GetCoachSelectionUseCase {
       const leagues = await Promise.all(
         coaches.map((coach, index) => {
           const leagueId = coach?.leagueId ?? teams[index]?.leagueId ?? null;
-          return leagueId === null ? Promise.resolve(null) : this.leagueRepository.findById(LeagueId.create(leagueId));
+          return leagueId === null
+            ? Promise.resolve(null)
+            : this.leagueRepository.findById(LeagueId.create(leagueId));
         }),
       );
 

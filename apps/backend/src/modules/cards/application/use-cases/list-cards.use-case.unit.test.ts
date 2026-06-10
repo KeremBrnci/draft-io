@@ -1,15 +1,15 @@
 import { describe, expect, it, vi } from 'vitest';
 
+import type { CardRarityRepository } from '../../domain/repositories/card-rarity.repository';
+import type { CardTemplateRepository } from '../../domain/repositories/card-template.repository';
+import type { CardTypeRepository } from '../../domain/repositories/card-type.repository';
+import type { CardRepository } from '../../domain/repositories/card.repository';
 import {
   buildTestCard,
   buildTestCardRarity,
   buildTestCardTemplate,
   buildTestCardType,
 } from '../../testing/card-test.factory';
-import type { CardRarityRepository } from '../../domain/repositories/card-rarity.repository';
-import type { CardTemplateRepository } from '../../domain/repositories/card-template.repository';
-import type { CardTypeRepository } from '../../domain/repositories/card-type.repository';
-import type { CardRepository } from '../../domain/repositories/card.repository';
 import { CardEnrichmentService } from '../services/card-enrichment.service';
 
 import { ListCardsUseCase } from './list-cards.use-case';

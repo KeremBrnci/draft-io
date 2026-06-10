@@ -8,7 +8,6 @@ export function provideUseCase<T>(UseCase: Type<T>, inject: InjectionToken[] = [
   return {
     provide: UseCase,
     useFactory: (...deps: unknown[]) => {
-       
       return new UseCase(...deps);
     },
     inject,

@@ -10,13 +10,7 @@ export const FC_CARD_SHAPE_PATH =
 
 export function FootballCardSilhouetteDefs(): React.ReactElement {
   return (
-    <svg
-      className="fc-card__clip-svg"
-      aria-hidden="true"
-      focusable="false"
-      width="0"
-      height="0"
-    >
+    <svg className="fc-card__clip-svg" aria-hidden="true" focusable="false" width="0" height="0">
       <defs>
         <clipPath id={FC_CARD_CLIP_ID} clipPathUnits="objectBoundingBox">
           <path transform="scale(0.01, 0.0066667)" d={FC_CARD_SHAPE_PATH} />

@@ -8,7 +8,6 @@ import { PlayGameBackdrop } from '@/components/play/play-game-backdrop';
 import { joinLobby } from '@/lib/api/lobbies';
 import { readLobbySession, readSavedDisplayName, saveLobbySession } from '@/lib/lobby-session';
 
-
 import '../play.css';
 
 export default function JoinLobbyPage(): React.ReactElement {
@@ -71,7 +70,9 @@ export default function JoinLobbyPage(): React.ReactElement {
           ← Oyna
         </Link>
         <h1 className="play-title play-title--game">
-          <span className="play-title__icon" aria-hidden>🎮</span>
+          <span className="play-title__icon" aria-hidden>
+            🎮
+          </span>
           Odaya Katıl
         </h1>
         <p className="play-subtitle">Arkadaşının paylaştığı 6 haneli kodla sahaya gir.</p>
@@ -82,7 +83,9 @@ export default function JoinLobbyPage(): React.ReactElement {
             <input
               id="lobby-code"
               value={code}
-              onChange={(event) => { setCode(event.target.value.toUpperCase()); }}
+              onChange={(event) => {
+                setCode(event.target.value.toUpperCase());
+              }}
               placeholder="ABC123"
               minLength={6}
               maxLength={6}
@@ -95,7 +98,9 @@ export default function JoinLobbyPage(): React.ReactElement {
             <input
               id="display-name"
               value={displayName}
-              onChange={(event) => { setDisplayName(event.target.value); }}
+              onChange={(event) => {
+                setDisplayName(event.target.value);
+              }}
               placeholder="Misafir"
               minLength={2}
               maxLength={40}
@@ -105,8 +110,8 @@ export default function JoinLobbyPage(): React.ReactElement {
 
           {existingSessionCode !== null ? (
             <p className="play-callout">
-              Bu odaya daha önce <strong>{readLobbySession(existingSessionCode)?.displayName}</strong> olarak
-              katıldın.{' '}
+              Bu odaya daha önce{' '}
+              <strong>{readLobbySession(existingSessionCode)?.displayName}</strong> olarak katıldın.{' '}
               <Link href={`/play/room/${existingSessionCode}`}>Odaya devam et</Link>
             </p>
           ) : null}

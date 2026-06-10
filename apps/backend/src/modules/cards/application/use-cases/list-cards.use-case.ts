@@ -1,6 +1,6 @@
 import type { CardRepository } from '../../domain/repositories/card.repository';
-import type { CardDetail } from '../read-models/card-detail';
 import type { ListCardsQuery } from '../queries/list-cards.query';
+import type { CardDetail } from '../read-models/card-detail';
 import type { CardEnrichmentService } from '../services/card-enrichment.service';
 
 export class ListCardsUseCase {

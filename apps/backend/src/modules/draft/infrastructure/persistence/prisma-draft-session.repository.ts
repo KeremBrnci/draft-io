@@ -4,10 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { PrismaService } from '../../../../infrastructure/database/prisma.service';
 import type { DraftSession } from '../../domain/repositories/draft-session.repository';
 import type { DraftSessionRepository } from '../../domain/repositories/draft-session.repository';
-import {
-  toDraftSessionDomain,
-  toDraftSessionPersistence,
-} from '../mappers/draft-session.mapper';
+import { toDraftSessionDomain, toDraftSessionPersistence } from '../mappers/draft-session.mapper';
 
 @Injectable()
 export class PrismaDraftSessionRepository implements DraftSessionRepository {

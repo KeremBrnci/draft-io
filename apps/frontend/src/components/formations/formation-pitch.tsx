@@ -6,9 +6,16 @@ interface FormationPitchProps {
   readonly compact?: boolean;
 }
 
-export function FormationPitch({ code, slots, compact = false }: FormationPitchProps): React.ReactElement {
+export function FormationPitch({
+  code,
+  slots,
+  compact = false,
+}: FormationPitchProps): React.ReactElement {
   return (
-    <div className={`formation-pitch${compact ? ' formation-pitch--compact' : ''}`} aria-label={`${code} pitch preview`}>
+    <div
+      className={`formation-pitch${compact ? ' formation-pitch--compact' : ''}`}
+      aria-label={`${code} pitch preview`}
+    >
       <div className="formation-pitch__grass" />
       <div className="formation-pitch__line formation-pitch__line--half" />
       <div className="formation-pitch__line formation-pitch__line--box" />

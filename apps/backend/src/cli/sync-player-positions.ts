@@ -14,6 +14,7 @@ import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 
 import { SyncPlayerPositionsUseCase } from '../modules/data-providers/application/use-cases/sync-player-positions.use-case';
+
 import { SeedAppModule } from './seed-app.module';
 
 const logger = new Logger('SyncPlayerPositions');

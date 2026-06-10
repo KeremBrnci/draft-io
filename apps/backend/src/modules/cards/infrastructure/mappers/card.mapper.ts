@@ -1,7 +1,7 @@
 import type { Card as PrismaCard } from '@prisma/client';
 
-import { CardOverallSource } from '../../domain/enums/card-overall-source.enum';
 import { Card } from '../../domain/entities/card.entity';
+import { type CardOverallSource } from '../../domain/enums/card-overall-source.enum';
 import { CardId } from '../../domain/value-objects/card-id.vo';
 import { CardOverall } from '../../domain/value-objects/card-overall.vo';
 import { CardVersion } from '../../domain/value-objects/card-version.vo';

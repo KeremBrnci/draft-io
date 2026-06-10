@@ -17,13 +17,13 @@ Tests are a first-class architectural concern. They validate behavior, document 
 
 ## Coverage Targets
 
-| Layer | Target | Rationale |
-|-------|--------|-----------|
-| Domain (entities, VOs) | **95%+** | Pure logic, easy to test, highest value |
-| Application (use cases) | **90%+** | Business orchestration, mock ports |
-| Infrastructure | **70%+** | Integration tests cover critical paths |
-| Presentation | **60%+** | E2E tests cover HTTP layer |
-| **Overall** | **80%+** | Enforced in CI with thresholds |
+| Layer                   | Target   | Rationale                               |
+| ----------------------- | -------- | --------------------------------------- |
+| Domain (entities, VOs)  | **95%+** | Pure logic, easy to test, highest value |
+| Application (use cases) | **90%+** | Business orchestration, mock ports      |
+| Infrastructure          | **70%+** | Integration tests cover critical paths  |
+| Presentation            | **60%+** | E2E tests cover HTTP layer              |
+| **Overall**             | **80%+** | Enforced in CI with thresholds          |
 
 ## Test Types
 
@@ -34,6 +34,7 @@ Tests are a first-class architectural concern. They validate behavior, document 
 **Where:** Co-located with source (`*.unit.test.ts`)
 
 **Rules:**
+
 - No database, network, or filesystem
 - Mock all ports/interfaces
 - Test invariants, edge cases, and error paths
@@ -69,6 +70,7 @@ describe('GetPlayerUseCase', () => {
 **Where:** `apps/backend/test/integration/`
 
 **Rules:**
+
 - Require running PostgreSQL (via Docker Compose)
 - Clean up test data in `afterAll`/`afterEach`
 - Skip when `DATABASE_URL` is not set
@@ -87,10 +89,12 @@ describe.skipIf(!process.env['DATABASE_URL'])('PrismaPlayerRepository', () => {
 **What:** API endpoints, full request/response cycle
 
 **Where:**
+
 - Backend: `apps/backend/test/e2e/`
 - Frontend: `apps/frontend/e2e/` (Playwright)
 
 **Rules:**
+
 - Backend E2E uses `@nestjs/testing` with module overrides
 - Frontend E2E uses Playwright against running dev server
 - Test happy paths and validation errors
@@ -145,6 +149,7 @@ describe('<ClassName>', () => {
 ```
 
 Examples:
+
 - `'creates a valid player'`
 - `'rejects ratings above maximum'`
 - `'throws when player is not found'`
@@ -158,11 +163,11 @@ Examples:
 
 ## CI Integration
 
-| Job | Tests Run | Services Required |
-|-----|-----------|-------------------|
-| `unit-tests` | All `*.unit.test.ts` | None |
-| `integration-tests` | `test/integration/**` | PostgreSQL |
-| `e2e-tests` | Backend E2E + Playwright | PostgreSQL (backend), dev server (frontend) |
+| Job                 | Tests Run                | Services Required                           |
+| ------------------- | ------------------------ | ------------------------------------------- |
+| `unit-tests`        | All `*.unit.test.ts`     | None                                        |
+| `integration-tests` | `test/integration/**`    | PostgreSQL                                  |
+| `e2e-tests`         | Backend E2E + Playwright | PostgreSQL (backend), dev server (frontend) |
 
 ## What NOT to Test
 

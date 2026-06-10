@@ -17,14 +17,14 @@ describe('FormationSlot', () => {
   });
 
   it('rejects invalid index', () => {
-    expect(() =>
-      FormationSlot.create({ index: 0, label: 'GK', allowedPositions: ['GK'] }),
-    ).toThrow(/between 1 and 11/);
+    expect(() => FormationSlot.create({ index: 0, label: 'GK', allowedPositions: ['GK'] })).toThrow(
+      /between 1 and 11/,
+    );
   });
 
   it('rejects empty allowed positions', () => {
-    expect(() =>
-      FormationSlot.create({ index: 1, label: 'GK', allowedPositions: [] }),
-    ).toThrow(/at least one position/);
+    expect(() => FormationSlot.create({ index: 1, label: 'GK', allowedPositions: [] })).toThrow(
+      /at least one position/,
+    );
   });
 });

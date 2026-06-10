@@ -1,9 +1,6 @@
-export type DraftPickOptionKindDto =
-  | 'STRONG'
-  | 'MEDIUM'
-  | 'RISKY'
-  | 'CHEMISTRY'
-  | 'WILDCARD';
+import type { DraftCardFaceDto } from './draft-board.js';
+
+export type DraftPickOptionKindDto = 'STRONG' | 'MEDIUM' | 'RISKY' | 'CHEMISTRY' | 'WILDCARD';
 
 export interface DraftPickOptionDto {
   readonly cardId: string;
@@ -18,7 +15,7 @@ export interface DraftPickOptionDto {
   readonly projectedChemistry: number;
   readonly positionWeight: number;
   readonly isWildcard: boolean;
-  readonly face: import('./draft-board.js').DraftCardFaceDto;
+  readonly face: DraftCardFaceDto;
 }
 
 export interface DraftPickOptionsDto {

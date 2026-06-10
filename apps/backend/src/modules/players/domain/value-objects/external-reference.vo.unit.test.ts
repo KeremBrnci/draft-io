@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import { ExternalProvider } from '../../../../core/external-reference/external-provider';
 import { InvalidExternalReferenceError } from '../errors/player.errors';
+
 import { ExternalReference } from './external-reference.vo';
 
 describe('ExternalReference', () => {

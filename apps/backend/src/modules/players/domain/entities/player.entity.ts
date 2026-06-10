@@ -10,9 +10,9 @@ import type { ImageUrl } from '../value-objects/image-url.vo';
 import type { MarketValue } from '../value-objects/market-value.vo';
 import type { Nationality } from '../value-objects/nationality.vo';
 import type { PersonName } from '../value-objects/person-name.vo';
+import type { PlayerId } from '../value-objects/player-id.vo';
 import { PlayerPositionId } from '../value-objects/player-position-id.vo';
 import { PlayerPositions } from '../value-objects/player-positions.vo';
-import type { PlayerId } from '../value-objects/player-id.vo';
 
 export interface CreatePlayerProps {
   readonly id: PlayerId;

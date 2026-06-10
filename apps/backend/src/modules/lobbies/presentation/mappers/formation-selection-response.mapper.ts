@@ -2,8 +2,9 @@ import type { FormationSelectionStateDto } from '@draft-io/shared-types';
 
 import type { Formation } from '../../../formations/domain/entities/formation.entity';
 import { computePitchCoordinates } from '../../../formations/domain/services/formation-pitch-layout.service';
-import type { Lobby } from '../../domain/entities/lobby.entity';
 import type { LobbyParticipant } from '../../domain/entities/lobby-participant.entity';
+import type { Lobby } from '../../domain/entities/lobby.entity';
+
 import { toLobbySummary } from './lobby-response.mapper';
 
 export function toFormationSummaryDto(formation: Formation) {

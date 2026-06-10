@@ -4,11 +4,11 @@ Shared pure utility functions with no framework dependencies.
 
 ## Allowed Usage
 
-| Consumer | Allowed | Notes |
-|----------|---------|-------|
-| Frontend (`apps/frontend`) | ✅ Yes | UI helpers, formatting, validation |
-| Backend (all layers) | ✅ Yes | Pure functions only |
-| Domain layer | ✅ Yes | Only if the utility has zero infrastructure coupling |
+| Consumer                   | Allowed | Notes                                                |
+| -------------------------- | ------- | ---------------------------------------------------- |
+| Frontend (`apps/frontend`) | ✅ Yes  | UI helpers, formatting, validation                   |
+| Backend (all layers)       | ✅ Yes  | Pure functions only                                  |
+| Domain layer               | ✅ Yes  | Only if the utility has zero infrastructure coupling |
 
 ## What Belongs Here
 

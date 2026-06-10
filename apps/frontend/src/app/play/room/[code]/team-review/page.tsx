@@ -42,7 +42,10 @@ export default function TeamReviewPage(): React.ReactElement {
         router.replace(`/play/room/${code}/league`);
       }
     } catch (loadError) {
-      if (loadError instanceof ApiClientError && (loadError.statusCode === 410 || loadError.statusCode === 404)) {
+      if (
+        loadError instanceof ApiClientError &&
+        (loadError.statusCode === 410 || loadError.statusCode === 404)
+      ) {
         clearLobbySession(code);
         setError('Oda bulunamadı veya süresi doldu.');
         return;
@@ -56,11 +59,7 @@ export default function TeamReviewPage(): React.ReactElement {
   }, [load]);
 
   useRoomSocket(code, (event) => {
-    if (
-      event === 'TEAMS_READY' ||
-      event === 'LEAGUE_READY' ||
-      event === 'MATCH_STARTED'
-    ) {
+    if (event === 'TEAMS_READY' || event === 'LEAGUE_READY' || event === 'MATCH_STARTED') {
       void load();
     }
   });
@@ -95,7 +94,9 @@ export default function TeamReviewPage(): React.ReactElement {
 
       <main className="play-main play-main--draft">
         {error !== null ? (
-          <p className="play-error" role="alert">{error}</p>
+          <p className="play-error" role="alert">
+            {error}
+          </p>
         ) : state === null ? (
           <div className="play-arena play-arena--loading">
             <div className="play-loader" />
@@ -110,7 +111,8 @@ export default function TeamReviewPage(): React.ReactElement {
             </div>
 
             <p className="play-subtitle">
-              Kadrolar ve teknik direktörler tamam. Kurucu mini ligi başlattığında simülasyonlar canlı oynanacak.
+              Kadrolar ve teknik direktörler tamam. Kurucu mini ligi başlattığında simülasyonlar
+              canlı oynanacak.
             </p>
 
             <div className="team-review-grid">

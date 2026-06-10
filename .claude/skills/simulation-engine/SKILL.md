@@ -13,13 +13,13 @@ description: >-
 
 Phase 8 only — requires plan and approval per `workflow.mdc`. Subordinate to `ai-constitution.md`.
 
-| Document | Path |
-|----------|------|
-| AI Constitution | `docs/architecture/ai-constitution.md` |
-| Workflow | `.cursor/rules/workflow.mdc` |
-| Universal instructions | `AGENTS.md` |
-| Project context | `.claude/skills/project-context/SKILL.md` |
-| Project vision | `docs/architecture/project-vision.md` |
+| Document               | Path                                      |
+| ---------------------- | ----------------------------------------- |
+| AI Constitution        | `docs/architecture/ai-constitution.md`    |
+| Workflow               | `.cursor/rules/workflow.mdc`              |
+| Universal instructions | `AGENTS.md`                               |
+| Project context        | `.claude/skills/project-context/SKILL.md` |
+| Project vision         | `docs/architecture/project-vision.md`     |
 
 ## Purpose
 
@@ -150,10 +150,10 @@ export class SimulationEngine {
     const rng = SeededRandom.create(input.seed);
     const strengthA = TeamStrengthCalculator.compute(input.teamA);
     const strengthB = TeamStrengthCalculator.compute(input.teamB);
-    
+
     const goalsA = this.resolveGoals(strengthA, strengthB, rng);
     const goalsB = this.resolveGoals(strengthB, strengthA, rng);
-    
+
     return MatchResult.create({
       teamAId: input.teamA.teamId,
       teamBId: input.teamB.teamId,
@@ -182,11 +182,11 @@ export class SimulationEngine {
 
 ### Performance targets
 
-| Mode | Target |
-|------|--------|
-| Instant | < 500ms per match |
-| Live tick | 90 virtual minutes over ~3 real minutes (configurable) |
-| Batch (league round) | Parallelize with worker pool (future) |
+| Mode                 | Target                                                 |
+| -------------------- | ------------------------------------------------------ |
+| Instant              | < 500ms per match                                      |
+| Live tick            | 90 virtual minutes over ~3 real minutes (configurable) |
+| Batch (league round) | Parallelize with worker pool (future)                  |
 
 ## Examples
 
@@ -252,15 +252,15 @@ it('produces identical results for same seed', () => {
 
 ## Anti-patterns
 
-| Anti-pattern | Correct approach |
-|--------------|------------------|
-| Loading Prisma in simulation engine | Application builds snapshot |
-| `Math.random()` without seed | Seeded PRNG |
-| Mutable match result | Immutable `MatchResult` VO/entity |
-| Chemistry in frontend only | `ChemistryCalculator` in domain |
-| 90-minute loop for MVP | Instant resolution first |
-| Embedding player entities in engine | Plain snapshot DTOs |
-| Magic numbers in formula | Named constants with tests |
-| Simulation writing to teams table | Results to matches repository |
-| Non-deterministic CI tests | Fixed seeds in tests |
+| Anti-pattern                              | Correct approach                           |
+| ----------------------------------------- | ------------------------------------------ |
+| Loading Prisma in simulation engine       | Application builds snapshot                |
+| `Math.random()` without seed              | Seeded PRNG                                |
+| Mutable match result                      | Immutable `MatchResult` VO/entity          |
+| Chemistry in frontend only                | `ChemistryCalculator` in domain            |
+| 90-minute loop for MVP                    | Instant resolution first                   |
+| Embedding player entities in engine       | Plain snapshot DTOs                        |
+| Magic numbers in formula                  | Named constants with tests                 |
+| Simulation writing to teams table         | Results to matches repository              |
+| Non-deterministic CI tests                | Fixed seeds in tests                       |
 | God class doing chemistry + sim + persist | Separate services + use case orchestration |

@@ -114,12 +114,18 @@ export class MatchSimulationEngine {
     });
 
     const eventCount = rng.int(this.config.targetEventCountMin, this.config.targetEventCountMax);
-    const minutes = rng.shuffle(
-      Array.from({ length: 88 }, (_, index) => index + 2),
-    ).slice(0, eventCount);
+    const minutes = rng
+      .shuffle(Array.from({ length: 88 }, (_, index) => index + 2))
+      .slice(0, eventCount);
 
     for (const minute of minutes.sort((left, right) => left - right)) {
-      const attackingSide = this.pickAttackingSide(homeStrength, awayStrength, homeMomentum, awayMomentum, rng);
+      const attackingSide = this.pickAttackingSide(
+        homeStrength,
+        awayStrength,
+        homeMomentum,
+        awayMomentum,
+        rng,
+      );
       const attackingTeam = attackingSide === 'HOME' ? input.home : input.away;
       const defendingTeam = attackingSide === 'HOME' ? input.away : input.home;
 
@@ -300,7 +306,12 @@ export class MatchSimulationEngine {
         playerName: shooter.displayName,
         secondaryPlayerName: null,
         cardId: shooter.cardId,
-        commentary: this.shotCommentary(shooter.displayName, attackingTeam.displayName, shotType, rng),
+        commentary: this.shotCommentary(
+          shooter.displayName,
+          attackingTeam.displayName,
+          shotType,
+          rng,
+        ),
         xgValue: xg,
         isGoal: false,
       });
@@ -382,14 +393,22 @@ export class MatchSimulationEngine {
     return 'LONG_SHOT';
   }
 
-  private xgForShot(shotType: keyof typeof XG_BY_ATTACK, shooterOverall: number, defendingPower: number): number {
+  private xgForShot(
+    shotType: keyof typeof XG_BY_ATTACK,
+    shooterOverall: number,
+    defendingPower: number,
+  ): number {
     const base = XG_BY_ATTACK[shotType] ?? 0.1;
     const qualityFactor = 0.85 + (shooterOverall - 70) / 100;
     const defenseFactor = 1.05 - defendingPower / 200;
     return round2(Math.max(0.01, Math.min(0.95, base * qualityFactor * defenseFactor)));
   }
 
-  private pickShooter(team: MatchTeamSnapshot, shotType: keyof typeof XG_BY_ATTACK, rng: SeededRng): MatchPlayerSnapshot {
+  private pickShooter(
+    team: MatchTeamSnapshot,
+    shotType: keyof typeof XG_BY_ATTACK,
+    rng: SeededRng,
+  ): MatchPlayerSnapshot {
     const attackers = team.players.filter((player) =>
       ['ST', 'CF', 'LW', 'RW', 'CAM', 'LAM', 'RAM'].includes(player.positionCode),
     );
@@ -543,10 +562,7 @@ export class MatchSimulationEngine {
   ): string {
     const label = this.labelPlayer(shooter, teamName);
     const lines: Record<string, string[]> = {
-      LONG_SHOT: [
-        `${label} uzaktan şut çekti!`,
-        `${label} ceza sahası dışından kaleyi yokladı.`,
-      ],
+      LONG_SHOT: [`${label} uzaktan şut çekti!`, `${label} ceza sahası dışından kaleyi yokladı.`],
       BOX_SHOT: [
         `${label} ceza sahası içinden vurdu!`,
         `${label} döndü ve şutunu çekti — savunma araya girdi!`,
@@ -563,10 +579,7 @@ export class MatchSimulationEngine {
         `${label} serbest vuruşu üstten auta gönderdi.`,
         `${label} frikikte kaleyi zorladı.`,
       ],
-      PENALTY: [
-        `${label} kaleciyi okudu ama top dışarı gitti.`,
-        `${label} penaltıda yere vurdu.`,
-      ],
+      PENALTY: [`${label} kaleciyi okudu ama top dışarı gitti.`, `${label} penaltıda yere vurdu.`],
       CORNER_HEADER: [`${label} kornerden kafayla dokundu.`],
     };
     return rng.pick(lines[shotType] ?? [`${label} şut denedi.`]);
@@ -581,9 +594,7 @@ export class MatchSimulationEngine {
   ): string {
     const label = this.labelPlayer(scorer, teamName);
     const assistText =
-      assisterName === null
-        ? ''
-        : ` Asist: ${this.labelPlayer(assisterName, teamName)}.`;
+      assisterName === null ? '' : ` Asist: ${this.labelPlayer(assisterName, teamName)}.`;
 
     if (shotType === 'PENALTY') {
       return `GOL! ${label} penaltıyı gole çevirdi!${assistText}`;
@@ -597,7 +608,10 @@ export class MatchSimulationEngine {
     return rng.pick(lines);
   }
 
-  private emptyStats(): Omit<MatchStatisticsSnapshot, 'homePossession' | 'awayPossession' | 'playerRatings'> {
+  private emptyStats(): Omit<
+    MatchStatisticsSnapshot,
+    'homePossession' | 'awayPossession' | 'playerRatings'
+  > {
     return {
       homeShots: 0,
       awayShots: 0,
@@ -621,10 +635,8 @@ export class MatchSimulationEngine {
     awayStrength: number,
     stats: Omit<MatchStatisticsSnapshot, 'homePossession' | 'awayPossession' | 'playerRatings'>,
   ): { home: number; away: number } {
-    const attackWeight =
-      stats.homeDangerousAttacks + stats.homeShots * 2 + homeStrength * 0.4;
-    const awayWeight =
-      stats.awayDangerousAttacks + stats.awayShots * 2 + awayStrength * 0.4;
+    const attackWeight = stats.homeDangerousAttacks + stats.homeShots * 2 + homeStrength * 0.4;
+    const awayWeight = stats.awayDangerousAttacks + stats.awayShots * 2 + awayStrength * 0.4;
     const total = attackWeight + awayWeight;
     const home = Math.round((attackWeight / total) * 100);
     return { home, away: 100 - home };

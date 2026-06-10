@@ -14,9 +14,10 @@ import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { PrismaClient } from '@prisma/client';
 
-import { SeedAppModule } from './seed-app.module';
 import { ImportAllTargetCompetitionsUseCase } from '../modules/data-providers/application/use-cases/import-all-target-competitions.use-case';
 import { ImportCountriesUseCase } from '../modules/data-providers/application/use-cases/import-countries.use-case';
+
+import { SeedAppModule } from './seed-app.module';
 
 const PROVIDER = 'TRANSFERMARKT';
 const logger = new Logger('SeedFootballData');

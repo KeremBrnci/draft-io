@@ -20,7 +20,9 @@ export default function PlayPage(): React.ReactElement {
 
       <main className="play-main">
         <div className="play-game-hero">
-          <div className="play-game-hero__icon" aria-hidden>⚽</div>
+          <div className="play-game-hero__icon" aria-hidden>
+            ⚽
+          </div>
           <h1 className="play-title play-title--game">Oyna</h1>
           <p className="play-subtitle">
             Takımını kur, draft yap, mini ligde maçlarını izle. Arkadaşlarınla aynı lobide buluş!
@@ -29,7 +31,9 @@ export default function PlayPage(): React.ReactElement {
 
         <div className="play-actions">
           <Link href="/play/create" className="play-card-link">
-            <span className="play-card-link__icon" aria-hidden>🏟️</span>
+            <span className="play-card-link__icon" aria-hidden>
+              🏟️
+            </span>
             <div>
               <h2>Oda Oluştur</h2>
               <p>Odaya isim ver, kodunu arkadaşlarınla paylaş ve sahaya çıkmayı bekle.</p>
@@ -37,7 +41,9 @@ export default function PlayPage(): React.ReactElement {
           </Link>
 
           <Link href="/play/join" className="play-card-link">
-            <span className="play-card-link__icon" aria-hidden>🎮</span>
+            <span className="play-card-link__icon" aria-hidden>
+              🎮
+            </span>
             <div>
               <h2>Odaya Katıl</h2>
               <p>6 haneli oda kodunu gir ve draft lobisine dal.</p>

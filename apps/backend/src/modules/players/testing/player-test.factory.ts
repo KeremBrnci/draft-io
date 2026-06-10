@@ -28,8 +28,8 @@ export function buildTestPlayer(overrides: Partial<CreatePlayerProps> = {}): Pla
     teamId: null,
     leagueId: null,
     positions:
-      overrides.positions
-      ?? PlayerPositions.withPrimary(
+      overrides.positions ??
+      PlayerPositions.withPrimary(
         playerId,
         () => PlayerPositionId.generate(uuidv4()),
         Position.create('CM'),

@@ -12,18 +12,18 @@ This is **not** a FIFA-style attribute system. There are no pace, shooting, pass
 
 ## Player Card Values Used in Gameplay
 
-| Field | Role |
-|-------|------|
-| `primaryPosition` | Draft eligibility, formation slots |
-| `secondaryPositions` | Flexibility (future) |
-| `overall` | Core strength for draft, team building, simulation |
-| `overallSource` | Provenance of overall value |
+| Field                | Role                                               |
+| -------------------- | -------------------------------------------------- |
+| `primaryPosition`    | Draft eligibility, formation slots                 |
+| `secondaryPositions` | Flexibility (future)                               |
+| `overall`            | Core strength for draft, team building, simulation |
+| `overallSource`      | Provenance of overall value                        |
 
 ## Overall Source
 
-| Source | Meaning |
-|--------|---------|
-| `CALCULATED` | Produced by `overall-engine` (game-owned) |
+| Source            | Meaning                                                 |
+| ----------------- | ------------------------------------------------------- |
+| `CALCULATED`      | Produced by `overall-engine` (game-owned)               |
 | `MANUAL_OVERRIDE` | Admin-set; blocks automatic recalculation until cleared |
 
 ### Admin override design (domain)
@@ -34,10 +34,10 @@ This is **not** a FIFA-style attribute system. There are no pace, shooting, pass
 
 ## External Data
 
-| Provider field | Usage |
-|----------------|-------|
-| `apiOverallHint` on `ExternalPlayerRecord` | Optional input to overall engine — **never** copied to `player.overall` on import |
-| Import placeholder | Until engine ships, imports use neutral placeholder overall (50) with `CALCULATED` source |
+| Provider field                             | Usage                                                                                     |
+| ------------------------------------------ | ----------------------------------------------------------------------------------------- |
+| `apiOverallHint` on `ExternalPlayerRecord` | Optional input to overall engine — **never** copied to `player.overall` on import         |
+| Import placeholder                         | Until engine ships, imports use neutral placeholder overall (50) with `CALCULATED` source |
 
 ## Current State
 
@@ -52,15 +52,15 @@ This is **not** a FIFA-style attribute system. There are no pace, shooting, pass
 
 ## Risks
 
-| Risk | Mitigation |
-|------|------------|
-| Accidental use of API overall | Import mapper + policy tests; code review checklist |
+| Risk                             | Mitigation                                          |
+| -------------------------------- | --------------------------------------------------- |
+| Accidental use of API overall    | Import mapper + policy tests; code review checklist |
 | Stale overall after data refresh | Future recalculation pipeline with override respect |
 
 ## Alternatives Considered
 
-| Alternative | Why rejected |
-|-------------|--------------|
-| Store FIFA sub-stats | Out of scope; increases complexity without gameplay benefit |
-| Trust SportDB overall directly | Violates game ownership of balance |
-| Single overall with no source tracking | Cannot support admin override or audit |
+| Alternative                            | Why rejected                                                |
+| -------------------------------------- | ----------------------------------------------------------- |
+| Store FIFA sub-stats                   | Out of scope; increases complexity without gameplay benefit |
+| Trust SportDB overall directly         | Violates game ownership of balance                          |
+| Single overall with no source tracking | Cannot support admin override or audit                      |

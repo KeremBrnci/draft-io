@@ -47,7 +47,10 @@ export default function CoachSelectionPage(): React.ReactElement {
         router.replace(`/play/room/${code}/league`);
       }
     } catch (loadError) {
-      if (loadError instanceof ApiClientError && (loadError.statusCode === 410 || loadError.statusCode === 404)) {
+      if (
+        loadError instanceof ApiClientError &&
+        (loadError.statusCode === 410 || loadError.statusCode === 404)
+      ) {
         clearLobbySession(code);
         setError('Oda bulunamadı veya süresi doldu.');
         return;
@@ -130,7 +133,9 @@ export default function CoachSelectionPage(): React.ReactElement {
 
       <main className="play-main play-main--draft">
         {error !== null ? (
-          <p className="play-error" role="alert">{error}</p>
+          <p className="play-error" role="alert">
+            {error}
+          </p>
         ) : state === null ? (
           <div className="play-arena play-arena--loading">
             <div className="play-loader" />
@@ -148,7 +153,8 @@ export default function CoachSelectionPage(): React.ReactElement {
             </div>
 
             <p className="play-subtitle">
-              Kadron hazır. Teknik direktörünü seç; kimyayı artırır. Herkes seçince lig otomatik başlar.
+              Kadron hazır. Teknik direktörünü seç; kimyayı artırır. Herkes seçince lig otomatik
+              başlar.
             </p>
 
             {waitingForOthers ? (
@@ -156,7 +162,9 @@ export default function CoachSelectionPage(): React.ReactElement {
             ) : null}
 
             {actionError !== null ? (
-              <p className="play-error" role="alert">{actionError}</p>
+              <p className="play-error" role="alert">
+                {actionError}
+              </p>
             ) : null}
 
             <div className="coach-selection-grid">

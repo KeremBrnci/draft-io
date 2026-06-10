@@ -6,15 +6,14 @@ export interface ScrapedPlayerPositions {
 export function parseTransfermarktPlayerProfilePositions(
   html: string,
 ): ScrapedPlayerPositions | null {
-  const mainMatch = html.match(
-    /Main position:<\/dt>\s*<dd class="detail-position__position">\s*([^<]+?)\s*<\/dd>/,
-  );
+  const mainMatch =
+    /Main position:<\/dt>\s*<dd class="detail-position__position">\s*([^<]+?)\s*<\/dd>/.exec(html);
 
-  if (mainMatch === null || mainMatch[1] === undefined) {
+  if (mainMatch?.[1] === undefined) {
     return null;
   }
 
-  const otherSection = html.match(/Other position:<\/dt>([\s\S]*?)<\/dl>/);
+  const otherSection = /Other position:<\/dt>([\s\S]*?)<\/dl>/.exec(html);
   const secondaryPositions: string[] = [];
 
   const otherSectionHtml = otherSection?.[1];

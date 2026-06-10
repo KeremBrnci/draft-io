@@ -69,7 +69,14 @@ export default function AdminDashboardPage(): React.ReactElement {
           <h2 className="admin-section-title" style={{ marginBottom: 0 }}>
             Veritabanı metrikleri
           </h2>
-          <button type="button" className="admin-btn admin-btn--sm" disabled={loading} onClick={() => { void load(); }}>
+          <button
+            type="button"
+            className="admin-btn admin-btn--sm"
+            disabled={loading}
+            onClick={() => {
+              void load();
+            }}
+          >
             Yenile
           </button>
         </div>

@@ -11,9 +11,9 @@ Define the canonical set of football positions used across players, formations, 
 
 ## Public API
 
-| Method | Endpoint | Use Case |
-|--------|----------|----------|
-| GET | `/api/v1/positions` | `ListPositionsUseCase` |
+| Method | Endpoint            | Use Case               |
+| ------ | ------------------- | ---------------------- |
+| GET    | `/api/v1/positions` | `ListPositionsUseCase` |
 
 ## Dependencies
 

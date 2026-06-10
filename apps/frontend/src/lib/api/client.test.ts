@@ -18,8 +18,8 @@ describe('apiGet', () => {
       }),
     );
 
-    const result = await apiGet('/players/1');
-    expect(result).toEqual(mockData);
+    const result = await apiGet<{ id: string; displayName: string }>('/players/1');
+    expect(result).toEqual(mockData.data);
   });
 
   it('throws ApiClientError on failure', async () => {

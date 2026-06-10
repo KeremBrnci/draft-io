@@ -5,7 +5,8 @@ import './home.css';
 const FEATURES = [
   {
     title: 'Oyuncu Tarayıcı',
-    description: 'Piyasa değeri, kulüp ve mevki verileriyle içe aktarılan oyuncuları arayın ve filtreleyin.',
+    description:
+      'Piyasa değeri, kulüp ve mevki verileriyle içe aktarılan oyuncuları arayın ve filtreleyin.',
     href: '/admin/players',
   },
   {
@@ -46,7 +47,12 @@ export default function HomePage(): React.ReactElement {
 
       <section className="home-features">
         {FEATURES.map((feature) => (
-          <Link key={feature.href} href={feature.href} className="home-feature" style={{ textDecoration: 'none' }}>
+          <Link
+            key={feature.href}
+            href={feature.href}
+            className="home-feature"
+            style={{ textDecoration: 'none' }}
+          >
             <h3>{feature.title}</h3>
             <p>{feature.description}</p>
           </Link>

@@ -133,9 +133,7 @@ const NATIONALITY_TM_COUNTRY_ID: Readonly<Record<string, string>> = {
 };
 
 function normalizeNationalityKey(value: string): string {
-  const withoutDiacritics = value
-    .normalize('NFKD')
-    .replace(/[\u0300-\u036f]/g, '');
+  const withoutDiacritics = value.normalize('NFKD').replace(/[\u0300-\u036f]/g, '');
 
   return withoutDiacritics
     .trim()
@@ -152,7 +150,9 @@ function resolveNationalityKey(value: string): string {
   return NATIONALITY_KEY_ALIASES[normalized] ?? normalized;
 }
 
-export function resolveTransfermarktCountryId(nationality: string | null | undefined): string | null {
+export function resolveTransfermarktCountryId(
+  nationality: string | null | undefined,
+): string | null {
   if (nationality === null || nationality === undefined || nationality.trim().length === 0) {
     return null;
   }
@@ -190,17 +190,23 @@ export function normalizeTransfermarktPortraitUrl(
     ? imageUrl.trim()
     : `https://${imageUrl.trim()}`;
 
-  const match = trimmed.match(TM_PORTRAIT_PATH_PATTERN);
+  const match = TM_PORTRAIT_PATH_PATTERN.exec(trimmed);
   if (match === null) {
     return trimmed;
   }
 
   const [, externalId, version, extension] = match;
+  if (externalId === undefined || version === undefined || extension === undefined) {
+    return trimmed;
+  }
+
   return buildTransfermarktPlayerPortraitUrl(externalId, version, extension as 'jpg' | 'png');
 }
 
 /** Extracts player portrait URLs keyed by Transfermarkt player id from squad HTML. */
-export function extractTransfermarktPortraitUrlsFromHtml(html: string): ReadonlyMap<string, string> {
+export function extractTransfermarktPortraitUrlsFromHtml(
+  html: string,
+): ReadonlyMap<string, string> {
   const portraits = new Map<string, string>();
   const pattern =
     /(?:data-src|src)="https?:\/\/img\.a\.transfermarkt\.technology\/portrait\/(?:big|medium|small|header)\/(\d+)-(\d+)\.(jpg|png)\?lm=1"/gi;
@@ -213,7 +219,11 @@ export function extractTransfermarktPortraitUrlsFromHtml(html: string): Readonly
       continue;
     }
 
-    const headerUrl = buildTransfermarktPlayerPortraitUrl(externalId, version, extension as 'jpg' | 'png');
+    const headerUrl = buildTransfermarktPlayerPortraitUrl(
+      externalId,
+      version,
+      extension as 'jpg' | 'png',
+    );
 
     if (headerUrl !== null) {
       portraits.set(externalId, headerUrl);
@@ -223,7 +233,9 @@ export function extractTransfermarktPortraitUrlsFromHtml(html: string): Readonly
   return portraits;
 }
 
-export function buildTransfermarktTeamLogoUrl(externalId: string | null | undefined): string | null {
+export function buildTransfermarktTeamLogoUrl(
+  externalId: string | null | undefined,
+): string | null {
   if (externalId === null || externalId === undefined || externalId.trim().length === 0) {
     return null;
   }
@@ -231,7 +243,9 @@ export function buildTransfermarktTeamLogoUrl(externalId: string | null | undefi
   return `${TM_CDN}//images/wappen/verysmall/${externalId.trim()}.png`;
 }
 
-export function buildTransfermarktLeagueLogoUrl(externalId: string | null | undefined): string | null {
+export function buildTransfermarktLeagueLogoUrl(
+  externalId: string | null | undefined,
+): string | null {
   if (externalId === null || externalId === undefined || externalId.trim().length === 0) {
     return null;
   }
@@ -239,7 +253,9 @@ export function buildTransfermarktLeagueLogoUrl(externalId: string | null | unde
   return `${TM_CDN}//images/logo/normal/${externalId.trim().toLowerCase()}.png`;
 }
 
-export function buildTransfermarktNationalityFlagUrl(nationality: string | null | undefined): string | null {
+export function buildTransfermarktNationalityFlagUrl(
+  nationality: string | null | undefined,
+): string | null {
   const countryId = resolveTransfermarktCountryId(nationality);
 
   if (countryId === null) {
@@ -251,8 +267,9 @@ export function buildTransfermarktNationalityFlagUrl(nationality: string | null 
 
 export function resolveTransfermarktPlayerImageUrl(
   storedImageUrl: string | null | undefined,
-  _externalId: string | null | undefined,
+  externalId: string | null | undefined,
 ): string | null {
+  void externalId;
   return normalizeTransfermarktPortraitUrl(storedImageUrl);
 }
 

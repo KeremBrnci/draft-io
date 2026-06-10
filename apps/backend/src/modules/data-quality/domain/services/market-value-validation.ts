@@ -21,7 +21,10 @@ export function parseProviderMarketValue(raw: unknown): number | null {
   }
 
   if (typeof raw === 'string') {
-    const normalized = raw.trim().toLowerCase().replace(/[€$,\s]/g, '');
+    const normalized = raw
+      .trim()
+      .toLowerCase()
+      .replace(/[€$,\s]/g, '');
     const match = /^([\d.]+)([mk])?$/.exec(normalized);
 
     if (match === null) {

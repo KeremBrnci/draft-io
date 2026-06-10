@@ -1,8 +1,7 @@
 import { Injectable } from '@nestjs/common';
 
-import type { RoomEventName, RoomEventPayload } from '../../domain/events/room.events';
-
 import type { RoomEventsPublisher } from '../../application/services/room-events.publisher';
+import type { RoomEventName, RoomEventPayload } from '../../domain/events/room.events';
 import { RoomGateway } from '../../presentation/gateways/room.gateway';
 
 @Injectable()

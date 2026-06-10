@@ -7,6 +7,7 @@ import {
   ProviderTransportError,
 } from '../../../domain/errors/data-provider.errors';
 import { SportDbConfigService } from '../config/sportdb.config';
+
 import { TokenBucketRateLimiter } from './token-bucket-rate-limiter';
 
 export type FetchFn = typeof fetch;
@@ -54,7 +55,11 @@ export class SportDbHttpClient {
 
     for (let attempt = 0; attempt <= config.retryAttempts; attempt += 1) {
       try {
-        const response = await this.fetchWithTimeout(url.toString(), config.timeoutMs, config.apiKey);
+        const response = await this.fetchWithTimeout(
+          url.toString(),
+          config.timeoutMs,
+          config.apiKey,
+        );
 
         if (response.ok) {
           return (await response.json()) as T;

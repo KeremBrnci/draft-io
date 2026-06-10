@@ -26,9 +26,15 @@ export function setParticipantReady(
   code: string,
   body: SetParticipantReadyCommandDto,
 ): Promise<LobbySummaryDto> {
-  return apiPost<LobbySummaryDto>(`/lobbies/code/${encodeURIComponent(code.toUpperCase())}/ready`, body);
+  return apiPost<LobbySummaryDto>(
+    `/lobbies/code/${encodeURIComponent(code.toUpperCase())}/ready`,
+    body,
+  );
 }
 
 export function startLobby(code: string, body: StartLobbyCommandDto): Promise<StartLobbyResultDto> {
-  return apiPost<StartLobbyResultDto>(`/lobbies/code/${encodeURIComponent(code.toUpperCase())}/start`, body);
+  return apiPost<StartLobbyResultDto>(
+    `/lobbies/code/${encodeURIComponent(code.toUpperCase())}/start`,
+    body,
+  );
 }

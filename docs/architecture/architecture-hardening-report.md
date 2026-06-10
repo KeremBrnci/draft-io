@@ -86,26 +86,26 @@
 
 ## Issues Intentionally Deferred
 
-| Issue | Reason |
-|-------|--------|
+| Issue                                                 | Reason                                                     |
+| ----------------------------------------------------- | ---------------------------------------------------------- |
 | Cross-module domain imports (`players` → `positions`) | Shared vocabulary; extract to kernel in Phase 1 completion |
-| Adopting `Result<T,E>` in use cases | Throw-based pattern works; migrate incrementally |
-| `shared-utils` runtime usage | Package ready; utilities imported when needed |
-| OpenAPI generation | Separate task |
-| Nations/leagues domain unit tests | Skeleton modules; tests added when rules finalize |
-| Presentation → domain in mappers | Accepted: mappers are the translation boundary |
+| Adopting `Result<T,E>` in use cases                   | Throw-based pattern works; migrate incrementally           |
+| `shared-utils` runtime usage                          | Package ready; utilities imported when needed              |
+| OpenAPI generation                                    | Separate task                                              |
+| Nations/leagues domain unit tests                     | Skeleton modules; tests added when rules finalize          |
+| Presentation → domain in mappers                      | Accepted: mappers are the translation boundary             |
 
 ---
 
 ## Remaining Risks
 
-| Risk | Severity | Mitigation |
-|------|----------|------------|
-| Cross-module domain imports not caught by depcruise | Medium | Documented exception; future shared kernel |
-| Coverage scope excludes skeleton modules (nations, leagues) | Low | Expand include list when modules mature |
-| dependency-cruiser requires root tsconfig.depcruise.json | Low | Documented; verified in CI |
-| E2E tests mock use cases (not full stack) | Low | Add integration tests for critical paths |
-| No EventBus implementation yet | Low | Phase 3 prerequisite |
+| Risk                                                        | Severity | Mitigation                                 |
+| ----------------------------------------------------------- | -------- | ------------------------------------------ |
+| Cross-module domain imports not caught by depcruise         | Medium   | Documented exception; future shared kernel |
+| Coverage scope excludes skeleton modules (nations, leagues) | Low      | Expand include list when modules mature    |
+| dependency-cruiser requires root tsconfig.depcruise.json    | Low      | Documented; verified in CI                 |
+| E2E tests mock use cases (not full stack)                   | Low      | Add integration tests for critical paths   |
+| No EventBus implementation yet                              | Low      | Phase 3 prerequisite                       |
 
 ---
 

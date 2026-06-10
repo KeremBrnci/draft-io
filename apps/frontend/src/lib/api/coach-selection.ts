@@ -2,7 +2,10 @@ import type { CoachSelectionStateDto } from '@draft-io/shared-types';
 
 import { apiGet, apiPost } from './client';
 
-export function getCoachSelection(code: string, sessionToken: string): Promise<CoachSelectionStateDto> {
+export function getCoachSelection(
+  code: string,
+  sessionToken: string,
+): Promise<CoachSelectionStateDto> {
   const params = new URLSearchParams({ sessionToken });
   return apiGet<CoachSelectionStateDto>(
     `/lobbies/code/${encodeURIComponent(code.toUpperCase())}/coach-selection?${params.toString()}`,

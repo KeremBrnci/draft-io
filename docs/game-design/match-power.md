@@ -22,13 +22,13 @@ Related:
 
 ## Design principles
 
-| Principle | Detail |
-|-----------|--------|
-| Overall first | Overall remains the primary strength signal |
-| Chemistry spice | ~5–10% effective swing at team level |
-| Transparent | Show match power in UI alongside overall |
+| Principle            | Detail                                                 |
+| -------------------- | ------------------------------------------------------ |
+| Overall first        | Overall remains the primary strength signal            |
+| Chemistry spice      | ~5–10% effective swing at team level                   |
+| Transparent          | Show match power in UI alongside overall               |
 | Deterministic inputs | Same squad → same match power (RNG only in simulation) |
-| Card-based | Use `Card.overall`, not player identity overall |
+| Card-based           | Use `Card.overall`, not player identity overall        |
 
 ---
 
@@ -61,10 +61,10 @@ ChemistryMultiplier = 1 + f(c)
 ```
 
 | Team chemistry | Multiplier | Effective boost |
-|----------------|------------|-----------------|
-| 0 | 1.00 | 0% |
-| 16 (mid) | 1.04 | ~4% |
-| 33 (max) | 1.08 | ~8% |
+| -------------- | ---------- | --------------- |
+| 0              | 1.00       | 0%              |
+| 16 (mid)       | 1.04       | ~4%             |
+| 33 (max)       | 1.08       | ~8%             |
 
 Tuning bound: keep multiplier between **1.00 and 1.10** at launch unless playtests say otherwise.
 
@@ -130,10 +130,10 @@ Simulation engine uses match power as **base strength**; event RNG creates score
 
 ```typescript
 interface MatchPowerConfig {
-  readonly chemistryMaxBoostPercent: number;  // default 8 (= 0.08)
-  readonly chemistryScaleMax: number;         // default 33
-  readonly minMultiplier: number;             // default 1.0
-  readonly maxMultiplier: number;             // default 1.10
+  readonly chemistryMaxBoostPercent: number; // default 8 (= 0.08)
+  readonly chemistryScaleMax: number; // default 33
+  readonly minMultiplier: number; // default 1.0
+  readonly maxMultiplier: number; // default 1.10
 }
 ```
 
@@ -141,12 +141,12 @@ interface MatchPowerConfig {
 
 ## Metrics
 
-| Metric | Purpose |
-|--------|---------|
-| Average match power at draft end | End-to-end balance |
-| Match power vs win rate | Chemistry impact audit |
-| Upset rate (lower overall wins) | Excitement vs fairness |
-| Correlation overall → wins | Ensure overall still dominates |
+| Metric                           | Purpose                        |
+| -------------------------------- | ------------------------------ |
+| Average match power at draft end | End-to-end balance             |
+| Match power vs win rate          | Chemistry impact audit         |
+| Upset rate (lower overall wins)  | Excitement vs fairness         |
+| Correlation overall → wins       | Ensure overall still dominates |
 
 ---
 

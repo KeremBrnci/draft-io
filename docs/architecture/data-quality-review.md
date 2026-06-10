@@ -12,15 +12,15 @@ We review data quality **before** designing the overall algorithm or generating 
 
 ## Issue Codes (flag only — never delete)
 
-| Code | Condition |
-|------|-----------|
-| `MISSING_MARKET_VALUE` | `marketValue` is null |
-| `INVALID_MARKET_VALUE` | Negative or non-finite value |
-| `MISSING_POSITION` | Empty, `UNK`, or `UNKNOWN` |
-| `MISSING_AGE` | `birthDate` is null |
-| `MISSING_IMAGE` | `imageUrl` is null |
-| `MISSING_CLUB` | `teamId` is null |
-| `MISSING_COMPETITION` | `leagueId` is null |
+| Code                             | Condition                                      |
+| -------------------------------- | ---------------------------------------------- |
+| `MISSING_MARKET_VALUE`           | `marketValue` is null                          |
+| `INVALID_MARKET_VALUE`           | Negative or non-finite value                   |
+| `MISSING_POSITION`               | Empty, `UNK`, or `UNKNOWN`                     |
+| `MISSING_AGE`                    | `birthDate` is null                            |
+| `MISSING_IMAGE`                  | `imageUrl` is null                             |
+| `MISSING_CLUB`                   | `teamId` is null                               |
+| `MISSING_COMPETITION`            | `leagueId` is null                             |
 | `DUPLICATE_PROVIDER_EXTERNAL_ID` | More than one row per `(provider, externalId)` |
 
 ## API

@@ -9,7 +9,6 @@ import { ApiClientError } from '@/lib/api/client';
 import { createLobby } from '@/lib/api/lobbies';
 import { readSavedDisplayName, saveLobbySession } from '@/lib/lobby-session';
 
-
 import '../play.css';
 
 export default function CreateLobbyPage(): React.ReactElement {
@@ -66,10 +65,14 @@ export default function CreateLobbyPage(): React.ReactElement {
           ← Oyna
         </Link>
         <h1 className="play-title play-title--game">
-          <span className="play-title__icon" aria-hidden>🏟️</span>
+          <span className="play-title__icon" aria-hidden>
+            🏟️
+          </span>
           Oda Oluştur
         </h1>
-        <p className="play-subtitle">Kendi draft lobini aç — takım adını ve sahada görünecek ismini yaz.</p>
+        <p className="play-subtitle">
+          Kendi draft lobini aç — takım adını ve sahada görünecek ismini yaz.
+        </p>
 
         <form className="play-form" onSubmit={(event) => void handleSubmit(event)}>
           <div className="play-field">
@@ -77,7 +80,9 @@ export default function CreateLobbyPage(): React.ReactElement {
             <input
               id="lobby-name"
               value={name}
-              onChange={(event) => { setName(event.target.value); }}
+              onChange={(event) => {
+                setName(event.target.value);
+              }}
               placeholder="Cuma Draft"
               minLength={2}
               maxLength={80}
@@ -90,7 +95,9 @@ export default function CreateLobbyPage(): React.ReactElement {
             <input
               id="display-name"
               value={displayName}
-              onChange={(event) => { setDisplayName(event.target.value); }}
+              onChange={(event) => {
+                setDisplayName(event.target.value);
+              }}
               placeholder="Turhan"
               minLength={2}
               maxLength={40}
@@ -106,7 +113,9 @@ export default function CreateLobbyPage(): React.ReactElement {
               min={2}
               max={12}
               value={maxPlayers}
-              onChange={(event) => { setMaxPlayers(event.target.value); }}
+              onChange={(event) => {
+                setMaxPlayers(event.target.value);
+              }}
               required
             />
           </div>

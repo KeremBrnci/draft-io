@@ -10,7 +10,9 @@ import {
 
 describe('player-position-display', () => {
   it('exposes unique filter labels', () => {
-    const labels = PLAYER_POSITION_FILTER_OPTIONS.map((option) => formatPositionFilterOption(option));
+    const labels = PLAYER_POSITION_FILTER_OPTIONS.map((option) =>
+      formatPositionFilterOption(option),
+    );
     expect(new Set(labels).size).toBe(labels.length);
     expect(labels.filter((label) => label.startsWith('Sol Kanat ('))).toHaveLength(1);
     expect(labels.filter((label) => label.startsWith('Santrafor ('))).toHaveLength(1);

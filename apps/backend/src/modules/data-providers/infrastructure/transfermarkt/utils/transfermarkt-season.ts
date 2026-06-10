@@ -15,7 +15,7 @@ export function buildTransfermarktSeasonQuery(seasonId: string): string {
 
 /** Candidate season ids for competition/club-list endpoints (newest first). */
 export function resolveTransfermarktCompetitionSeasonCandidates(
-  configuredSeasonId: string | undefined = undefined,
+  configuredSeasonId?: string,
   referenceDate: Date = new Date(),
 ): readonly string[] {
   const primary = configuredSeasonId ?? resolveTransfermarktSeasonId(referenceDate);

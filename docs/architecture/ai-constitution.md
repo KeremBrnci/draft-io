@@ -20,26 +20,26 @@ The project will be maintained for multiple years by multiple agents. Without a 
 
 When instructions conflict, **higher priority wins**.
 
-| Priority | Document | Role |
-|----------|----------|------|
-| 1 | `docs/architecture/ai-constitution.md` | Supreme authority — workflows, precedence, forbidden behaviors |
-| 2 | `.cursor/rules/architecture.mdc` | Clean Architecture, layer boundaries, modular monolith |
-| 3 | `.cursor/rules/game-domain.mdc` | Game rules ownership, domain integrity |
-| 4 | `.cursor/rules/workflow.mdc` | Mandatory planning and implementation process |
-| 5 | `.cursor/rules/backend.mdc` | NestJS, use cases, repositories, DTOs |
-| 6 | `.cursor/rules/frontend.mdc` | Next.js App Router, component boundaries |
-| 7 | `.cursor/rules/testing.mdc` | Coverage gates, test types, forbidden test patterns |
-| 8 | `.cursor/rules/naming.mdc` | English-only naming conventions |
+| Priority | Document                               | Role                                                           |
+| -------- | -------------------------------------- | -------------------------------------------------------------- |
+| 1        | `docs/architecture/ai-constitution.md` | Supreme authority — workflows, precedence, forbidden behaviors |
+| 2        | `.cursor/rules/architecture.mdc`       | Clean Architecture, layer boundaries, modular monolith         |
+| 3        | `.cursor/rules/game-domain.mdc`        | Game rules ownership, domain integrity                         |
+| 4        | `.cursor/rules/workflow.mdc`           | Mandatory planning and implementation process                  |
+| 5        | `.cursor/rules/backend.mdc`            | NestJS, use cases, repositories, DTOs                          |
+| 6        | `.cursor/rules/frontend.mdc`           | Next.js App Router, component boundaries                       |
+| 7        | `.cursor/rules/testing.mdc`            | Coverage gates, test types, forbidden test patterns            |
+| 8        | `.cursor/rules/naming.mdc`             | English-only naming conventions                                |
 
 ### Secondary rules (apply when relevant, never override above)
 
-| Document | When |
-|----------|------|
-| `prisma.mdc` | Database, repositories, mappers |
-| `documentation.mdc` | READMEs, ADRs, game-design docs |
+| Document                | When                                    |
+| ----------------------- | --------------------------------------- |
+| `prisma.mdc`            | Database, repositories, mappers         |
+| `documentation.mdc`     | READMEs, ADRs, game-design docs         |
 | `simulation-engine.mdc` | Match, chemistry, rating, draft engines |
-| `feature-planning.mdc` | New features and major changes |
-| `code-review.mdc` | Pre-merge review |
+| `feature-planning.mdc`  | New features and major changes          |
+| `code-review.mdc`       | Pre-merge review                        |
 
 ### Skill precedence
 
@@ -85,17 +85,17 @@ Every feature — small, medium, or large — follows this lifecycle. **Steps ma
 
 ### Step details
 
-| Step | Skill / Doc | Gate |
-|------|-------------|------|
-| 1. Feature Planning | `feature-planning` skill, `workflow.mdc` | Written plan for medium/large features |
-| 2. Domain Impact Analysis | `domain-modeling`, `game-design` | Affected aggregates and invariants identified |
-| 3. Architecture Review | `architecture` skill, `pnpm architecture:check` | No forbidden dependencies proposed |
-| 4. Approval | Human or explicit user confirmation | Major features require approval before code |
-| 5. Implementation | `backend` / `frontend`, `nest-module` | Layer rules followed |
-| 6. Testing | `testing` skill | Domain rules tested; coverage gates pass |
-| 7. Code Review | `code-review` skill, `ai-review-checklist.md` | Findings addressed |
-| 8. Documentation Update | `documentation.mdc` | README, game-design, ADR updated |
-| 9. Release | CI green | All checks pass |
+| Step                      | Skill / Doc                                     | Gate                                          |
+| ------------------------- | ----------------------------------------------- | --------------------------------------------- |
+| 1. Feature Planning       | `feature-planning` skill, `workflow.mdc`        | Written plan for medium/large features        |
+| 2. Domain Impact Analysis | `domain-modeling`, `game-design`                | Affected aggregates and invariants identified |
+| 3. Architecture Review    | `architecture` skill, `pnpm architecture:check` | No forbidden dependencies proposed            |
+| 4. Approval               | Human or explicit user confirmation             | Major features require approval before code   |
+| 5. Implementation         | `backend` / `frontend`, `nest-module`           | Layer rules followed                          |
+| 6. Testing                | `testing` skill                                 | Domain rules tested; coverage gates pass      |
+| 7. Code Review            | `code-review` skill, `ai-review-checklist.md`   | Findings addressed                            |
+| 8. Documentation Update   | `documentation.mdc`                             | README, game-design, ADR updated              |
+| 9. Release                | CI green                                        | All checks pass                               |
 
 **Never skip planning.**  
 **Never jump directly into implementation for major features.**
@@ -106,28 +106,28 @@ Every feature — small, medium, or large — follows this lifecycle. **Steps ma
 
 ### Before implementation
 
-| Skill | Purpose |
-|-------|---------|
-| `project-context` | Load vision, phase, and what is/isn't implemented |
-| `feature-planning` | Produce impact analysis and implementation plan |
-| `architecture` | Validate layer placement and module boundaries |
-| `domain-modeling` | Design entities, VOs, aggregates, repository ports |
+| Skill              | Purpose                                            |
+| ------------------ | -------------------------------------------------- |
+| `project-context`  | Load vision, phase, and what is/isn't implemented  |
+| `feature-planning` | Produce impact analysis and implementation plan    |
+| `architecture`     | Validate layer placement and module boundaries     |
+| `domain-modeling`  | Design entities, VOs, aggregates, repository ports |
 
 ### During implementation
 
-| Skill | Purpose |
-|-------|---------|
-| `backend` | NestJS modules, use cases, DTOs |
-| `frontend` | Next.js pages, components, feature services |
-| `nest-module` | Scaffold four-layer module structure |
-| `testing` | Unit, integration, E2E test plans and code |
-| `game-design` | When game rules change |
+| Skill               | Purpose                                         |
+| ------------------- | ----------------------------------------------- |
+| `backend`           | NestJS modules, use cases, DTOs                 |
+| `frontend`          | Next.js pages, components, feature services     |
+| `nest-module`       | Scaffold four-layer module structure            |
+| `testing`           | Unit, integration, E2E test plans and code      |
+| `game-design`       | When game rules change                          |
 | `simulation-engine` | When randomness or simulation logic is involved |
 
 ### Before merge
 
-| Skill | Purpose |
-|-------|---------|
+| Skill         | Purpose                                              |
+| ------------- | ---------------------------------------------------- |
 | `code-review` | Severity-grouped findings (Critical / Major / Minor) |
 
 ---
@@ -136,20 +136,20 @@ Every feature — small, medium, or large — follows this lifecycle. **Steps ma
 
 Agents **must not**:
 
-| Behavior | Why |
-|----------|-----|
-| Direct implementation without planning | Causes rework and architecture drift |
-| Architecture violations | Breaks long-term maintainability |
-| Business logic in controllers | Presentation layer is transport only |
-| Business logic in repositories | Infrastructure is persistence only |
-| Domain entity leakage to API | Controllers return DTOs only |
-| Untested business rules | Domain invariants must have unit tests |
-| Hidden simulation rules | Randomness must be abstracted and seedable |
-| Implementing unrequested gameplay | Scope creep (lobby, draft, simulation without request) |
-| Silently fixing unrelated audit findings | Changes scope without approval |
-| `any`, `@ts-ignore`, or disabling lint/architecture checks | Hides defects |
-| Turkish or mixed-language identifiers | Naming standard violation |
-| Flat NestJS modules without layers | Breaks modular monolith |
+| Behavior                                                   | Why                                                    |
+| ---------------------------------------------------------- | ------------------------------------------------------ |
+| Direct implementation without planning                     | Causes rework and architecture drift                   |
+| Architecture violations                                    | Breaks long-term maintainability                       |
+| Business logic in controllers                              | Presentation layer is transport only                   |
+| Business logic in repositories                             | Infrastructure is persistence only                     |
+| Domain entity leakage to API                               | Controllers return DTOs only                           |
+| Untested business rules                                    | Domain invariants must have unit tests                 |
+| Hidden simulation rules                                    | Randomness must be abstracted and seedable             |
+| Implementing unrequested gameplay                          | Scope creep (lobby, draft, simulation without request) |
+| Silently fixing unrelated audit findings                   | Changes scope without approval                         |
+| `any`, `@ts-ignore`, or disabling lint/architecture checks | Hides defects                                          |
+| Turkish or mixed-language identifiers                      | Naming standard violation                              |
+| Flat NestJS modules without layers                         | Breaks modular monolith                                |
 
 ---
 
@@ -168,15 +168,15 @@ Every new agent session working on draft.io:
 
 ## Related Documents
 
-| Document | Path |
-|----------|------|
-| Universal agent instructions | `AGENTS.md` |
-| Workflow rule | `.cursor/rules/workflow.mdc` |
-| Project vision | `docs/architecture/project-vision.md` |
-| AI review checklist | `docs/architecture/ai-review-checklist.md` |
-| Feature lifecycle | `docs/architecture/feature-lifecycle.md` |
-| AI development standards | `docs/architecture/ai-development-standards.md` |
-| Dependency rules | `docs/architecture/dependency-rules.md` |
+| Document                     | Path                                            |
+| ---------------------------- | ----------------------------------------------- |
+| Universal agent instructions | `AGENTS.md`                                     |
+| Workflow rule                | `.cursor/rules/workflow.mdc`                    |
+| Project vision               | `docs/architecture/project-vision.md`           |
+| AI review checklist          | `docs/architecture/ai-review-checklist.md`      |
+| Feature lifecycle            | `docs/architecture/feature-lifecycle.md`        |
+| AI development standards     | `docs/architecture/ai-development-standards.md` |
+| Dependency rules             | `docs/architecture/dependency-rules.md`         |
 
 ---
 

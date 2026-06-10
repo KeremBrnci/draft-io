@@ -2,9 +2,9 @@ import { Injectable } from '@nestjs/common';
 import type { Prisma } from '@prisma/client';
 
 import { PrismaService } from '../../../../infrastructure/database/prisma.service';
-import { expandDraftEligiblePositionCodes } from '../../domain/services/expand-draft-position-codes';
 import type { DraftPoolCard, DraftPoolQuery } from '../../domain/models/draft-pool-card';
 import type { DraftPoolRepository } from '../../domain/repositories/draft-pool.repository';
+import { expandDraftEligiblePositionCodes } from '../../domain/services/expand-draft-position-codes';
 import { resolvePlayerPresentation } from '../mappers/draft-card-face.mapper';
 
 type DraftPoolRecord = Prisma.CardGetPayload<{

@@ -9,5 +9,4 @@ export const DataQualityIssueCode = {
   INVALID_MARKET_VALUE: 'INVALID_MARKET_VALUE',
 } as const;
 
-export type DataQualityIssueCode =
-  (typeof DataQualityIssueCode)[keyof typeof DataQualityIssueCode];
+export type DataQualityIssueCode = (typeof DataQualityIssueCode)[keyof typeof DataQualityIssueCode];

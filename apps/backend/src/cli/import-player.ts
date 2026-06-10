@@ -13,6 +13,7 @@ import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 
 import { ImportPlayerUseCase } from '../modules/data-providers/application/use-cases/import-player.use-case';
+
 import { SeedAppModule } from './seed-app.module';
 
 const logger = new Logger('ImportPlayer');

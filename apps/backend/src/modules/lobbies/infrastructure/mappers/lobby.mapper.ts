@@ -5,8 +5,8 @@ import type {
   LobbyParticipantFormationOption as PrismaFormationOption,
 } from '@prisma/client';
 
-import { Lobby } from '../../domain/entities/lobby.entity';
 import { LobbyParticipant } from '../../domain/entities/lobby-participant.entity';
+import { Lobby } from '../../domain/entities/lobby.entity';
 import { LobbyStatus } from '../../domain/enums/lobby-status.enum';
 import { ParticipantPhaseStatus, RoomPhase } from '../../domain/enums/room-phase.enum';
 import { LobbyExpirationService } from '../../domain/services/lobby-expiration.service';

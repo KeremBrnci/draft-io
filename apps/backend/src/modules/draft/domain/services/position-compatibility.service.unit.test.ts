@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest';
 
 import { DEFAULT_DRAFT_BALANCE_CONFIG } from '../config/default-draft-balance.config';
+import type { DraftPoolCard } from '../models/draft-pool-card';
+
 import { expandDraftEligiblePositionCodes } from './expand-draft-position-codes';
 import { PositionCompatibilityService } from './position-compatibility.service';
-import type { DraftPoolCard } from '../models/draft-pool-card';
 
 function buildWidePlayer(positionCode: 'LW' | 'RW'): DraftPoolCard {
   return {

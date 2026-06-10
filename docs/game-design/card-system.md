@@ -2,15 +2,15 @@
 
 ## Player vs Card
 
-| | Player | Card |
-|---|--------|------|
-| Represents | Real footballer | Playable collectible |
-| Created by import | Yes | **No** |
-| Owns overall | **No** | **Yes** |
-| Owns rarity / type | **No** | Via reference FKs |
-| Owns visuals | **No** | Via `CardTemplate` |
-| Used in draft | **No** | **Yes** |
-| Used in simulation | **No** | **Yes** |
+|                    | Player          | Card                 |
+| ------------------ | --------------- | -------------------- |
+| Represents         | Real footballer | Playable collectible |
+| Created by import  | Yes             | **No**               |
+| Owns overall       | **No**          | **Yes**              |
+| Owns rarity / type | **No**          | Via reference FKs    |
+| Owns visuals       | **No**          | Via `CardTemplate`   |
+| Used in draft      | **No**          | **Yes**              |
+| Used in simulation | **No**          | **Yes**              |
 
 ### Player owns (identity)
 
@@ -24,14 +24,14 @@ Overall, rarity, card type, template, chemistry bonuses, gameplay modifiers.
 
 Types are **database records**, not code enums. Examples:
 
-| Code | Example card |
-|------|--------------|
-| `BASE` | Messi Base 89 |
-| `HERO` | Hero Messi |
-| `ICON` | Icon Messi |
-| `PRIME_ICON` | Prime Icon Messi 99 |
-| `TOTY` | (future — insert row only) |
-| `WORLD_CUP` | (future event) |
+| Code         | Example card               |
+| ------------ | -------------------------- |
+| `BASE`       | Messi Base 89              |
+| `HERO`       | Hero Messi                 |
+| `ICON`       | Icon Messi                 |
+| `PRIME_ICON` | Prime Icon Messi 99        |
+| `TOTY`       | (future — insert row only) |
+| `WORLD_CUP`  | (future event)             |
 
 Same player, many cards:
 

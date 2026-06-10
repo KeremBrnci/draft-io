@@ -33,14 +33,14 @@ This is **not** a real-time action football game. It is a **strategy, drafting, 
 
 ## Architecture
 
-| Principle | Implementation |
-|-----------|----------------|
-| Clean Architecture | Domain → Application → Infrastructure / Presentation |
-| Modular Monolith | Feature modules under `apps/backend/src/modules/` |
-| SOLID | Single responsibility per use case; dependency inversion via ports |
-| Repository Pattern | Domain defines ports; Prisma implements in infrastructure |
-| Use Case Pattern | Plain TypeScript classes; no NestJS in application layer |
-| API Contracts | `@draft-io/shared-types` shared between frontend and backend |
+| Principle          | Implementation                                                     |
+| ------------------ | ------------------------------------------------------------------ |
+| Clean Architecture | Domain → Application → Infrastructure / Presentation               |
+| Modular Monolith   | Feature modules under `apps/backend/src/modules/`                  |
+| SOLID              | Single responsibility per use case; dependency inversion via ports |
+| Repository Pattern | Domain defines ports; Prisma implements in infrastructure          |
+| Use Case Pattern   | Plain TypeScript classes; no NestJS in application layer           |
+| API Contracts      | `@draft-io/shared-types` shared between frontend and backend       |
 
 ### Layer dependency direction (inward only)
 
@@ -59,28 +59,28 @@ Run `pnpm architecture:check` after structural changes.
 
 ### Always
 
-| Action | Reference |
-|--------|-----------|
-| Plan first | `workflow.mdc`, `feature-planning` skill |
-| Review architecture | `architecture.mdc`, `architecture` skill |
-| Model domain | `domain-modeling` skill, `game-domain.mdc` |
-| Generate tests | `testing.mdc`, `testing` skill |
-| Review code before done | `code-review` skill, `ai-review-checklist.md` |
-| Return DTOs from controllers | Presentation mappers only |
-| Keep game rules in domain/application | Never in controllers, repos, or UI |
+| Action                                | Reference                                     |
+| ------------------------------------- | --------------------------------------------- |
+| Plan first                            | `workflow.mdc`, `feature-planning` skill      |
+| Review architecture                   | `architecture.mdc`, `architecture` skill      |
+| Model domain                          | `domain-modeling` skill, `game-domain.mdc`    |
+| Generate tests                        | `testing.mdc`, `testing` skill                |
+| Review code before done               | `code-review` skill, `ai-review-checklist.md` |
+| Return DTOs from controllers          | Presentation mappers only                     |
+| Keep game rules in domain/application | Never in controllers, repos, or UI            |
 
 ### Never
 
-| Action | Why |
-|--------|-----|
-| Skip planning for major features | Causes architecture drift |
-| Leak domain entities to API | Breaks presentation boundary |
-| Break architecture boundaries | CI fails; long-term debt |
-| Put business logic in controllers | Transport layer only |
-| Put business logic in repositories | Persistence layer only |
-| Use hidden randomness | Simulation must be seedable |
-| Implement unrequested gameplay | Scope control |
-| Use Turkish or mixed naming | `naming.mdc` violation |
+| Action                             | Why                          |
+| ---------------------------------- | ---------------------------- |
+| Skip planning for major features   | Causes architecture drift    |
+| Leak domain entities to API        | Breaks presentation boundary |
+| Break architecture boundaries      | CI fails; long-term debt     |
+| Put business logic in controllers  | Transport layer only         |
+| Put business logic in repositories | Persistence layer only       |
+| Use hidden randomness              | Simulation must be seedable  |
+| Implement unrequested gameplay     | Scope control                |
+| Use Turkish or mixed naming        | `naming.mdc` violation       |
 
 ---
 
@@ -101,19 +101,19 @@ Planning → Domain Analysis → Architecture Review → Approval
 
 Game rules and business logic live in **domain** and **application** layers only.
 
-| Domain | Owner Module | Status |
-|--------|--------------|--------|
-| Players | `players` | Implemented (foundation) |
-| Teams | `teams` | Implemented (skeleton) |
-| Formations | `formations` | Implemented (in-memory) |
-| Positions | `positions` | Implemented (vocabulary) |
-| Nations | `nations` | Skeleton |
-| Leagues | `leagues` | Skeleton |
-| Draft | `draft` | Not implemented |
-| Lobby | `lobbies` | Not implemented |
-| Chemistry | domain services (future) | Not implemented |
-| Match Simulation | `simulation`, `matches` | Not implemented |
-| Seasons | `leagues` (future) | Not implemented |
+| Domain           | Owner Module             | Status                   |
+| ---------------- | ------------------------ | ------------------------ |
+| Players          | `players`                | Implemented (foundation) |
+| Teams            | `teams`                  | Implemented (skeleton)   |
+| Formations       | `formations`             | Implemented (in-memory)  |
+| Positions        | `positions`              | Implemented (vocabulary) |
+| Nations          | `nations`                | Skeleton                 |
+| Leagues          | `leagues`                | Skeleton                 |
+| Draft            | `draft`                  | Not implemented          |
+| Lobby            | `lobbies`                | Not implemented          |
+| Chemistry        | domain services (future) | Not implemented          |
+| Match Simulation | `simulation`, `matches`  | Not implemented          |
+| Seasons          | `leagues` (future)       | Not implemented          |
 
 Controllers, DTOs, Prisma repositories, and React components **must not** contain game rules.
 
@@ -123,13 +123,13 @@ Controllers, DTOs, Prisma repositories, and React components **must not** contai
 
 All simulation logic (match engine, chemistry, rating, draft order) must be:
 
-| Property | Requirement |
-|----------|-------------|
-| Deterministic | Same inputs + seed → same outputs |
-| Reproducible | Tests can replay scenarios |
-| Seedable | `RandomPort` or equivalent injected |
-| Testable | Unit tests without network or DB |
-| Explainable | Rating and chemistry calculations documented |
+| Property      | Requirement                                  |
+| ------------- | -------------------------------------------- |
+| Deterministic | Same inputs + seed → same outputs            |
+| Reproducible  | Tests can replay scenarios                   |
+| Seedable      | `RandomPort` or equivalent injected          |
+| Testable      | Unit tests without network or DB             |
+| Explainable   | Rating and chemistry calculations documented |
 
 No `Math.random()` in services. No unseeded randomness in tests.
 
@@ -177,18 +177,18 @@ pnpm --filter @draft-io/backend test:e2e
 
 ## Skills Quick Reference
 
-| When | Skill |
-|------|-------|
-| Session start | `project-context` |
-| New feature | `feature-planning` |
-| Structure change | `architecture` |
-| New entities/rules | `domain-modeling` |
-| Backend code | `backend`, `nest-module` |
-| Frontend code | `frontend` |
-| Tests | `testing` |
-| Game mechanics | `game-design` |
-| Simulation | `simulation-engine` |
-| Pre-merge | `code-review` |
+| When               | Skill                    |
+| ------------------ | ------------------------ |
+| Session start      | `project-context`        |
+| New feature        | `feature-planning`       |
+| Structure change   | `architecture`           |
+| New entities/rules | `domain-modeling`        |
+| Backend code       | `backend`, `nest-module` |
+| Frontend code      | `frontend`               |
+| Tests              | `testing`                |
+| Game mechanics     | `game-design`            |
+| Simulation         | `simulation-engine`      |
+| Pre-merge          | `code-review`            |
 
 ---
 

@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
 import { DEFAULT_DRAFT_BALANCE_CONFIG } from '../../domain/config/default-draft-balance.config';
-import { SeededRandomSource } from '../../infrastructure/random/seeded-random-source';
 import { BudgetAllocator } from '../../domain/services/budget-allocator.service';
+import { SeededRandomSource } from '../../infrastructure/random/seeded-random-source';
 
 describe('BudgetAllocator', () => {
   it('allocates budgets within 3% deviation', () => {
@@ -10,7 +10,9 @@ describe('BudgetAllocator', () => {
     const allocator = new BudgetAllocator(DEFAULT_DRAFT_BALANCE_CONFIG, random);
     const budgets = allocator.allocateForParticipants(['p1', 'p2', 'p3', 'p4']);
     const values = [...budgets.values()];
-    const base = DEFAULT_DRAFT_BALANCE_CONFIG.targetTeamAverageOverall * DEFAULT_DRAFT_BALANCE_CONFIG.rosterSize;
+    const base =
+      DEFAULT_DRAFT_BALANCE_CONFIG.targetTeamAverageOverall *
+      DEFAULT_DRAFT_BALANCE_CONFIG.rosterSize;
 
     for (const budget of values) {
       const deviation = Math.abs(budget - base) / base;

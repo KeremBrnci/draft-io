@@ -1,8 +1,8 @@
-import type { OverallProfileTag } from '../../domain/enums/overall-profile-tag.enum';
-import type { OverallCalculationContext } from '../../domain/models/overall-calculation-context';
-import type { PlayerMetrics } from '../../domain/entities/player-metrics.entity';
 import type { League } from '../../../leagues/domain/entities/league.entity';
 import type { Player } from '../../../players/domain/entities/player.entity';
+import type { PlayerMetrics } from '../../domain/entities/player-metrics.entity';
+import type { OverallProfileTag } from '../../domain/enums/overall-profile-tag.enum';
+import type { OverallCalculationContext } from '../../domain/models/overall-calculation-context';
 
 import { resolveProfileInputs } from './legend-profile-resolver.service';
 

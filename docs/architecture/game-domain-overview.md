@@ -133,12 +133,12 @@ No external message broker. In-process dispatch initially; Redis pub/sub for cro
 
 ## Aggregate Boundaries
 
-| Aggregate | Root Entity | Consistency Boundary |
-|-----------|-------------|-------------------|
-| Player | `Player` | Name, position, rating invariants |
-| Team | `Team` | Lineup slots, formation, manager |
-| Nation | `Nation` | National identity |
-| League | `League` | Team membership, season |
+| Aggregate | Root Entity | Consistency Boundary                  |
+| --------- | ----------- | ------------------------------------- |
+| Player    | `Player`    | Name, position, rating invariants     |
+| Team      | `Team`      | Lineup slots, formation, manager      |
+| Nation    | `Nation`    | National identity                     |
+| League    | `League`    | Team membership, season               |
 | Formation | `Formation` | Slot definitions (immutable template) |
 
 Formations are not traditional aggregates — they are immutable predefined data. Teams and Leagues reference them by code.

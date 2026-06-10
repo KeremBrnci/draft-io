@@ -28,7 +28,11 @@ export class ReconcileImportFailedRecordsUseCase {
         continue;
       }
 
-      const exists = await this.recordExistsInDatabase(record.recordType, provider, record.externalId);
+      const exists = await this.recordExistsInDatabase(
+        record.recordType,
+        provider,
+        record.externalId,
+      );
 
       if (exists) {
         await this.importFailedRecordRepository.markResolved(record.id);

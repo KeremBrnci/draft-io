@@ -1,15 +1,15 @@
 import { parseExternalProvider } from '../../../../core/external-reference/external-provider';
 import type { LeagueRepository } from '../../../leagues/domain/repositories/league.repository';
+import { LeagueId } from '../../../leagues/domain/value-objects/league-id.vo';
 import type { Player } from '../../../players/domain/entities/player.entity';
 import type { PlayerRepository } from '../../../players/domain/repositories/player.repository';
 import type { TeamRepository } from '../../../teams/domain/repositories/team.repository';
-import { LeagueId } from '../../../leagues/domain/value-objects/league-id.vo';
+import { TransfermarktSquadPageClient } from '../../infrastructure/transfermarkt/scraping/transfermarkt-squad-page.client';
 import {
   mapScrapedSquadPlayerToExternalRecord,
   parseTransfermarktSquadPage,
   type ScrapedSquadPlayer,
 } from '../../infrastructure/transfermarkt/scraping/transfermarkt-squad-page.parser';
-import { TransfermarktSquadPageClient } from '../../infrastructure/transfermarkt/scraping/transfermarkt-squad-page.client';
 import { resolveTransfermarktSeasonId } from '../../infrastructure/transfermarkt/utils/transfermarkt-season';
 
 import type { ImportPlayerUseCase } from './import-player.use-case';
@@ -61,8 +61,8 @@ export class EnrichPlayersFromSquadUseCase {
         ? await this.resolveSingleTeam(provider, command.clubExternalId)
         : await this.teamRepository.findAll();
 
-    const enrichedPlayers: Array<{ externalId: string; displayName: string; fields: string[] }> = [];
-    const failures: Array<{ externalId: string; displayName: string; reason: string }> = [];
+    const enrichedPlayers: { externalId: string; displayName: string; fields: string[] }[] = [];
+    const failures: { externalId: string; displayName: string; reason: string }[] = [];
     let scannedTeams = 0;
     let enriched = 0;
     let unchanged = 0;

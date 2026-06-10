@@ -8,12 +8,13 @@ import 'reflect-metadata';
 import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
+import { extractTransfermarktPortraitUrlsFromHtml } from '@draft-io/shared-utils';
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { PrismaClient } from '@prisma/client';
-import { extractTransfermarktPortraitUrlsFromHtml } from '@draft-io/shared-utils';
 
 import { resolveTransfermarktSeasonId } from '../modules/data-providers/infrastructure/transfermarkt/utils/transfermarkt-season';
+
 import { SeedAppModule } from './seed-app.module';
 
 const logger = new Logger('BackfillPlayerImages');
@@ -55,7 +56,10 @@ function sleep(ms: number): Promise<void> {
   });
 }
 
-async function fetchSquadPortraits(clubExternalId: string, seasonId: string): Promise<Map<string, string>> {
+async function fetchSquadPortraits(
+  clubExternalId: string,
+  seasonId: string,
+): Promise<Map<string, string>> {
   const url = `https://www.transfermarkt.com/-/kader/verein/${encodeURIComponent(clubExternalId)}/saison_id/${seasonId}/plus/1`;
   const response = await fetch(url, {
     headers: {
@@ -83,9 +87,7 @@ async function main(): Promise<void> {
   const seasonId = resolveTransfermarktSeasonId();
 
   try {
-    const teams = await prisma.$queryRaw<
-      Array<{ id: string; name: string; external_id: string }>
-    >`
+    const teams = await prisma.$queryRaw<{ id: string; name: string; external_id: string }[]>`
       SELECT t.id::text AS id, t.name, t.external_id
       FROM teams t
       WHERE t.external_id IS NOT NULL
@@ -105,7 +107,8 @@ async function main(): Promise<void> {
         });
 
         for (const player of players) {
-          const portraitUrl = player.externalId === null ? undefined : portraits.get(player.externalId);
+          const portraitUrl =
+            player.externalId === null ? undefined : portraits.get(player.externalId);
 
           if (portraitUrl === undefined) {
             missing += 1;

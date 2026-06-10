@@ -9,15 +9,16 @@ import 'reflect-metadata';
 import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
+import { collapseEquivalentPositionCodes } from '@draft-io/shared-utils';
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import { collapseEquivalentPositionCodes } from '@draft-io/shared-utils';
 import { v4 as uuidv4 } from 'uuid';
 
-import { PlayerPositions } from '../modules/players/domain/value-objects/player-positions.vo';
-import { PlayerPositionId } from '../modules/players/domain/value-objects/player-position-id.vo';
 import type { PlayerRepository } from '../modules/players/domain/repositories/player.repository';
 import { PLAYER_REPOSITORY } from '../modules/players/domain/repositories/player.repository';
+import { PlayerPositionId } from '../modules/players/domain/value-objects/player-position-id.vo';
+import { PlayerPositions } from '../modules/players/domain/value-objects/player-positions.vo';
+
 import { SeedAppModule } from './seed-app.module';
 
 const logger = new Logger('NormalizePlayerPositions');

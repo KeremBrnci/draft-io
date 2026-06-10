@@ -3,6 +3,7 @@ import type { Player } from '../../../players/domain/entities/player.entity';
 import type { TeamRepository } from '../../../teams/domain/repositories/team.repository';
 import { ProviderConfigurationError } from '../../domain/errors/data-provider.errors';
 import type { ProviderRegistryPort } from '../../domain/ports/provider-registry.port';
+
 import type { ImportPlayerUseCase } from './import-player.use-case';
 
 export interface ImportClubPlayersCommand {
@@ -40,13 +41,13 @@ export class ImportClubPlayersUseCase {
       );
     }
 
-    const team = await this.teamRepository.findByExternalReference(provider, command.clubExternalId);
+    const team = await this.teamRepository.findByExternalReference(
+      provider,
+      command.clubExternalId,
+    );
     const leagueExternalId = command.leagueExternalId ?? null;
 
-    const records = await playerProvider.fetchClubPlayers(
-      command.clubExternalId,
-      leagueExternalId,
-    );
+    const records = await playerProvider.fetchClubPlayers(command.clubExternalId, leagueExternalId);
 
     const players: Player[] = [];
     const failedPlayers: ImportClubPlayerFailure[] = [];

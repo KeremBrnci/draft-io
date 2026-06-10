@@ -18,27 +18,27 @@ Infrastructure  →  Application (via ports only)
 
 ### Allowed
 
-| From | To | Example |
-|------|-----|---------|
-| Presentation | Application | Controller imports `CreatePlayerUseCase` |
-| Presentation | Domain | **Mappers only** — `player-response.mapper.ts` imports `Player` |
-| Application | Domain | Use case imports `PlayerRepository` port |
-| Infrastructure | Domain | Repository implements port, mapper converts |
-| Infrastructure | Application | Rare — prefer domain ports |
-| Module wiring (`*.module.ts`) | All layers | Composition root |
+| From                          | To          | Example                                                         |
+| ----------------------------- | ----------- | --------------------------------------------------------------- |
+| Presentation                  | Application | Controller imports `CreatePlayerUseCase`                        |
+| Presentation                  | Domain      | **Mappers only** — `player-response.mapper.ts` imports `Player` |
+| Application                   | Domain      | Use case imports `PlayerRepository` port                        |
+| Infrastructure                | Domain      | Repository implements port, mapper converts                     |
+| Infrastructure                | Application | Rare — prefer domain ports                                      |
+| Module wiring (`*.module.ts`) | All layers  | Composition root                                                |
 
 ### Forbidden
 
-| From | To | Reason |
-|------|-----|--------|
-| Domain | Infrastructure | Dependency inversion violation |
-| Domain | Presentation | Inner layer must not know outer |
-| Domain | Application | Domain is innermost |
-| Application | Infrastructure | Use ports instead |
-| Application | Presentation | Wrong direction |
-| Presentation | Infrastructure | Controllers must not touch DB |
-| Application | `@nestjs/*` | Framework coupling |
-| Domain | `@nestjs/*`, `@prisma/*` | Purity violation |
+| From         | To                       | Reason                          |
+| ------------ | ------------------------ | ------------------------------- |
+| Domain       | Infrastructure           | Dependency inversion violation  |
+| Domain       | Presentation             | Inner layer must not know outer |
+| Domain       | Application              | Domain is innermost             |
+| Application  | Infrastructure           | Use ports instead               |
+| Application  | Presentation             | Wrong direction                 |
+| Presentation | Infrastructure           | Controllers must not touch DB   |
+| Application  | `@nestjs/*`              | Framework coupling              |
+| Domain       | `@nestjs/*`, `@prisma/*` | Purity violation                |
 
 ## Cross-Module Rules
 
@@ -65,12 +65,12 @@ import { Player } from '../../players/domain/entities/player.entity';
 
 ### External Provider Boundary
 
-| Rule | Enforcement |
-|------|-------------|
+| Rule                                                                | Enforcement                                              |
+| ------------------------------------------------------------------- | -------------------------------------------------------- |
 | `players`/`teams`/`leagues` domain must not import `data-providers` | dependency-cruiser `no-feature-domain-to-data-providers` |
-| `ExternalProvider` enum lives in `core/external-reference` | shared kernel |
-| Provider adapters live only in `data-providers/infrastructure` | module structure |
-| API DTOs must not become domain entities directly | import pipeline mappers |
+| `ExternalProvider` enum lives in `core/external-reference`          | shared kernel                                            |
+| Provider adapters live only in `data-providers/infrastructure`      | module structure                                         |
+| API DTOs must not become domain entities directly                   | import pipeline mappers                                  |
 
 ## Examples
 
@@ -102,7 +102,7 @@ return { data: toPlayerSummary(player) };
 
 ```typescript
 // ❌
-return { data: player };  // Raw domain entity
+return { data: player }; // Raw domain entity
 ```
 
 ## Composition Root Exceptions

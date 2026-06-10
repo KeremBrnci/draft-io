@@ -33,13 +33,13 @@ Used for **HTTP/API contracts** between frontend and backend. Different shape (`
 
 ## Where Result Is Allowed
 
-| Layer | Allowed | Notes |
-|-------|---------|-------|
-| Domain | Yes | Prefer throwing domain errors for invariant violations |
-| Application | Yes | Use for expected failures (not found, validation) |
-| Infrastructure | Rarely | Only for adapter-level operations |
-| Presentation | No | Map `Result` to HTTP at controller boundary |
-| Frontend | Use `ApiOperationResult` | From `@draft-io/shared-types` |
+| Layer          | Allowed                  | Notes                                                  |
+| -------------- | ------------------------ | ------------------------------------------------------ |
+| Domain         | Yes                      | Prefer throwing domain errors for invariant violations |
+| Application    | Yes                      | Use for expected failures (not found, validation)      |
+| Infrastructure | Rarely                   | Only for adapter-level operations                      |
+| Presentation   | No                       | Map `Result` to HTTP at controller boundary            |
+| Frontend       | Use `ApiOperationResult` | From `@draft-io/shared-types`                          |
 
 ## Where Result Is Forbidden
 

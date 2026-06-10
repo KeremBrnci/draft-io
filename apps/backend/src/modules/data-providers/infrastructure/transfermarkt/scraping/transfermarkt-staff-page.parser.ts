@@ -15,12 +15,7 @@ export interface ScrapedStaffMember {
 const STAFF_ROW_PATTERN =
   /<tr>\s*<td>\s*<table class="inline-table">([\s\S]*?)<\/table>[\s\S]*?<\/tr>/gi;
 
-const HEAD_COACH_ROLES = new Set([
-  'Manager',
-  'Head Coach',
-  'Head coach',
-  'Cheftrainer',
-]);
+const HEAD_COACH_ROLES = new Set(['Manager', 'Head Coach', 'Head coach', 'Cheftrainer']);
 
 function splitName(fullName: string): { firstName: string; lastName: string } {
   const parts = fullName.trim().split(/\s+/);
@@ -42,13 +37,13 @@ function parseStaffDate(raw: string | null | undefined): string | null {
   }
 
   const trimmed = raw.trim();
-  const slashMatch = trimmed.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  const slashMatch = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(trimmed);
   if (slashMatch !== null) {
     const [, day, month, year] = slashMatch;
     return `${year}-${month}-${day}`;
   }
 
-  const dotMatch = trimmed.match(/^(\d{2})\.(\d{2})\.(\d{4})$/);
+  const dotMatch = /^(\d{2})\.(\d{2})\.(\d{4})$/.exec(trimmed);
   if (dotMatch !== null) {
     const [, day, month, year] = dotMatch;
     return `${year}-${month}-${day}`;
@@ -67,9 +62,7 @@ export function parseTransfermarktStaffPage(html: string): readonly ScrapedStaff
   for (const rowMatch of html.matchAll(STAFF_ROW_PATTERN)) {
     const row = rowMatch[0] ?? '';
 
-    const profileMatch = row.match(
-      /href="\/([^"]+)\/profil\/trainer\/(\d+)"[^>]*>([^<]*)<\/a>/,
-    );
+    const profileMatch = /href="\/([^"]+)\/profil\/trainer\/(\d+)"[^>]*>([^<]*)<\/a>/.exec(row);
     if (profileMatch === null) {
       continue;
     }
@@ -82,24 +75,18 @@ export function parseTransfermarktStaffPage(html: string): readonly ScrapedStaff
       continue;
     }
 
-    const roleMatch = row.match(
-      /<table class="inline-table">[\s\S]*?<tr>\s*<td>\s*([^<]+?)\s*<\/td>\s*<\/tr>\s*<\/table>/,
-    );
-    const ageMatch = row.match(
-      /<\/table>\s*<\/td>\s*<td class="zentriert">\s*(\d{1,3})\s*<\/td>/,
-    );
+    const roleMatch =
+      /<table class="inline-table">[\s\S]*?<tr>\s*<td>\s*([^<]+?)\s*<\/td>\s*<\/tr>\s*<\/table>/.exec(
+        row,
+      );
+    const ageMatch = /<\/table>\s*<\/td>\s*<td class="zentriert">\s*(\d{1,3})\s*<\/td>/.exec(row);
     const nationalityMatch =
-      row.match(/class="flaggenrahmen"[^>]*title="([^"]+)"/) ??
-      row.match(/title="([^"]+)"[^>]*class="flaggenrahmen"/);
-    const imageMatch = row.match(
-      /(?:data-src|src)="(https:\/\/img\.a\.transfermarkt\.technology\/portrait\/[^"]+)"/,
-    );
-    const appointedMatch = row.match(
-      /<td class="zentriert">\s*(\d{2}\/\d{2}\/\d{4})\s*<\/td>/,
-    );
-    const contractMatch = row.match(
-      /<td class="zentriert">\s*(\d{2}\.\d{2}\.\d{4})\s*<\/td>/,
-    );
+      /class="flaggenrahmen"[^>]*title="([^"]+)"/.exec(row) ??
+      /title="([^"]+)"[^>]*class="flaggenrahmen"/.exec(row);
+    const imageMatch =
+      /(?:data-src|src)="(https:\/\/img\.a\.transfermarkt\.technology\/portrait\/[^"]+)"/.exec(row);
+    const appointedMatch = /<td class="zentriert">\s*(\d{2}\/\d{2}\/\d{4})\s*<\/td>/.exec(row);
+    const contractMatch = /<td class="zentriert">\s*(\d{2}\.\d{2}\.\d{4})\s*<\/td>/.exec(row);
 
     members.push({
       externalId,

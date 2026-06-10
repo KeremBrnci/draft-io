@@ -12,12 +12,12 @@ description: >-
 
 Mandatory before implementation (lifecycle Step 2). Subordinate to `game-domain.mdc` and `ai-constitution.md`.
 
-| Document | Path |
-|----------|------|
-| AI Constitution | `docs/architecture/ai-constitution.md` |
-| Workflow | `.cursor/rules/workflow.mdc` |
-| Universal instructions | `AGENTS.md` |
-| Project context | `.claude/skills/project-context/SKILL.md` |
+| Document               | Path                                      |
+| ---------------------- | ----------------------------------------- |
+| AI Constitution        | `docs/architecture/ai-constitution.md`    |
+| Workflow               | `.cursor/rules/workflow.mdc`              |
+| Universal instructions | `AGENTS.md`                               |
+| Project context        | `.claude/skills/project-context/SKILL.md` |
 
 ## Purpose
 
@@ -44,14 +44,14 @@ Guide domain-driven design for **draft.io** backend modules: express football ga
 
 ### Building blocks
 
-| Concept | Purpose | Example |
-|---------|---------|---------|
-| **Entity** | Identity + mutable state | `Player`, `Team`, `DraftRoom` |
-| **Value Object** | Immutable validated value | `PlayerId`, `OverallRating`, `Position` |
-| **Aggregate Root** | Entity that guards consistency | `Team` owns `startingEleven` slots |
-| **Domain Error** | Business rule violation | `InvalidSlotPositionError` |
-| **Repository Port** | Persistence contract | `PlayerRepository` interface |
-| **Domain Service** | Logic spanning entities (rare) | `ChemistryCalculator` (future) |
+| Concept             | Purpose                        | Example                                 |
+| ------------------- | ------------------------------ | --------------------------------------- |
+| **Entity**          | Identity + mutable state       | `Player`, `Team`, `DraftRoom`           |
+| **Value Object**    | Immutable validated value      | `PlayerId`, `OverallRating`, `Position` |
+| **Aggregate Root**  | Entity that guards consistency | `Team` owns `startingEleven` slots      |
+| **Domain Error**    | Business rule violation        | `InvalidSlotPositionError`              |
+| **Repository Port** | Persistence contract           | `PlayerRepository` interface            |
+| **Domain Service**  | Logic spanning entities (rare) | `ChemistryCalculator` (future)          |
 
 ### Entity pattern
 
@@ -59,10 +59,16 @@ Extend `Entity<IdType>` from `common/domain/entity.ts`:
 
 ```typescript
 export class Player extends Entity<PlayerId> {
-  private constructor(props: PlayerProps) { super(props.id); /* ... */ }
+  private constructor(props: PlayerProps) {
+    super(props.id); /* ... */
+  }
 
-  static create(props: CreatePlayerProps): Player { /* new entity */ }
-  static reconstitute(props: PlayerProps): Player { /* from DB */ }
+  static create(props: CreatePlayerProps): Player {
+    /* new entity */
+  }
+  static reconstitute(props: PlayerProps): Player {
+    /* from DB */
+  }
 
   updatePosition(position: Position): void {
     this._position = position;
@@ -90,8 +96,12 @@ export class OverallRating {
     return new OverallRating(value);
   }
 
-  get value(): number { return this._value; }
-  equals(other: OverallRating): boolean { return this._value === other._value; }
+  get value(): number {
+    return this._value;
+  }
+  equals(other: OverallRating): boolean {
+    return this._value === other._value;
+  }
 }
 ```
 
@@ -105,9 +115,15 @@ export class OverallRating {
 ```typescript
 export class PlayerId {
   private constructor(private readonly _value: string) {}
-  static create(value: string): PlayerId { /* validate UUID */ }
-  static generate(uuid: string): PlayerId { return new PlayerId(uuid); }
-  get value(): string { return this._value; }
+  static create(value: string): PlayerId {
+    /* validate UUID */
+  }
+  static generate(uuid: string): PlayerId {
+    return new PlayerId(uuid);
+  }
+  get value(): string {
+    return this._value;
+  }
 }
 ```
 
@@ -127,14 +143,14 @@ export class PlayerNotFoundError extends DomainError {
 
 ### Aggregate boundaries (draft.io)
 
-| Aggregate | Root | Enforces |
-|-----------|------|----------|
-| Player | `Player` | Valid name, position, rating |
-| Team | `Team` | 11 slots, formation fit, unique players |
-| Nation | `Nation` | Identity invariants |
-| League | `League` | Team membership, season |
-| DraftRoom | `DraftRoom` | Pick order, pool state, turn (future) |
-| Match | `Match` | Status transitions, result immutability (future) |
+| Aggregate | Root        | Enforces                                         |
+| --------- | ----------- | ------------------------------------------------ |
+| Player    | `Player`    | Valid name, position, rating                     |
+| Team      | `Team`      | 11 slots, formation fit, unique players          |
+| Nation    | `Nation`    | Identity invariants                              |
+| League    | `League`    | Team membership, season                          |
+| DraftRoom | `DraftRoom` | Pick order, pool state, turn (future)            |
+| Match     | `Match`     | Status transitions, result immutability (future) |
 
 **Not aggregates:** `Formation` (immutable template), `Position` (vocabulary VO)
 
@@ -174,14 +190,14 @@ export const PLAYER_REPOSITORY = Symbol('PlayerRepository');
 
 ### Where logic lives
 
-| Logic | Location |
-|-------|----------|
-| Rating must be 1–99 | `OverallRating` VO |
-| Slot accepts position | `Team` entity or `FormationSlot` VO |
-| Player exists | Use case (application) |
-| Pick is current player's turn | `DraftRoom` entity |
-| Chemistry score calculation | Domain service (simulation module) |
-| HTTP response shape | Presentation mapper |
+| Logic                         | Location                            |
+| ----------------------------- | ----------------------------------- |
+| Rating must be 1–99           | `OverallRating` VO                  |
+| Slot accepts position         | `Team` entity or `FormationSlot` VO |
+| Player exists                 | Use case (application)              |
+| Pick is current player's turn | `DraftRoom` entity                  |
+| Chemistry score calculation   | Domain service (simulation module)  |
+| HTTP response shape           | Presentation mapper                 |
 
 ## Examples
 
@@ -208,7 +224,7 @@ makePick(playerId: PlayerId, pickerId: UserId): DraftPick {
   if (this._status !== 'IN_PROGRESS') throw new DraftNotActiveError();
   if (this.currentPickerId !== pickerId) throw new NotYourTurnError();
   if (!this._pool.has(playerId)) throw new PlayerNotInPoolError();
-  
+
   const pick = DraftPick.create({ round, pickNumber, playerId, pickerId });
   this._pool.remove(playerId);
   this._picks.push(pick);
@@ -221,7 +237,7 @@ makePick(playerId: PlayerId, pickerId: UserId): DraftPick {
 
 ```typescript
 // Use case — creating new
-const player = Player.create({ id: PlayerId.generate(uuid), /* ... */ });
+const player = Player.create({ id: PlayerId.generate(uuid) /* ... */ });
 
 // Repository mapper — loading existing
 const player = Player.reconstitute({
@@ -247,15 +263,15 @@ const player = Player.reconstitute({
 
 ## Anti-patterns
 
-| Anti-pattern | Correct approach |
-|--------------|------------------|
-| Anemic entities (only getters/setters) | Behavior methods with invariants |
-| Public constructors | Factory methods |
-| `string` for player ID everywhere | `PlayerId` value object |
-| Validation only in DTOs | VO/entity enforces rules |
-| `any` or unvalidated `number` for rating | `OverallRating.create()` |
-| Entity importing Prisma types | Mapper in infrastructure |
-| Two aggregates in one transaction without orchestration | Use case coordinates |
-| Domain service for single-entity logic | Put on entity |
-| Mutable value objects | New instance on change |
-| `reconstitute` running business validations | Only structural integrity on load |
+| Anti-pattern                                            | Correct approach                  |
+| ------------------------------------------------------- | --------------------------------- |
+| Anemic entities (only getters/setters)                  | Behavior methods with invariants  |
+| Public constructors                                     | Factory methods                   |
+| `string` for player ID everywhere                       | `PlayerId` value object           |
+| Validation only in DTOs                                 | VO/entity enforces rules          |
+| `any` or unvalidated `number` for rating                | `OverallRating.create()`          |
+| Entity importing Prisma types                           | Mapper in infrastructure          |
+| Two aggregates in one transaction without orchestration | Use case coordinates              |
+| Domain service for single-entity logic                  | Put on entity                     |
+| Mutable value objects                                   | New instance on change            |
+| `reconstitute` running business validations             | Only structural integrity on load |

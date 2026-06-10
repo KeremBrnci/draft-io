@@ -9,6 +9,7 @@ import type { ImportJobRepository } from '../../domain/repositories/import-job.r
 import { ImportJobId } from '../../domain/value-objects/import-job-id.vo';
 import { buildImportJobTrackerDeps } from '../services/import-job-tracker.factory';
 import { ImportJobTracker } from '../services/import-job-tracker.service';
+
 import type { SyncPlayerProfileUseCase } from './sync-player-profile.use-case';
 
 export interface EnrichCompetitionPlayersCommand {

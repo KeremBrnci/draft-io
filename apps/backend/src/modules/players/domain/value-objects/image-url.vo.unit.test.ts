@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { InvalidImageUrlError } from '../errors/player.errors';
+
 import { ImageUrl } from './image-url.vo';
 
 describe('ImageUrl', () => {

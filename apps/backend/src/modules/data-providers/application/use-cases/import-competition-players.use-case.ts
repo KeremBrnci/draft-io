@@ -9,6 +9,7 @@ import type { ImportJobRepository } from '../../domain/repositories/import-job.r
 import { ImportJobId } from '../../domain/value-objects/import-job-id.vo';
 import { buildImportJobTrackerDeps } from '../services/import-job-tracker.factory';
 import { ImportJobTracker } from '../services/import-job-tracker.service';
+
 import type { ImportClubPlayersUseCase } from './import-club-players.use-case';
 
 export interface ImportCompetitionPlayersCommand {
@@ -99,11 +100,14 @@ export class ImportCompetitionPlayersUseCase {
           );
         }
       } catch (error) {
-        await tracker.recordFailure(error instanceof Error ? error.message : 'Roster import failed', {
-          recordType: 'CLUB',
-          externalId: clubExternalId,
-          displayName: team.name.value,
-        });
+        await tracker.recordFailure(
+          error instanceof Error ? error.message : 'Roster import failed',
+          {
+            recordType: 'CLUB',
+            externalId: clubExternalId,
+            displayName: team.name.value,
+          },
+        );
       }
     }
 

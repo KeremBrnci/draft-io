@@ -30,14 +30,14 @@ See `players/` for a complete example demonstrating all layers.
 
 ## Placeholder Modules
 
-| Module | Future Responsibility |
-|--------|----------------------|
-| `auth` | Authentication and authorization |
-| `users` | User accounts and profiles |
-| `formations` | Tactical formation definitions |
-| `lobbies` | Lobby management and matchmaking |
-| `draft` | Draft room logic and pick order |
-| `matches` | Match scheduling and results |
+| Module       | Future Responsibility                   |
+| ------------ | --------------------------------------- |
+| `auth`       | Authentication and authorization        |
+| `users`      | User accounts and profiles              |
+| `formations` | Tactical formation definitions          |
+| `lobbies`    | Lobby management and matchmaking        |
+| `draft`      | Draft room logic and pick order         |
+| `matches`    | Match scheduling and results            |
 | `simulation` | Match engine and chemistry calculations |
 
 When implementing a new module, copy the `players/` structure and replace domain concepts.

@@ -15,9 +15,10 @@ import { NestFactory } from '@nestjs/core';
 
 import { ExternalProvider } from '../core/external-reference/external-provider';
 import { SyncMissingSquadPlayersUseCase } from '../modules/data-providers/application/use-cases/sync-missing-squad-players.use-case';
+import { CalculatePlayerOverallUseCase } from '../modules/overall-engine/application/use-cases/calculate-player-overall.use-case';
 import { PLAYER_REPOSITORY } from '../modules/players/domain/repositories/player.repository';
 import type { PlayerRepository } from '../modules/players/domain/repositories/player.repository';
-import { CalculatePlayerOverallUseCase } from '../modules/overall-engine/application/use-cases/calculate-player-overall.use-case';
+
 import { SeedAppModule } from './seed-app.module';
 
 const logger = new Logger('SyncMissingPlayers');

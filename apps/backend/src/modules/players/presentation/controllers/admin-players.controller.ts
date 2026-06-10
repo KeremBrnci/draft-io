@@ -11,12 +11,16 @@ export class AdminPlayersController {
 
   @Get()
   @HttpCode(HttpStatus.OK)
-  async browse(@Query() query: BrowsePlayersQueryDto): Promise<PaginatedResponse<PlayerBrowserItemDto>> {
+  async browse(
+    @Query() query: BrowsePlayersQueryDto,
+  ): Promise<PaginatedResponse<PlayerBrowserItemDto>> {
     const result = await this.browsePlayersUseCase.execute({
       ...(query.name !== undefined ? { name: query.name } : {}),
       ...(query.position !== undefined ? { position: query.position } : {}),
       ...(query.primaryPosition !== undefined ? { primaryPosition: query.primaryPosition } : {}),
-      ...(query.secondaryPosition !== undefined ? { secondaryPosition: query.secondaryPosition } : {}),
+      ...(query.secondaryPosition !== undefined
+        ? { secondaryPosition: query.secondaryPosition }
+        : {}),
       ...(query.hasMultiplePositions !== undefined
         ? { hasMultiplePositions: query.hasMultiplePositions }
         : {}),

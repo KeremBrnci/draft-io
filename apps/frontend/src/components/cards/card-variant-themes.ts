@@ -44,10 +44,4 @@ export const CARD_VARIANT_THEMES: Readonly<Record<CardVariant, CardTemplateTheme
   },
 } as const;
 
-export const CARD_VARIANT_ORDER: readonly CardVariant[] = [
-  'base',
-  'hero',
-  'icon',
-  'toty',
-  'event',
-];
+export const CARD_VARIANT_ORDER: readonly CardVariant[] = ['base', 'hero', 'icon', 'toty', 'event'];

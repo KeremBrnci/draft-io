@@ -10,17 +10,17 @@
 
 ### Domain layer
 
-| Artifact | Status |
-|----------|--------|
-| `Card` entity | Exists — owns `overall`, `overallSource`, `playerId` |
-| `CardType` | **Enum** (`BASE`, `SPECIAL`, `HERO`, `ICON`, `PRIME_ICON`, `EVENT`) |
-| `CardRarity` | **Enum** (`COMMON` → `LEGENDARY`) |
+| Artifact            | Status                                                                    |
+| ------------------- | ------------------------------------------------------------------------- |
+| `Card` entity       | Exists — owns `overall`, `overallSource`, `playerId`                      |
+| `CardType`          | **Enum** (`BASE`, `SPECIAL`, `HERO`, `ICON`, `PRIME_ICON`, `EVENT`)       |
+| `CardRarity`        | **Enum** (`COMMON` → `LEGENDARY`)                                         |
 | `CardOverallSource` | Enum (`CALCULATED`, `MANUAL_OVERRIDE`) — acceptable for engine provenance |
-| `CardTemplate` | **Does not exist** |
-| `CardMetadata` | **Does not exist** |
-| Repositories | `CardRepository` port only — **no Prisma implementation** |
-| Application | README stubs only — **no use cases** |
-| Presentation | README stubs only — **no API** |
+| `CardTemplate`      | **Does not exist**                                                        |
+| `CardMetadata`      | **Does not exist**                                                        |
+| Repositories        | `CardRepository` port only — **no Prisma implementation**                 |
+| Application         | README stubs only — **no use cases**                                      |
+| Presentation        | README stubs only — **no API**                                            |
 
 ### Database (proposed, not migrated)
 
@@ -82,14 +82,14 @@ Hero vs Icon vs Prime Icon need different visual templates. Without `CardTemplat
 
 ## Future Risks
 
-| Risk | Impact | Likelihood |
-|------|--------|------------|
-| Enum exhaustion | Cannot ship weekly promos | **High** |
-| Visual fields on Card | Bloated aggregate, inconsistent UI | Medium |
-| Missing metadata schema | Unqueryable event cards | Medium |
-| Migration without seed | Empty `card_types` breaks FK inserts | Medium |
-| `startingEleven` still player IDs | Simulation uses wrong identity | High (separate track) |
-| Overall engine writes to wrong layer | If re-added to Player | Low (guarded by domain) |
+| Risk                                 | Impact                               | Likelihood              |
+| ------------------------------------ | ------------------------------------ | ----------------------- |
+| Enum exhaustion                      | Cannot ship weekly promos            | **High**                |
+| Visual fields on Card                | Bloated aggregate, inconsistent UI   | Medium                  |
+| Missing metadata schema              | Unqueryable event cards              | Medium                  |
+| Migration without seed               | Empty `card_types` breaks FK inserts | Medium                  |
+| `startingEleven` still player IDs    | Simulation uses wrong identity       | High (separate track)   |
+| Overall engine writes to wrong layer | If re-added to Player                | Low (guarded by domain) |
 
 ---
 
@@ -97,10 +97,10 @@ Hero vs Icon vs Prime Icon need different visual templates. Without `CardTemplat
 
 ### A. Replace enums with reference entities
 
-| Entity | Storage | Key fields |
-|--------|---------|------------|
-| `CardType` | `card_types` | `code`, `name`, `isActive` |
-| `CardRarity` | `card_rarities` | `code`, `sortOrder`, `isActive` |
+| Entity         | Storage          | Key fields                               |
+| -------------- | ---------------- | ---------------------------------------- |
+| `CardType`     | `card_types`     | `code`, `name`, `isActive`               |
+| `CardRarity`   | `card_rarities`  | `code`, `sortOrder`, `isActive`          |
 | `CardTemplate` | `card_templates` | `cardTypeId`, visual keys (no rendering) |
 
 `Card` holds UUID FKs: `cardTypeId`, `cardRarityId`, `cardTemplateId`.
@@ -129,12 +129,12 @@ Migration includes seed rows for `BASE`, `HERO`, `ICON`, `PRIME_ICON` and defaul
 
 ## Decision Log (this sprint)
 
-| Decision | Rationale |
-|----------|-----------|
-| DB-driven CardType/CardRarity | Unlimited future promos |
-| CardTemplate separate entity | Presentation vs gameplay separation |
-| CardMetadata documented only | Avoid premature JSON schema lock-in |
-| No admin CRUD for types yet | Read-only API foundation first |
+| Decision                      | Rationale                                    |
+| ----------------------------- | -------------------------------------------- |
+| DB-driven CardType/CardRarity | Unlimited future promos                      |
+| CardTemplate separate entity  | Presentation vs gameplay separation          |
+| CardMetadata documented only  | Avoid premature JSON schema lock-in          |
+| No admin CRUD for types yet   | Read-only API foundation first               |
 | Keep `CardOverallSource` enum | Engine provenance is code-owned, not content |
 
 ---

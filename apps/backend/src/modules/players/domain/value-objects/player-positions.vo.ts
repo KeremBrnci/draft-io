@@ -7,6 +7,7 @@ import {
   PlayerPositionsRequiredError,
   PlayerPrimaryPositionRequiredError,
 } from '../errors/player-position.errors';
+
 import type { PlayerId } from './player-id.vo';
 import type { PlayerPositionId } from './player-position-id.vo';
 
@@ -51,9 +52,7 @@ export class PlayerPositions extends ValueObject<PlayerPositionsProps> {
     secondaryCodes: readonly string[],
   ): PlayerPositions {
     const seen = new Set<string>();
-    const inputs: PlayerPositionInput[] = [
-      { positionCode: primaryCode, isPrimary: true },
-    ];
+    const inputs: PlayerPositionInput[] = [{ positionCode: primaryCode, isPrimary: true }];
 
     for (const code of secondaryCodes) {
       if (seen.has(code) || code === primaryCode) {

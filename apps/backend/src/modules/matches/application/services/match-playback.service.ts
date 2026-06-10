@@ -99,7 +99,7 @@ export class MatchPlaybackService implements OnModuleDestroy {
       .filter((event) => event.minute === nextMinute && event.revealedAt === null)
       .sort((left, right) => left.sortOrder - right.sortOrder);
 
-    let status: string = 'LIVE';
+    let status = 'LIVE';
     if (nextMinute === 45) {
       status = 'HALF_TIME';
     } else if (match.status === 'HALF_TIME' && nextMinute > 45) {
@@ -107,7 +107,9 @@ export class MatchPlaybackService implements OnModuleDestroy {
     }
 
     const alertEvents = minuteEvents.filter((event) => ALERT_EVENT_TYPES.has(event.eventType));
-    const resolutionEvents = minuteEvents.filter((event) => !ALERT_EVENT_TYPES.has(event.eventType));
+    const resolutionEvents = minuteEvents.filter(
+      (event) => !ALERT_EVENT_TYPES.has(event.eventType),
+    );
 
     if (alertEvents.length > 0 && resolutionEvents.length > 0) {
       const statusWhilePending = nextMinute >= 90 ? 'LIVE' : status;
@@ -189,8 +191,12 @@ export class MatchPlaybackService implements OnModuleDestroy {
     const advanceMinute = input.advanceMinute ?? true;
     const alreadyRevealed = input.allEvents.filter((event) => event.revealedAt !== null);
     const revealedNow = [...alreadyRevealed, ...input.eventsToReveal];
-    const homeScore = revealedNow.filter((event) => event.isGoal && event.teamSide === 'HOME').length;
-    const awayScore = revealedNow.filter((event) => event.isGoal && event.teamSide === 'AWAY').length;
+    const homeScore = revealedNow.filter(
+      (event) => event.isGoal && event.teamSide === 'HOME',
+    ).length;
+    const awayScore = revealedNow.filter(
+      (event) => event.isGoal && event.teamSide === 'AWAY',
+    ).length;
 
     const updated = await this.roomLeagueRepository.updateMatchProgress({
       matchId: input.matchId,

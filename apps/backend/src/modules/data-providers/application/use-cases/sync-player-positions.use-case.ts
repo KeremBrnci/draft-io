@@ -1,15 +1,15 @@
 import { slugify } from '@draft-io/shared-utils';
 
 import {
-  ExternalProvider,
+  type ExternalProvider,
   parseExternalProvider,
 } from '../../../../core/external-reference/external-provider';
 import type { LeagueRepository } from '../../../leagues/domain/repositories/league.repository';
 import { LeagueId } from '../../../leagues/domain/value-objects/league-id.vo';
-import { normalizeExternalPositionCode } from '../../../positions/application/normalize-external-position-code';
-import type { PositionCode } from '../../../positions/domain/value-objects/position.vo';
 import type { Player } from '../../../players/domain/entities/player.entity';
 import type { PlayerRepository } from '../../../players/domain/repositories/player.repository';
+import { normalizeExternalPositionCode } from '../../../positions/application/normalize-external-position-code';
+import type { PositionCode } from '../../../positions/domain/value-objects/position.vo';
 import type { TeamRepository } from '../../../teams/domain/repositories/team.repository';
 import { TeamId } from '../../../teams/domain/value-objects/team-id.vo';
 import type { ExternalPlayerRecord } from '../../domain/models/external-player-record';
@@ -55,11 +55,11 @@ export class SyncPlayerPositionsUseCase {
     const provider = parseExternalProvider(command.provider);
     const players = await this.loadPlayers(command.clubExternalId, provider);
 
-    const enrichedPlayers: Array<{
+    const enrichedPlayers: {
       externalId: string;
       displayName: string;
       positions: string[];
-    }> = [];
+    }[] = [];
     let enriched = 0;
     let unchanged = 0;
     let withoutProfile = 0;

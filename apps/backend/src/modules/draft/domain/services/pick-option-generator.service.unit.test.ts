@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
 import { DEFAULT_DRAFT_BALANCE_CONFIG } from '../../domain/config/default-draft-balance.config';
-import { SeededRandomSource } from '../../infrastructure/random/seeded-random-source';
 import { PickOptionGenerator } from '../../domain/services/pick-option-generator.service';
+import { SeededRandomSource } from '../../infrastructure/random/seeded-random-source';
 import {
   buildTestDraftPoolCard,
   buildTestParticipantState,
@@ -11,7 +11,10 @@ import {
 
 describe('PickOptionGenerator', () => {
   it('generates five distinct option kinds when pool allows', () => {
-    const generator = new PickOptionGenerator(DEFAULT_DRAFT_BALANCE_CONFIG, new SeededRandomSource(7));
+    const generator = new PickOptionGenerator(
+      DEFAULT_DRAFT_BALANCE_CONFIG,
+      new SeededRandomSource(7),
+    );
     const options = generator.generate({
       positionCode: 'CM',
       participantState: buildTestParticipantState(),
@@ -45,12 +48,17 @@ describe('PickOptionGenerator', () => {
       draftedRoster: [],
     });
 
-    const eliteOptions = options.filter((option) => option.tierCode === 'S' || option.tierCode === 'A');
+    const eliteOptions = options.filter(
+      (option) => option.tierCode === 'S' || option.tierCode === 'A',
+    );
     expect(eliteOptions.length).toBeLessThanOrEqual(2);
   });
 
   it('never offers the same player twice in one pick screen', () => {
-    const generator = new PickOptionGenerator(DEFAULT_DRAFT_BALANCE_CONFIG, new SeededRandomSource(11));
+    const generator = new PickOptionGenerator(
+      DEFAULT_DRAFT_BALANCE_CONFIG,
+      new SeededRandomSource(11),
+    );
     const pool = [
       ...buildTestPool(),
       buildTestDraftPoolCard({
@@ -84,7 +92,10 @@ describe('PickOptionGenerator', () => {
       overall: 90,
       displayName: 'Already Drafted Alt',
     });
-    const generator = new PickOptionGenerator(DEFAULT_DRAFT_BALANCE_CONFIG, new SeededRandomSource(3));
+    const generator = new PickOptionGenerator(
+      DEFAULT_DRAFT_BALANCE_CONFIG,
+      new SeededRandomSource(3),
+    );
 
     const options = generator.generate({
       positionCode: 'CM',
@@ -100,7 +111,10 @@ describe('PickOptionGenerator', () => {
   });
 
   it('offers LW players when drafting an LM slot', () => {
-    const generator = new PickOptionGenerator(DEFAULT_DRAFT_BALANCE_CONFIG, new SeededRandomSource(5));
+    const generator = new PickOptionGenerator(
+      DEFAULT_DRAFT_BALANCE_CONFIG,
+      new SeededRandomSource(5),
+    );
     const pool = [
       buildTestDraftPoolCard({
         cardId: 'lw-1',
@@ -148,6 +162,8 @@ describe('PickOptionGenerator', () => {
     });
 
     expect(options.length).toBeGreaterThan(0);
-    expect(options.every((option) => pool.some((card) => card.cardId === option.cardId))).toBe(true);
+    expect(options.every((option) => pool.some((card) => card.cardId === option.cardId))).toBe(
+      true,
+    );
   });
 });

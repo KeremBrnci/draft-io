@@ -6,13 +6,13 @@ Define how AI assistants (Cursor, Claude, Gemini, Copilot, and future tools) wor
 
 ## Governance Layer (read first)
 
-| Priority | Document | Role |
-|----------|----------|------|
-| 0 | [`AGENTS.md`](../../AGENTS.md) | Universal entry point for all AI tools |
-| 1 | [`ai-constitution.md`](./ai-constitution.md) | Supreme authority — workflows, precedence, forbidden behaviors |
-| 2 | [`.cursor/rules/workflow.mdc`](../../.cursor/rules/workflow.mdc) | Mandatory 10-step process |
-| 3 | [`project-context` skill](../../.claude/skills/project-context/SKILL.md) | Vision, phase, implemented vs planned |
-| 4 | [`ai-review-checklist.md`](./ai-review-checklist.md) | Pre-merge verification |
+| Priority | Document                                                                 | Role                                                           |
+| -------- | ------------------------------------------------------------------------ | -------------------------------------------------------------- |
+| 0        | [`AGENTS.md`](../../AGENTS.md)                                           | Universal entry point for all AI tools                         |
+| 1        | [`ai-constitution.md`](./ai-constitution.md)                             | Supreme authority — workflows, precedence, forbidden behaviors |
+| 2        | [`.cursor/rules/workflow.mdc`](../../.cursor/rules/workflow.mdc)         | Mandatory 10-step process                                      |
+| 3        | [`project-context` skill](../../.claude/skills/project-context/SKILL.md) | Vision, phase, implemented vs planned                          |
+| 4        | [`ai-review-checklist.md`](./ai-review-checklist.md)                     | Pre-merge verification                                         |
 
 **Every session:** Load `project-context` → read `ai-constitution.md` → follow `workflow.mdc`.
 
@@ -38,18 +38,18 @@ Define how AI assistants (Cursor, Claude, Gemini, Copilot, and future tools) wor
 
 ### Claude Skills
 
-| Task | Skill |
-|------|-------|
-| Session start | `project-context` |
-| New features | `feature-planning` |
-| Architecture review | `architecture` |
-| Domain design | `domain-modeling` |
-| Backend code | `backend` + `nest-module` |
-| Frontend code | `frontend` |
-| Tests | `testing` |
-| Game rules | `game-design` + `domain-modeling` |
-| Simulation | `simulation-engine` |
-| Pre-merge review | `code-review` |
+| Task                | Skill                             |
+| ------------------- | --------------------------------- |
+| Session start       | `project-context`                 |
+| New features        | `feature-planning`                |
+| Architecture review | `architecture`                    |
+| Domain design       | `domain-modeling`                 |
+| Backend code        | `backend` + `nest-module`         |
+| Frontend code       | `frontend`                        |
+| Tests               | `testing`                         |
+| Game rules          | `game-design` + `domain-modeling` |
+| Simulation          | `simulation-engine`               |
+| Pre-merge review    | `code-review`                     |
 
 ## After Implementation
 

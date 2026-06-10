@@ -8,10 +8,10 @@ The draft system is the core multiplayer interaction where participants take tur
 
 **Draft selects Cards, not Players.**
 
-| Wrong | Right |
-|-------|-------|
-| Pick "Lionel Messi" (player ID) | Pick "Messi TOTY 98" (card ID) |
-| One pick per person | Multiple card editions of same player can exist in pool |
+| Wrong                           | Right                                                   |
+| ------------------------------- | ------------------------------------------------------- |
+| Pick "Lionel Messi" (player ID) | Pick "Messi TOTY 98" (card ID)                          |
+| One pick per person             | Multiple card editions of same player can exist in pool |
 
 ### Why
 
@@ -44,14 +44,14 @@ The draft system is the core multiplayer interaction where participants take tur
 
 ### Draft Settings (Proposed)
 
-| Setting | Description |
-|---------|-------------|
-| Pool size | Total **cards** available for drafting |
-| Roster size | **Cards** each participant must draft |
-| Pick timer | Seconds per pick before auto-skip |
-| Draft order | Snake, linear, or random |
-| Formation lock | Whether formation is chosen pre- or post-draft |
-| Card type filters | Optional: BASE only, no ICON, etc. |
+| Setting           | Description                                    |
+| ----------------- | ---------------------------------------------- |
+| Pool size         | Total **cards** available for drafting         |
+| Roster size       | **Cards** each participant must draft          |
+| Pick timer        | Seconds per pick before auto-skip              |
+| Draft order       | Snake, linear, or random                       |
+| Formation lock    | Whether formation is chosen pre- or post-draft |
+| Card type filters | Optional: BASE only, no ICON, etc.             |
 
 ## Team Integration
 

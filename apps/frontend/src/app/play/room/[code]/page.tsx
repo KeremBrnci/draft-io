@@ -156,7 +156,9 @@ export default function LobbyRoomPage(): React.ReactElement {
     if (lobby === null || session?.lobbyCode !== code) {
       return null;
     }
-    return lobby.participants.find((participant) => participant.id === session.participantId) ?? null;
+    return (
+      lobby.participants.find((participant) => participant.id === session.participantId) ?? null
+    );
   }, [code, lobby, session]);
 
   const isHost = currentParticipant?.isHost ?? false;
@@ -231,7 +233,9 @@ export default function LobbyRoomPage(): React.ReactElement {
     try {
       await navigator.clipboard.writeText(code);
       setCopied(true);
-      window.setTimeout(() => { setCopied(false); }, 2000);
+      window.setTimeout(() => {
+        setCopied(false);
+      }, 2000);
     } catch {
       setActionError('Kod kopyalanamadı.');
     }
@@ -283,7 +287,11 @@ export default function LobbyRoomPage(): React.ReactElement {
                   <span className="play-code-panel__expiry">Kod geçerliliği: {expiresInLabel}</span>
                 ) : null}
               </div>
-              <button type="button" className="play-btn play-btn--ghost" onClick={() => void handleCopyCode()}>
+              <button
+                type="button"
+                className="play-btn play-btn--ghost"
+                onClick={() => void handleCopyCode()}
+              >
                 {copied ? 'Kopyalandı ✓' : 'Kopyala'}
               </button>
             </div>
@@ -298,7 +306,9 @@ export default function LobbyRoomPage(): React.ReactElement {
               <div className="play-ready-meter__track">
                 <div
                   className="play-ready-meter__fill"
-                  style={{ width: `${lobby.maxPlayers === 0 ? 0 : (readyCount / lobby.maxPlayers) * 100}%` }}
+                  style={{
+                    width: `${lobby.maxPlayers === 0 ? 0 : (readyCount / lobby.maxPlayers) * 100}%`,
+                  }}
                 />
               </div>
               <p className="play-ready-meter__hint">
@@ -317,7 +327,9 @@ export default function LobbyRoomPage(): React.ReactElement {
                     className={`play-roster__slot${participant.isReady ? ' play-roster__slot--ready' : ''}${isMe ? ' play-roster__slot--me' : ''}`}
                     style={{ animationDelay: `${index * 60}ms` }}
                   >
-                    <div className="play-roster__avatar">{playerInitials(participant.displayName)}</div>
+                    <div className="play-roster__avatar">
+                      {playerInitials(participant.displayName)}
+                    </div>
                     <div className="play-roster__info">
                       <span className="play-roster__name">
                         {participant.displayName}
@@ -327,7 +339,10 @@ export default function LobbyRoomPage(): React.ReactElement {
                         {participant.isHost ? 'Kurucu' : 'Oyuncu'}
                       </span>
                     </div>
-                    <div className="play-roster__status" aria-label={participant.isReady ? 'Hazır' : 'Bekliyor'}>
+                    <div
+                      className="play-roster__status"
+                      aria-label={participant.isReady ? 'Hazır' : 'Bekliyor'}
+                    >
                       {participant.isReady ? (
                         <span className="play-ready-icon" title="Hazır">
                           ✓
@@ -342,17 +357,17 @@ export default function LobbyRoomPage(): React.ReactElement {
                 );
               })}
 
-              {Array.from({ length: Math.max(0, lobby.maxPlayers - lobby.participants.length) }).map(
-                (_, index) => (
-                  <li key={`empty-${index}`} className="play-roster__slot play-roster__slot--empty">
-                    <div className="play-roster__avatar play-roster__avatar--empty">?</div>
-                    <div className="play-roster__info">
-                      <span className="play-roster__name play-roster__name--muted">Boş slot</span>
-                      <span className="play-roster__meta">Bekleniyor…</span>
-                    </div>
-                  </li>
-                ),
-              )}
+              {Array.from({
+                length: Math.max(0, lobby.maxPlayers - lobby.participants.length),
+              }).map((_, index) => (
+                <li key={`empty-${index}`} className="play-roster__slot play-roster__slot--empty">
+                  <div className="play-roster__avatar play-roster__avatar--empty">?</div>
+                  <div className="play-roster__info">
+                    <span className="play-roster__name play-roster__name--muted">Boş slot</span>
+                    <span className="play-roster__meta">Bekleniyor…</span>
+                  </div>
+                </li>
+              ))}
             </ul>
 
             {!hasValidSession ? (
@@ -404,7 +419,9 @@ export default function LobbyRoomPage(): React.ReactElement {
                     ) : null}
                   </div>
                 ) : (
-                  <p className="play-action-bar__hint">Kurucu herkes hazır olunca oyunu başlatır.</p>
+                  <p className="play-action-bar__hint">
+                    Kurucu herkes hazır olunca oyunu başlatır.
+                  </p>
                 )}
               </div>
             )}

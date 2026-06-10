@@ -1,16 +1,17 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 
-import { getAllFormations } from '../../../formations/domain/constants/formation-templates';
 import type { GetDraftSessionByLobbyUseCase } from '../../../draft/application/use-cases/get-draft-session-by-lobby.use-case';
-import type { CheckDraftCompletionUseCase } from '../../../matches/application/use-cases/room-league.use-cases';
+import { getAllFormations } from '../../../formations/domain/constants/formation-templates';
 import { InMemoryFormationRepository } from '../../../formations/infrastructure/persistence/in-memory-formation.repository';
-import { Lobby } from '../../domain/entities/lobby.entity';
+import type { CheckDraftCompletionUseCase } from '../../../matches/application/use-cases/room-league.use-cases';
+import { type Lobby } from '../../domain/entities/lobby.entity';
 import { RoomPhase } from '../../domain/enums/room-phase.enum';
 import { RoomEventName } from '../../domain/events/room.events';
 import type { LobbyRepository } from '../../domain/repositories/lobby.repository';
 import { LobbyCode } from '../../domain/value-objects/lobby-code.vo';
 import type { LobbyId } from '../../domain/value-objects/lobby-id.vo';
 import type { RoomEventsPublisher } from '../services/room-events.publisher';
+
 import { CreateLobbyUseCase } from './create-lobby.use-case';
 import {
   GetFormationSelectionUseCase,
@@ -58,8 +59,11 @@ class InMemoryLobbyRepository implements LobbyRepository {
 }
 
 class FakeRoomEventsPublisher implements RoomEventsPublisher {
-  readonly events: Array<{ readonly code: string; readonly event: RoomEventName; readonly payload: unknown }> =
-    [];
+  readonly events: {
+    readonly code: string;
+    readonly event: RoomEventName;
+    readonly payload: unknown;
+  }[] = [];
 
   async publish(code: string, event: RoomEventName, payload: unknown): Promise<void> {
     this.events.push({ code, event, payload });
@@ -226,7 +230,9 @@ describe('StartLobbyUseCase', () => {
     expect(result.lobby.participants[0]?.formationOptionIds).not.toEqual(
       result.lobby.participants[1]?.formationOptionIds,
     );
-    expect(events.events.some((entry) => entry.event === RoomEventName.FORMATION_SELECTION_STARTED)).toBe(true);
+    expect(
+      events.events.some((entry) => entry.event === RoomEventName.FORMATION_SELECTION_STARTED),
+    ).toBe(true);
   });
 });
 
@@ -293,7 +299,9 @@ describe('Formation selection flow', () => {
 
     const reloaded = await getState.execute({ code: lobbyCode, sessionToken: hostSessionToken });
     expect(reloaded.participant?.selectedFormationId).toBe(selectedFormationId);
-    expect(events.events.some((entry) => entry.event === RoomEventName.PLAYER_SELECTED_FORMATION)).toBe(true);
+    expect(
+      events.events.some((entry) => entry.event === RoomEventName.PLAYER_SELECTED_FORMATION),
+    ).toBe(true);
 
     await expect(
       selectUseCase.execute({
@@ -317,7 +325,9 @@ describe('Formation selection flow', () => {
     const hostState = await getState.execute({ code: lobbyCode, sessionToken: hostSessionToken });
     const guestState = await getState.execute({ code: lobbyCode, sessionToken: guestSessionToken });
 
-    await expect(startDraftUseCase.execute({ code: lobbyCode, sessionToken: hostSessionToken })).rejects.toThrow();
+    await expect(
+      startDraftUseCase.execute({ code: lobbyCode, sessionToken: hostSessionToken }),
+    ).rejects.toThrow();
 
     await selectUseCase.execute({
       code: lobbyCode,
@@ -330,10 +340,15 @@ describe('Formation selection flow', () => {
       formationId: guestState.myFormationOptions[0]!.id,
     });
 
-    const result = await startDraftUseCase.execute({ code: lobbyCode, sessionToken: hostSessionToken });
+    const result = await startDraftUseCase.execute({
+      code: lobbyCode,
+      sessionToken: hostSessionToken,
+    });
     expect(result.lobby.phase).toBe(RoomPhase.DRAFT);
     expect(result.draftSessionId).toBe('draft-session-1');
-    expect(events.events.some((entry) => entry.event === RoomEventName.ALL_FORMATIONS_SELECTED)).toBe(true);
+    expect(
+      events.events.some((entry) => entry.event === RoomEventName.ALL_FORMATIONS_SELECTED),
+    ).toBe(true);
     expect(events.events.some((entry) => entry.event === RoomEventName.DRAFT_READY)).toBe(true);
   });
 

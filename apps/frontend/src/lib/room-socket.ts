@@ -4,7 +4,6 @@ import type { RoomEventNameDto } from '@draft-io/shared-types';
 import { useEffect, useRef } from 'react';
 import { io, type Socket } from 'socket.io-client';
 
-
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
 
 function roomSocketUrl(): string {

@@ -1,9 +1,9 @@
 import { describe, expect, it, vi } from 'vitest';
 
+import { createMockPlayerRepository } from '../../../../testing/repository-mocks';
 import { PlayerNotFoundError } from '../../domain/errors/player.errors';
 import { PlayerId } from '../../domain/value-objects/player-id.vo';
 import { buildTestPlayer } from '../../testing/player-test.factory';
-import { createMockPlayerRepository } from '../../../../testing/repository-mocks';
 
 import { UpdatePlayerUseCase } from './update-player.use-case';
 
@@ -35,8 +35,8 @@ describe('UpdatePlayerUseCase', () => {
 
     const useCase = new UpdatePlayerUseCase(repository);
 
-    await expect(
-      useCase.execute({ playerId: VALID_PLAYER_ID, position: 'ST' }),
-    ).rejects.toThrow(PlayerNotFoundError);
+    await expect(useCase.execute({ playerId: VALID_PLAYER_ID, position: 'ST' })).rejects.toThrow(
+      PlayerNotFoundError,
+    );
   });
 });

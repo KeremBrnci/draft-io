@@ -1,8 +1,8 @@
 import type { LobbySessionDto, LobbySummaryDto } from '@draft-io/shared-types';
 
-import type { Lobby } from '../../domain/entities/lobby.entity';
-import type { LobbyParticipant } from '../../domain/entities/lobby-participant.entity';
 import type { LobbySession } from '../../application/read-models/lobby-session';
+import type { LobbyParticipant } from '../../domain/entities/lobby-participant.entity';
+import type { Lobby } from '../../domain/entities/lobby.entity';
 
 export function toLobbySummary(lobby: Lobby): LobbySummaryDto {
   return {
@@ -29,7 +29,9 @@ export function toLobbySessionDto(session: LobbySession): LobbySessionDto {
   };
 }
 
-function toLobbyParticipantDto(participant: LobbyParticipant): LobbySummaryDto['participants'][number] {
+function toLobbyParticipantDto(
+  participant: LobbyParticipant,
+): LobbySummaryDto['participants'][number] {
   return {
     id: participant.id,
     displayName: participant.displayName.value,

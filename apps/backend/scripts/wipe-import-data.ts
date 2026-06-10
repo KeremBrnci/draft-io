@@ -13,27 +13,18 @@ const prisma = new PrismaClient();
 async function main(): Promise<void> {
   console.log('Wiping import data...');
 
-  const [
-    failedRecords,
-    jobLogs,
-    jobs,
-    cards,
-    playerPositions,
-    players,
-    teams,
-    leagues,
-    countries,
-  ] = await prisma.$transaction([
-    prisma.importFailedRecord.deleteMany(),
-    prisma.importJobLog.deleteMany(),
-    prisma.importJob.deleteMany(),
-    prisma.card.deleteMany(),
-    prisma.playerPosition.deleteMany(),
-    prisma.player.deleteMany(),
-    prisma.team.deleteMany(),
-    prisma.league.deleteMany(),
-    prisma.country.deleteMany(),
-  ]);
+  const [failedRecords, jobLogs, jobs, cards, playerPositions, players, teams, leagues, countries] =
+    await prisma.$transaction([
+      prisma.importFailedRecord.deleteMany(),
+      prisma.importJobLog.deleteMany(),
+      prisma.importJob.deleteMany(),
+      prisma.card.deleteMany(),
+      prisma.playerPosition.deleteMany(),
+      prisma.player.deleteMany(),
+      prisma.team.deleteMany(),
+      prisma.league.deleteMany(),
+      prisma.country.deleteMany(),
+    ]);
 
   console.log('Deleted:');
   console.log(`  import_failed_records: ${String(failedRecords.count)}`);

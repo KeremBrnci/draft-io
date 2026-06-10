@@ -2,14 +2,14 @@ import type { LeagueRepository } from '../../../leagues/domain/repositories/leag
 import { LeagueId } from '../../../leagues/domain/value-objects/league-id.vo';
 import type { PlayerRepository } from '../../../players/domain/repositories/player.repository';
 import { PlayerId } from '../../../players/domain/value-objects/player-id.vo';
-import { OVERALL_ALGORITHM_V1 } from '../../domain/enums/overall-algorithm-version.enum';
 import type { OverallCalculation } from '../../domain/entities/overall-calculation.entity';
 import type { PlayerMetrics } from '../../domain/entities/player-metrics.entity';
+import { OVERALL_ALGORITHM_V1 } from '../../domain/enums/overall-algorithm-version.enum';
 import type { OverallCalculator } from '../../domain/ports/overall-calculator.port';
 import type { OverallAlgorithmVersionRepository } from '../../domain/repositories/overall-algorithm-version.repository';
 import type { OverallCalculationRepository } from '../../domain/repositories/overall-calculation.repository';
 import type { PlayerMetricsRepository } from '../../domain/repositories/player-metrics.repository';
-import { ManualOverrideGuardService } from '../services/manual-override-guard.service';
+import { type ManualOverrideGuardService } from '../services/manual-override-guard.service';
 import { OverallContextBuilderService } from '../services/overall-context-builder.service';
 
 export interface CalculatePlayerOverallCommand {

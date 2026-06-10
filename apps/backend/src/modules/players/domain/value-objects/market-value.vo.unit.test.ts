@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { InvalidMarketValueError } from '../errors/player.errors';
+
 import { MarketValue } from './market-value.vo';
 
 describe('MarketValue', () => {

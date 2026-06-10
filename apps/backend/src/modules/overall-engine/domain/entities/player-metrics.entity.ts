@@ -1,8 +1,7 @@
 import { Entity } from '../../../../common/domain/entity';
-
 import type { OverallProfileTag } from '../enums/overall-profile-tag.enum';
 import type { OverallComponentScores } from '../models/overall-component-scores';
-import { PlayerMetricsId } from '../value-objects/player-metrics-id.vo';
+import { type PlayerMetricsId } from '../value-objects/player-metrics-id.vo';
 
 export interface PlayerMetricsProps {
   readonly id: PlayerMetricsId;

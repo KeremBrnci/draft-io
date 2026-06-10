@@ -15,10 +15,10 @@ import { GetOverallHistoryUseCase } from './application/use-cases/get-overall-hi
 import { GetPlayerMetricsUseCase } from './application/use-cases/get-player-metrics.use-case';
 import { RecalculateOverallUseCase } from './application/use-cases/recalculate-overall.use-case';
 import { UpsertPlayerMetricsUseCase } from './application/use-cases/upsert-player-metrics.use-case';
+import { OVERALL_CALCULATOR } from './domain/ports/overall-calculator.port';
 import { OVERALL_ALGORITHM_VERSION_REPOSITORY } from './domain/repositories/overall-algorithm-version.repository';
 import { OVERALL_CALCULATION_REPOSITORY } from './domain/repositories/overall-calculation.repository';
 import { PLAYER_METRICS_REPOSITORY } from './domain/repositories/player-metrics.repository';
-import { OVERALL_CALCULATOR } from './domain/ports/overall-calculator.port';
 import { PrismaOverallAlgorithmVersionRepository } from './infrastructure/persistence/prisma-overall-algorithm-version.repository';
 import { PrismaOverallCalculationRepository } from './infrastructure/persistence/prisma-overall-calculation.repository';
 import { PrismaPlayerMetricsRepository } from './infrastructure/persistence/prisma-player-metrics.repository';
@@ -47,7 +47,8 @@ import { AdminOverallController } from './presentation/controllers/admin-overall
     },
     {
       provide: ManualOverrideGuardService,
-      useFactory: (cardRepository: CardRepository) => new ManualOverrideGuardService(cardRepository),
+      useFactory: (cardRepository: CardRepository) =>
+        new ManualOverrideGuardService(cardRepository),
       inject: [CARD_REPOSITORY],
     },
     provideUseCase(CalculatePlayerOverallUseCase, [

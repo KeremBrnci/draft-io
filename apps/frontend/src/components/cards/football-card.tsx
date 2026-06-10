@@ -31,10 +31,8 @@ export function FootballCard({
   const leagueIndicator = formatLeagueIndicator(face.leagueName);
   const [portraitFailed, setPortraitFailed] = useState(false);
 
-  const showPortrait =
-    face.imageUrl !== null && face.imageUrl.length > 0 && !portraitFailed;
-  const ratingDisplay =
-    face.rating !== null ? String(face.rating) : (face.ratingFallback ?? '—');
+  const showPortrait = face.imageUrl !== null && face.imageUrl.length > 0 && !portraitFailed;
+  const ratingDisplay = face.rating !== null ? String(face.rating) : (face.ratingFallback ?? '—');
 
   const rootClass = [
     'fc-card',
@@ -61,10 +59,7 @@ export function FootballCard({
       <FootballCardSilhouetteDefs />
 
       <div className="fc-card__shell">
-        <div
-          className="fc-card__frame"
-          style={{ clipPath: `url(#${FC_CARD_CLIP_ID})` }}
-        >
+        <div className="fc-card__frame" style={{ clipPath: `url(#${FC_CARD_CLIP_ID})` }}>
           <div className="fc-card__bevel" aria-hidden="true" />
           <div className="fc-card__satin" aria-hidden="true" />
           <div className="fc-card__pattern" aria-hidden="true" />

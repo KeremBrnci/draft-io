@@ -11,11 +11,11 @@ Supported values: `SPORTDB`, `TRANSFERMARKT`, `SPORTMONKS`, `API_FOOTBALL`, `SOF
 
 ## Dependency Rules
 
-| Module | May import `ExternalProvider` | Must NOT import |
-|--------|------------------------------|-----------------|
-| `players` / `teams` / `leagues` domain | Yes (from core) | `data-providers` |
-| `data-providers` | Yes (from core) | Feature domain entities |
-| `core` | — | Any feature module |
+| Module                                 | May import `ExternalProvider` | Must NOT import         |
+| -------------------------------------- | ----------------------------- | ----------------------- |
+| `players` / `teams` / `leagues` domain | Yes (from core)               | `data-providers`        |
+| `data-providers`                       | Yes (from core)               | Feature domain entities |
+| `core`                                 | —                             | Any feature module      |
 
 `data-providers/domain/enums/data-provider.enum.ts` re-exports a deprecated `DataProvider` alias for backward compatibility inside the data-providers module only.
 

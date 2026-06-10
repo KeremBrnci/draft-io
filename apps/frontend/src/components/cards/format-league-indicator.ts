@@ -8,17 +8,17 @@ export function formatLeagueIndicator(leagueName: string | null): string | null 
 
   const knownAbbreviations: Readonly<Record<string, string>> = {
     'Premier League': 'PL',
-    'LaLiga': 'LL',
+    LaLiga: 'LL',
     'La Liga': 'LL',
     'Serie A': 'SA',
-    'Bundesliga': 'BL',
+    Bundesliga: 'BL',
     'Ligue 1': 'L1',
     'Süper Lig': 'SL',
     'Super Lig': 'SL',
     'Primeira Liga': 'PL',
-    'Eredivisie': 'ED',
+    Eredivisie: 'ED',
     'Major League Soccer': 'MLS',
-    'Championship': 'CH',
+    Championship: 'CH',
   };
 
   const known = knownAbbreviations[trimmed];

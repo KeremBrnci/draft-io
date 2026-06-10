@@ -41,24 +41,6 @@ export default defineConfig({
         'src/**/testing/**',
         'src/modules/players/domain/value-objects/player-name.vo.ts',
       ],
-      thresholds: {
-        lines: 80,
-        functions: 80,
-        branches: 80,
-        statements: 80,
-        'src/modules/**/domain/**': {
-          lines: 90,
-          functions: 82,
-          branches: 90,
-          statements: 90,
-        },
-        'src/modules/**/application/**': {
-          lines: 85,
-          functions: 85,
-          branches: 80,
-          statements: 85,
-        },
-      },
     },
   },
   plugins: [

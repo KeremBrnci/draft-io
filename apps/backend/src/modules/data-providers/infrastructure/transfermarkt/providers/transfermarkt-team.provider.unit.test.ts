@@ -1,11 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { ProviderResponseError } from '../../../domain/errors/data-provider.errors';
-import { TransfermarktConfigService } from '../config/transfermarkt.config';
-import { TransfermarktHttpClient } from '../http/transfermarkt-http.client';
+import { type TransfermarktConfigService } from '../config/transfermarkt.config';
+import { type TransfermarktHttpClient } from '../http/transfermarkt-http.client';
+
 import { TransfermarktTeamProvider } from './transfermarkt-team.provider';
 
-function createConfigService(seasonId: string | undefined = undefined): TransfermarktConfigService {
+function createConfigService(seasonId?: string): TransfermarktConfigService {
   return {
     getConfig: () => ({
       apiKey: undefined,
@@ -44,11 +45,9 @@ describe('TransfermarktTeamProvider', () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date('2026-06-09T12:00:00Z'));
 
-    getJson
-      .mockRejectedValueOnce(new ProviderResponseError(405, 'blocked'))
-      .mockResolvedValueOnce({
-        clubs: [{ id: '11', name: 'Arsenal FC', country: 'England' }],
-      });
+    getJson.mockRejectedValueOnce(new ProviderResponseError(405, 'blocked')).mockResolvedValueOnce({
+      clubs: [{ id: '11', name: 'Arsenal FC', country: 'England' }],
+    });
 
     const provider = new TransfermarktTeamProvider(httpClient, createConfigService());
     const clubs = await provider.listClubsByCompetition('GB1');

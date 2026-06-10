@@ -1,9 +1,12 @@
 import type { DraftBalanceConfigDto } from '@draft-io/shared-types';
-import { Prisma } from '@prisma/client';
+import { type Prisma } from '@prisma/client';
 
 import type { DraftSlotAssignment } from '../../domain/models/participant-draft-state';
-import type { DraftSession, DraftSessionStatus } from '../../domain/repositories/draft-session.repository';
 import type { ParticipantDraftState } from '../../domain/models/participant-draft-state';
+import type {
+  DraftSession,
+  DraftSessionStatus,
+} from '../../domain/repositories/draft-session.repository';
 
 interface DraftSessionRecord {
   id: string;

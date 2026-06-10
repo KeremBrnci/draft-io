@@ -4,11 +4,11 @@ import { ExternalProvider } from '../../../../../core/external-reference/externa
 import type { ExternalLeagueRecord } from '../../../domain/models/external-league-record';
 import type { LeagueSearchResult } from '../../../domain/models/league-search-result';
 import type { LeagueProvider } from '../../../domain/ports/league-provider.port';
+import { findTransfermarktCountryByExternalId } from '../data/transfermarkt-countries.seed';
 import type {
   TransfermarktCompetitionDto,
   TransfermarktListResponse,
 } from '../dtos/transfermarkt.dto';
-import { findTransfermarktCountryByExternalId } from '../data/transfermarkt-countries.seed';
 import { TransfermarktHttpClient } from '../http/transfermarkt-http.client';
 import {
   extractListItems,
@@ -28,7 +28,9 @@ export class TransfermarktLeagueProvider implements LeagueProvider {
     return extractListItems(response).map(mapCompetitionSearchResult);
   }
 
-  async listCompetitionsByCountry(countryExternalId: string): Promise<readonly LeagueSearchResult[]> {
+  async listCompetitionsByCountry(
+    countryExternalId: string,
+  ): Promise<readonly LeagueSearchResult[]> {
     const country = findTransfermarktCountryByExternalId(countryExternalId);
 
     if (country === undefined) {
@@ -36,7 +38,8 @@ export class TransfermarktLeagueProvider implements LeagueProvider {
     }
 
     const response = await this.httpClient.getJson<
-      TransfermarktListResponse<TransfermarktCompetitionDto> | readonly TransfermarktCompetitionDto[]
+      | TransfermarktListResponse<TransfermarktCompetitionDto>
+      | readonly TransfermarktCompetitionDto[]
     >(`competitions/search/${encodeURIComponent(country.name)}`);
 
     return extractListItems(response).map(mapCompetitionSearchResult);

@@ -15,13 +15,13 @@ Integrate external football data sources as provider adapters and orchestrate im
 
 Application use cases (not yet exposed via HTTP):
 
-| Use Case | Input |
-|----------|-------|
-| `ImportPlayerUseCase` | `{ externalId }` |
-| `ImportTeamUseCase` | `{ externalId }` |
-| `ImportLeagueUseCase` | `{ externalId }` |
+| Use Case                    | Input               |
+| --------------------------- | ------------------- |
+| `ImportPlayerUseCase`       | `{ externalId }`    |
+| `ImportTeamUseCase`         | `{ externalId }`    |
+| `ImportLeagueUseCase`       | `{ externalId }`    |
 | `ImportPlayersBatchUseCase` | `{ externalIds[] }` |
-| `ImportTeamsBatchUseCase` | `{ externalIds[] }` |
+| `ImportTeamsBatchUseCase`   | `{ externalIds[] }` |
 | `ImportLeaguesBatchUseCase` | `{ externalIds[] }` |
 
 ## Dependencies

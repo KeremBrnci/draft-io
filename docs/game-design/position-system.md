@@ -6,12 +6,12 @@ Positions describe **where a real footballer can credibly play**. They are ident
 
 ## Examples
 
-| Player | Primary | Secondary |
-|--------|---------|-----------|
-| Rodri | CDM | CM, CB |
-| Kimmich | CDM | CM, RB |
-| Valverde | CM | RM, RW |
-| Alaba | CB | LB, CDM |
+| Player   | Primary | Secondary |
+| -------- | ------- | --------- |
+| Rodri    | CDM     | CM, CB    |
+| Kimmich  | CDM     | CM, RB    |
+| Valverde | CM      | RM, RW    |
+| Alaba    | CB      | LB, CDM   |
 
 Stored as `player_positions` rows with `isPrimary`.
 

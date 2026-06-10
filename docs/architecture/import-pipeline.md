@@ -28,30 +28,32 @@ PostgreSQL
 
 ## Use Cases
 
-| Use Case | Description |
-|----------|-------------|
-| `ImportPlayerUseCase` | Single player by provider + slug + external ID |
-| `SearchPlayersUseCase` | Admin search against provider |
-| `ImportTeamUseCase` | Single team |
-| `ImportLeagueUseCase` | Single league |
-| `ImportPlayersBatchUseCase` | Sequential batch (future: parallel + transaction) |
-| `ImportTeamsBatchUseCase` | Sequential batch |
-| `ImportLeaguesBatchUseCase` | Sequential batch |
-| `ListProviderCountriesUseCase` | List countries (Transfermarkt) |
-| `ImportCountriesUseCase` | Import countries into `countries` table |
-| `ListCompetitionsByCountryUseCase` | List competitions for a country |
-| `ImportCompetitionsByCountryUseCase` | Import competitions as leagues |
-| `ImportClubPlayersUseCase` | Import squad roster for a club |
-| `SyncPlayerProfileUseCase` | Refresh a single player profile |
+| Use Case                             | Description                                       |
+| ------------------------------------ | ------------------------------------------------- |
+| `ImportPlayerUseCase`                | Single player by provider + slug + external ID    |
+| `SearchPlayersUseCase`               | Admin search against provider                     |
+| `ImportTeamUseCase`                  | Single team                                       |
+| `ImportLeagueUseCase`                | Single league                                     |
+| `ImportPlayersBatchUseCase`          | Sequential batch (future: parallel + transaction) |
+| `ImportTeamsBatchUseCase`            | Sequential batch                                  |
+| `ImportLeaguesBatchUseCase`          | Sequential batch                                  |
+| `ListProviderCountriesUseCase`       | List countries (Transfermarkt)                    |
+| `ImportCountriesUseCase`             | Import countries into `countries` table           |
+| `ListCompetitionsByCountryUseCase`   | List competitions for a country                   |
+| `ImportCompetitionsByCountryUseCase` | Import competitions as leagues                    |
+| `ImportClubPlayersUseCase`           | Import squad roster for a club                    |
+| `SyncPlayerProfileUseCase`           | Refresh a single player profile                   |
 
 ## Import Order (recommended)
 
 ### SportDB
+
 1. **Leagues** — no dependencies
 2. **Teams** — optional league context
 3. **Players** — resolves `teamId` / `leagueId` via `findByExternalReference`
 
 ### Transfermarkt
+
 1. **Countries** — stored in `countries` table (`nations` module)
 2. **Competitions** — imported as leagues with `countryId` FK
 3. **Clubs** — imported as teams with `countryId` / `leagueId` FKs
@@ -93,14 +95,14 @@ See `docs/architecture/sportdb-integration.md` and `docs/architecture/transferma
 
 ## Risks
 
-| Risk | Mitigation |
-|------|------------|
-| Import before team exists | `teamId` left null; re-link job later |
-| Partial batch failure | Batch use case stops on first error (document; add continue-on-error later) |
+| Risk                      | Mitigation                                                                  |
+| ------------------------- | --------------------------------------------------------------------------- |
+| Import before team exists | `teamId` left null; re-link job later                                       |
+| Partial batch failure     | Batch use case stops on first error (document; add continue-on-error later) |
 
 ## Alternatives
 
-| Alternative | Why rejected |
-|-------------|--------------|
-| ETL outside backend | Loses domain validation and testability |
-| Direct Prisma seed scripts | Bypasses use cases and overall policy |
+| Alternative                | Why rejected                            |
+| -------------------------- | --------------------------------------- |
+| ETL outside backend        | Loses domain validation and testability |
+| Direct Prisma seed scripts | Bypasses use cases and overall policy   |

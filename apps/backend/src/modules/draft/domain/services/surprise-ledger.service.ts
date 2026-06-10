@@ -40,7 +40,10 @@ export class SurpriseLedgerService {
     return randomValue < Math.max(0.02, Math.min(0.2, adjustedProbability));
   }
 
-  accrueLateLuckCredit(state: ParticipantDraftState, draftedCards: readonly DraftPoolCard[]): ParticipantDraftState {
+  accrueLateLuckCredit(
+    state: ParticipantDraftState,
+    draftedCards: readonly DraftPoolCard[],
+  ): ParticipantDraftState {
     if (state.pickCount < Math.floor(this.config.rosterSize / 2)) {
       return state;
     }

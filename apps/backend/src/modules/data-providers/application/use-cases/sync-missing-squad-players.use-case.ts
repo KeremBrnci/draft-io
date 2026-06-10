@@ -1,13 +1,13 @@
 import { parseExternalProvider } from '../../../../core/external-reference/external-provider';
 import type { LeagueRepository } from '../../../leagues/domain/repositories/league.repository';
+import { LeagueId } from '../../../leagues/domain/value-objects/league-id.vo';
 import type { PlayerRepository } from '../../../players/domain/repositories/player.repository';
 import type { TeamRepository } from '../../../teams/domain/repositories/team.repository';
-import { LeagueId } from '../../../leagues/domain/value-objects/league-id.vo';
+import { TransfermarktSquadPageClient } from '../../infrastructure/transfermarkt/scraping/transfermarkt-squad-page.client';
 import {
   mapScrapedSquadPlayerToExternalRecord,
   parseTransfermarktSquadPage,
 } from '../../infrastructure/transfermarkt/scraping/transfermarkt-squad-page.parser';
-import { TransfermarktSquadPageClient } from '../../infrastructure/transfermarkt/scraping/transfermarkt-squad-page.client';
 import { resolveTransfermarktSeasonId } from '../../infrastructure/transfermarkt/utils/transfermarkt-season';
 
 import type { ImportPlayerUseCase } from './import-player.use-case';
@@ -23,8 +23,15 @@ export interface SyncMissingSquadPlayersResult {
   readonly imported: number;
   readonly skippedExisting: number;
   readonly failed: number;
-  readonly importedPlayers: readonly { readonly externalId: string; readonly displayName: string }[];
-  readonly failures: readonly { readonly externalId: string; readonly displayName: string; readonly reason: string }[];
+  readonly importedPlayers: readonly {
+    readonly externalId: string;
+    readonly displayName: string;
+  }[];
+  readonly failures: readonly {
+    readonly externalId: string;
+    readonly displayName: string;
+    readonly reason: string;
+  }[];
 }
 
 const REQUEST_DELAY_MS = 250;
@@ -47,8 +54,8 @@ export class SyncMissingSquadPlayersUseCase {
         ? await this.resolveSingleTeam(provider, command.clubExternalId)
         : await this.teamRepository.findAll();
 
-    const importedPlayers: Array<{ externalId: string; displayName: string }> = [];
-    const failures: Array<{ externalId: string; displayName: string; reason: string }> = [];
+    const importedPlayers: { externalId: string; displayName: string }[] = [];
+    const failures: { externalId: string; displayName: string; reason: string }[] = [];
     let squadPlayers = 0;
     let imported = 0;
     let skippedExisting = 0;

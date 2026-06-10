@@ -2,13 +2,13 @@
 
 ## Current State (pre-migration DB)
 
-| Area | Status |
-|------|--------|
-| Domain | Reference entities + Card with UUID FKs |
-| Prisma schema | Proposed — 4 card tables |
-| API | Read-only `GET /cards`, `GET /cards/:id`, `GET /players/:id/cards` |
-| DB | May still have old `cards` with string `card_type`/`rarity` OR no card tables |
-| Seed data | Not applied |
+| Area          | Status                                                                        |
+| ------------- | ----------------------------------------------------------------------------- |
+| Domain        | Reference entities + Card with UUID FKs                                       |
+| Prisma schema | Proposed — 4 card tables                                                      |
+| API           | Read-only `GET /cards`, `GET /cards/:id`, `GET /players/:id/cards`            |
+| DB            | May still have old `cards` with string `card_type`/`rarity` OR no card tables |
+| Seed data     | Not applied                                                                   |
 
 ## Target State
 
@@ -20,12 +20,12 @@ card_rarities ──── cards
 
 ### Tables
 
-| Table | Purpose |
-|-------|---------|
-| `card_types` | BASE, HERO, TOTY, … (admin-insertable) |
-| `card_rarities` | COMMON → LEGENDARY (+ future) |
-| `card_templates` | Visual config per type |
-| `cards` | Playable assets with FK references |
+| Table            | Purpose                                |
+| ---------------- | -------------------------------------- |
+| `card_types`     | BASE, HERO, TOTY, … (admin-insertable) |
+| `card_rarities`  | COMMON → LEGENDARY (+ future)          |
+| `card_templates` | Visual config per type                 |
+| `cards`          | Playable assets with FK references     |
 
 ## Required Migrations
 
@@ -70,13 +70,13 @@ Deploy backend with new repositories after migration succeeds.
 
 ## Risks
 
-| Risk | Mitigation |
-|------|------------|
-| Empty reference tables | Block deploy; run seed in same migration |
-| Orphan cards after FK add | Validate backfill script in staging |
-| API returns empty lists | Expected until cards created manually |
-| Old clients expect enum unions | `cardTypeCode` string in `CardSummary` |
-| Rollback drops data | Backup before migration; test on copy |
+| Risk                           | Mitigation                               |
+| ------------------------------ | ---------------------------------------- |
+| Empty reference tables         | Block deploy; run seed in same migration |
+| Orphan cards after FK add      | Validate backfill script in staging      |
+| API returns empty lists        | Expected until cards created manually    |
+| Old clients expect enum unions | `cardTypeCode` string in `CardSummary`   |
+| Rollback drops data            | Backup before migration; test on copy    |
 
 ## Rollback Strategy
 

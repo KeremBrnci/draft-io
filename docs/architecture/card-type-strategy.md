@@ -22,20 +22,20 @@ No code deployment required.
 
 ## Why Enums Are Avoided
 
-| Approach | Add TOTY | Add custom event |
-|----------|----------|------------------|
-| `enum CardType` | Code change + deploy | Code change + deploy |
-| `card_types` table | SQL insert | SQL insert |
+| Approach           | Add TOTY             | Add custom event     |
+| ------------------ | -------------------- | -------------------- |
+| `enum CardType`    | Code change + deploy | Code change + deploy |
+| `card_types` table | SQL insert           | SQL insert           |
 
 `CardRarity` follows the same strategy with `sortOrder` for display and pack weights.
 
 ## Current Types (seed)
 
-| Code | Name |
-|------|------|
-| `BASE` | Base Card |
-| `HERO` | Hero Card |
-| `ICON` | Icon Card |
+| Code         | Name       |
+| ------------ | ---------- |
+| `BASE`       | Base Card  |
+| `HERO`       | Hero Card  |
+| `ICON`       | Icon Card  |
 | `PRIME_ICON` | Prime Icon |
 
 ## Future Types (data only)
@@ -54,13 +54,13 @@ Domain code references types by **UUID** (`cardTypeId`) or **code** string at AP
 
 ## Gameplay Consumption
 
-| System | Uses |
-|--------|------|
-| Draft | `cardId`, `overall`, `isActive`, optional `cardTypeCode` filter |
-| Team squad | `cardId` in `startingEleven` slots |
-| Simulation | `Card.overall` per slot |
-| Chemistry (future) | `card.playerId` → nationality links |
-| UI | `cardTemplate` + `cardType.name` |
+| System             | Uses                                                            |
+| ------------------ | --------------------------------------------------------------- |
+| Draft              | `cardId`, `overall`, `isActive`, optional `cardTypeCode` filter |
+| Team squad         | `cardId` in `startingEleven` slots                              |
+| Simulation         | `Card.overall` per slot                                         |
+| Chemistry (future) | `card.playerId` → nationality links                             |
+| UI                 | `cardTemplate` + `cardType.name`                                |
 
 ## Player Boundary
 

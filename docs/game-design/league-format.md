@@ -9,7 +9,7 @@ After draft, each lobby creates a **room-scoped mini league** (`RoomLeague`). Th
 Double round-robin: every participant plays every other participant **twice**, home and away.
 
 | Players | Matches |
-|---------|---------|
+| ------- | ------- |
 | 2       | 2       |
 | 4       | 12      |
 | 8       | 56      |

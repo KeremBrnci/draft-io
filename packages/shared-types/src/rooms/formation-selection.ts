@@ -1,5 +1,6 @@
 import type { FormationSummaryDto } from '../formations/formation-summary.js';
 import type { LobbySummaryDto } from '../lobbies/lobby-summary.js';
+
 import type { ParticipantPhaseStatusDto, RoomPhaseDto } from './room-phase.js';
 
 export interface FormationSelectionParticipantDto {

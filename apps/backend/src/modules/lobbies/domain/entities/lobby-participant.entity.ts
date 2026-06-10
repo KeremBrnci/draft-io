@@ -1,8 +1,11 @@
 import { randomUUID } from 'node:crypto';
 
-import { CoachAlreadySelectedError, CoachNotInPoolError } from '../errors/coach-selection.errors';
-import { FormationAlreadySelectedError, FormationNotInPoolError } from '../errors/formation-selection.errors';
 import { ParticipantPhaseStatus } from '../enums/room-phase.enum';
+import { CoachAlreadySelectedError, CoachNotInPoolError } from '../errors/coach-selection.errors';
+import {
+  FormationAlreadySelectedError,
+  FormationNotInPoolError,
+} from '../errors/formation-selection.errors';
 import type { ParticipantDisplayName } from '../value-objects/participant-display-name.vo';
 import { SessionToken } from '../value-objects/session-token.vo';
 

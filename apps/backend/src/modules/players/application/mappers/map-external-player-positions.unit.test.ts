@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { PlayerId } from '../../domain/value-objects/player-id.vo';
+
 import { mapExternalPlayerPositions } from './map-external-player-positions';
 
 const PLAYER_ID = PlayerId.create('550e8400-e29b-41d4-a716-446655440000');

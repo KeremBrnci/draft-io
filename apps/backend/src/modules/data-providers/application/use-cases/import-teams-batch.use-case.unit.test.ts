@@ -5,6 +5,7 @@ import { Team } from '../../../teams/domain/entities/team.entity';
 import { TeamExternalReference } from '../../../teams/domain/value-objects/external-reference.vo';
 import { TeamId } from '../../../teams/domain/value-objects/team-id.vo';
 import { TeamName } from '../../../teams/domain/value-objects/team-name.vo';
+
 import type { ImportTeamUseCase } from './import-team.use-case';
 import { ImportTeamsBatchUseCase } from './import-teams-batch.use-case';
 

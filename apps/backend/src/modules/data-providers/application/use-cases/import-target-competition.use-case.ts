@@ -1,12 +1,13 @@
 import { parseExternalProvider } from '../../../../core/external-reference/external-provider';
+import { findTargetCompetitionByExternalId } from '../../domain/catalog/target-competitions.catalog';
 import { ImportJobType } from '../../domain/enums/import-job-type';
 import type { ImportFailedRecordRepository } from '../../domain/repositories/import-failed-record.repository';
 import type { ImportJobLogRepository } from '../../domain/repositories/import-job-log.repository';
 import type { ImportJobRepository } from '../../domain/repositories/import-job.repository';
 import { ImportJobId } from '../../domain/value-objects/import-job-id.vo';
-import { findTargetCompetitionByExternalId } from '../../domain/catalog/target-competitions.catalog';
 import { buildImportJobTrackerDeps } from '../services/import-job-tracker.factory';
 import { ImportJobTracker } from '../services/import-job-tracker.service';
+
 import type { ImportLeagueUseCase } from './import-league.use-case';
 
 export interface ImportTargetCompetitionCommand {

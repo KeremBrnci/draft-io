@@ -6,6 +6,7 @@ import type { ImportJobRepository } from '../../domain/repositories/import-job.r
 import { ImportJobId } from '../../domain/value-objects/import-job-id.vo';
 import { buildImportJobTrackerDeps } from '../services/import-job-tracker.factory';
 import { ImportJobTracker } from '../services/import-job-tracker.service';
+
 import type { ImportPlayerUseCase } from './import-player.use-case';
 import type { ImportTeamUseCase } from './import-team.use-case';
 import type { SyncPlayerProfileUseCase } from './sync-player-profile.use-case';
@@ -58,7 +59,9 @@ export class RetryImportJobUseCase {
     );
 
     await tracker.start(failedRecords.length);
-    await tracker.log(`Retrying ${String(failedRecords.length)} failed records from job ${command.jobId}`);
+    await tracker.log(
+      `Retrying ${String(failedRecords.length)} failed records from job ${command.jobId}`,
+    );
 
     const provider = sourceJob.provider;
 
@@ -66,7 +69,9 @@ export class RetryImportJobUseCase {
       try {
         await this.retryRecord(provider, record);
         await this.importFailedRecordRepository.markResolved(record.id);
-        await tracker.recordSuccess(`Retried ${record.displayName ?? record.externalId ?? record.id}`);
+        await tracker.recordSuccess(
+          `Retried ${record.displayName ?? record.externalId ?? record.id}`,
+        );
       } catch (error) {
         await tracker.recordFailure(error instanceof Error ? error.message : 'Retry failed', {
           recordType: record.recordType,
@@ -114,7 +119,9 @@ export class RetryImportJobUseCase {
     }
 
     if (record.recordType === 'COMPETITION') {
-      throw new Error('Competition retries require full pipeline — use import competition endpoint');
+      throw new Error(
+        'Competition retries require full pipeline — use import competition endpoint',
+      );
     }
 
     await this.importPlayerUseCase.execute({

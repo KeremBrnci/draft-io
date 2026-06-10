@@ -11,9 +11,9 @@ Represent competitive leagues that group teams and seasons.
 
 ## Public API
 
-| Method | Endpoint | Use Case |
-|--------|----------|----------|
-| GET | `/api/v1/leagues` | `ListLeaguesUseCase` |
+| Method | Endpoint          | Use Case             |
+| ------ | ----------------- | -------------------- |
+| GET    | `/api/v1/leagues` | `ListLeaguesUseCase` |
 
 ## Dependencies
 

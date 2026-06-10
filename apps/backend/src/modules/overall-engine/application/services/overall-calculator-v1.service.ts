@@ -1,12 +1,9 @@
+import { OVERALL_V1_CALIBRATION, OVERALL_V1_WEIGHTS } from '../../domain/config/overall-v1.config';
 import { OVERALL_ALGORITHM_V1 } from '../../domain/enums/overall-algorithm-version.enum';
-import {
-  OVERALL_V1_CALIBRATION,
-  OVERALL_V1_WEIGHTS,
-} from '../../domain/config/overall-v1.config';
 import type { OverallCalculationContext } from '../../domain/models/overall-calculation-context';
 import type { OverallCalculationResult } from '../../domain/models/overall-calculation-result';
-import type { OverallCalculator } from '../../domain/ports/overall-calculator.port';
 import type { OverallCalculationStrategy } from '../../domain/ports/overall-calculation-strategy.port';
+import type { OverallCalculator } from '../../domain/ports/overall-calculator.port';
 import { AgeScoringStrategy } from '../scoring/age-scoring.strategy';
 import { CareerScoringStrategy } from '../scoring/career-scoring.strategy';
 import { LeagueScoringStrategy } from '../scoring/league-scoring.strategy';

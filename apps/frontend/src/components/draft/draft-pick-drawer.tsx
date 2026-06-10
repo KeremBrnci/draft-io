@@ -8,7 +8,6 @@ import { mapCardTypeToVariant } from './map-card-type-to-variant';
 
 import { FootballCard } from '@/components/cards/football-card';
 
-
 interface DraftPickDrawerProps {
   readonly slotLabel: string;
   readonly options: readonly DraftPickOptionDto[];
@@ -57,7 +56,12 @@ export function DraftPickDrawer({
   }
 
   return createPortal(
-    <div className="draft-pick-drawer" role="dialog" aria-modal="true" aria-label={`${slotLabel} için oyuncu seç`}>
+    <div
+      className="draft-pick-drawer"
+      role="dialog"
+      aria-modal="true"
+      aria-label={`${slotLabel} için oyuncu seç`}
+    >
       <div
         className="draft-pick-drawer__backdrop"
         onClick={dismissible ? onClose : undefined}
@@ -78,7 +82,12 @@ export function DraftPickDrawer({
             </p>
           </div>
           {dismissible ? (
-            <button type="button" className="draft-pick-drawer__close" onClick={onClose} aria-label="Kapat">
+            <button
+              type="button"
+              className="draft-pick-drawer__close"
+              onClick={onClose}
+              aria-label="Kapat"
+            >
               ✕
             </button>
           ) : null}
@@ -86,7 +95,9 @@ export function DraftPickDrawer({
 
         {loading ? (
           <div className="draft-pick-drawer__loading">
-            <div className="draft-pick-drawer__loading-ball" aria-hidden>⚽</div>
+            <div className="draft-pick-drawer__loading-ball" aria-hidden>
+              ⚽
+            </div>
             <div className="play-loader" />
             <p>Kartlar dağıtılıyor…</p>
           </div>
@@ -105,7 +116,9 @@ export function DraftPickDrawer({
                   className={`draft-pick-drawer__option${isPicking ? ' draft-pick-drawer__option--picking' : ''}${isDisabled ? ' draft-pick-drawer__option--dimmed' : ''}`}
                   style={{ animationDelay: `${index * 70}ms` }}
                   disabled={pickingCardId !== null}
-                  onClick={() => { onPick(option.cardId); }}
+                  onClick={() => {
+                    onPick(option.cardId);
+                  }}
                 >
                   <span className="draft-pick-drawer__option-ring" aria-hidden />
                   <span className="draft-pick-drawer__option-shine" aria-hidden />

@@ -1,6 +1,5 @@
 import { OVERALL_PROFILE_BOUNDS } from '../../domain/config/overall-v1.config';
 import type { OverallProfileTag } from '../../domain/enums/overall-profile-tag.enum';
-
 import { marketValueOverallCeiling, marketValueOverallFloor } from '../scoring/inferred-score.util';
 import { clampOverall } from '../scoring/score-bracket.util';
 

@@ -48,13 +48,13 @@ We will use a **Modular Monolith** architecture with feature-first modules, each
 
 ## Module Map
 
-| Module | Responsibility | Future Extraction Candidate |
-|--------|---------------|---------------------------|
-| `auth` | Authentication, authorization | Low priority |
-| `users` | User profiles, accounts | Low priority |
-| `players` | Player cards, attributes | Medium |
-| `formations` | Tactical formations | Low (coupled to draft) |
-| `lobbies` | Lobby management, matchmaking | Medium |
-| `draft` | Draft room, pick order | High (real-time heavy) |
-| `matches` | Match scheduling, results | Medium |
-| `simulation` | Match engine, chemistry | High (CPU intensive) |
+| Module       | Responsibility                | Future Extraction Candidate |
+| ------------ | ----------------------------- | --------------------------- |
+| `auth`       | Authentication, authorization | Low priority                |
+| `users`      | User profiles, accounts       | Low priority                |
+| `players`    | Player cards, attributes      | Medium                      |
+| `formations` | Tactical formations           | Low (coupled to draft)      |
+| `lobbies`    | Lobby management, matchmaking | Medium                      |
+| `draft`      | Draft room, pick order        | High (real-time heavy)      |
+| `matches`    | Match scheduling, results     | Medium                      |
+| `simulation` | Match engine, chemistry       | High (CPU intensive)        |

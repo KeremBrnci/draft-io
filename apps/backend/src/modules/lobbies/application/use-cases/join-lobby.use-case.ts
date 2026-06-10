@@ -1,6 +1,6 @@
+import type { LobbyRepository } from '../../domain/repositories/lobby.repository';
 import { LobbyCode } from '../../domain/value-objects/lobby-code.vo';
 import { ParticipantDisplayName } from '../../domain/value-objects/participant-display-name.vo';
-import type { LobbyRepository } from '../../domain/repositories/lobby.repository';
 import type { JoinLobbyCommand } from '../commands/join-lobby.command';
 import type { LobbySession } from '../read-models/lobby-session';
 import { LobbyLifecycleService } from '../services/lobby-lifecycle.service';

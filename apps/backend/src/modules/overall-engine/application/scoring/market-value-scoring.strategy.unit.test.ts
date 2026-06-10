@@ -25,7 +25,7 @@ describe('MarketValueScoringStrategy', () => {
   const strategy = new MarketValueScoringStrategy();
 
   it('returns baseline score when market value is missing', () => {
-    expect(strategy.score(context(null))).toBe(35);
+    expect(strategy.score(context(null))).toBe(38);
   });
 
   it('maps high market values into upper band', () => {

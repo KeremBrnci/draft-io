@@ -2,15 +2,15 @@ import { describe, expect, it, vi } from 'vitest';
 
 import { ExternalProvider } from '../../../../core/external-reference/external-provider';
 import { League } from '../../../leagues/domain/entities/league.entity';
+import type { LeagueRepository } from '../../../leagues/domain/repositories/league.repository';
 import { LeagueExternalReference } from '../../../leagues/domain/value-objects/external-reference.vo';
 import { LeagueId } from '../../../leagues/domain/value-objects/league-id.vo';
 import { LeagueName } from '../../../leagues/domain/value-objects/league-name.vo';
-import type { LeagueRepository } from '../../../leagues/domain/repositories/league.repository';
 import { ImportJob } from '../../domain/entities/import-job.entity';
 import { ImportJobStatus } from '../../domain/enums/import-job-status';
 import { ImportJobType } from '../../domain/enums/import-job-type';
-import { ImportJobId } from '../../domain/value-objects/import-job-id.vo';
 import type { ImportJobRepository } from '../../domain/repositories/import-job.repository';
+import { ImportJobId } from '../../domain/value-objects/import-job-id.vo';
 
 import { ListTargetCompetitionsUseCase } from './list-target-competitions.use-case';
 

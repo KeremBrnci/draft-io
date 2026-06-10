@@ -8,6 +8,8 @@ export function toPositionResponse(code: PlayerPosition): PositionResponse {
   return { code };
 }
 
-export function toPositionResponseList(codes: readonly PlayerPosition[]): readonly PositionResponse[] {
+export function toPositionResponseList(
+  codes: readonly PlayerPosition[],
+): readonly PositionResponse[] {
   return codes.map((code) => toPositionResponse(code));
 }

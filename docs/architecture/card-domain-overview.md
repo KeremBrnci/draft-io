@@ -35,17 +35,17 @@ cards/
 
 ## Card Aggregate
 
-| Field | Notes |
-|-------|-------|
-| `playerId` | Identity FK (UUID string in domain) |
-| `cardTypeId` | Reference data — not enum |
-| `cardRarityId` | Reference data — not enum |
-| `cardTemplateId` | Presentation config FK |
-| `overall` | Gameplay strength (1–99) |
-| `overallSource` | `CALCULATED` \| `MANUAL_OVERRIDE` |
-| `cardVersion` | Edition label |
-| `releaseDate` | Optional go-live date |
-| `isActive` | Draft pool eligibility |
+| Field            | Notes                               |
+| ---------------- | ----------------------------------- |
+| `playerId`       | Identity FK (UUID string in domain) |
+| `cardTypeId`     | Reference data — not enum           |
+| `cardRarityId`   | Reference data — not enum           |
+| `cardTemplateId` | Presentation config FK              |
+| `overall`        | Gameplay strength (1–99)            |
+| `overallSource`  | `CALCULATED` \| `MANUAL_OVERRIDE`   |
+| `cardVersion`    | Edition label                       |
+| `releaseDate`    | Optional go-live date               |
+| `isActive`       | Draft pool eligibility              |
 
 **Not on Card:** images, colors, event metadata (future `CardMetadata`).
 
@@ -65,11 +65,11 @@ cards/
 
 ## API Foundation (read-only)
 
-| Method | Path | Filters |
-|--------|------|---------|
-| GET | `/api/v1/cards` | `cardType`, `cardRarity`, `minOverall`, `maxOverall`, `isActive` |
-| GET | `/api/v1/cards/:id` | — |
-| GET | `/api/v1/players/:playerId/cards` | same as list |
+| Method | Path                              | Filters                                                          |
+| ------ | --------------------------------- | ---------------------------------------------------------------- |
+| GET    | `/api/v1/cards`                   | `cardType`, `cardRarity`, `minOverall`, `maxOverall`, `isActive` |
+| GET    | `/api/v1/cards/:id`               | —                                                                |
+| GET    | `/api/v1/players/:playerId/cards` | same as list                                                     |
 
 Response: `CardSummary` with resolved `cardTypeCode`, `cardRarityCode`, `cardTemplateName`.
 
@@ -79,12 +79,12 @@ Response: `CardSummary` with resolved `cardTypeCode`, `cardRarityCode`, `cardTem
 
 ## Dependency Rules
 
-| From | To | Allowed |
-|------|-----|---------|
-| `cards` domain | `players` domain | No — `playerId` string only |
-| `data-providers` | `cards` | No |
-| `draft` (future) | `cards` | Yes — via use cases |
-| `simulation` (future) | `cards` | Yes |
+| From                  | To               | Allowed                     |
+| --------------------- | ---------------- | --------------------------- |
+| `cards` domain        | `players` domain | No — `playerId` string only |
+| `data-providers`      | `cards`          | No                          |
+| `draft` (future)      | `cards`          | Yes — via use cases         |
+| `simulation` (future) | `cards`          | Yes                         |
 
 ## Related Docs
 

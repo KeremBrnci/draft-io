@@ -19,18 +19,18 @@ Infrastructure  →  Domain
 Infrastructure  →  Application (via interfaces/ports only)
 ```
 
-| From Layer | To Layer | Allowed |
-|------------|----------|---------|
-| Presentation | Application | ✅ |
-| Presentation | Domain | ⚠️ Only for mapping, never business logic |
-| Application | Domain | ✅ |
-| Application | Infrastructure | ❌ Use ports/interfaces instead |
-| Infrastructure | Domain | ✅ |
-| Infrastructure | Application | ❌ |
-| Domain | Application | ❌ |
-| Domain | Infrastructure | ❌ |
-| Domain | Presentation | ❌ |
-| Application | Presentation | ❌ |
+| From Layer     | To Layer       | Allowed                                   |
+| -------------- | -------------- | ----------------------------------------- |
+| Presentation   | Application    | ✅                                        |
+| Presentation   | Domain         | ⚠️ Only for mapping, never business logic |
+| Application    | Domain         | ✅                                        |
+| Application    | Infrastructure | ❌ Use ports/interfaces instead           |
+| Infrastructure | Domain         | ✅                                        |
+| Infrastructure | Application    | ❌                                        |
+| Domain         | Application    | ❌                                        |
+| Domain         | Infrastructure | ❌                                        |
+| Domain         | Presentation   | ❌                                        |
+| Application    | Presentation   | ❌                                        |
 
 ### Forbidden Dependencies
 
@@ -80,10 +80,10 @@ export class PrismaPlayerRepository implements PlayerRepositoryPort { ... }
 
 ## Shared Packages
 
-| Package | Domain Layer | Application | Infrastructure | Presentation | Frontend |
-|---------|-------------|-------------|----------------|--------------|----------|
-| `@draft-io/shared-types` | ❌ | ⚠️ | ⚠️ | ✅ | ✅ |
-| `@draft-io/shared-utils` | ✅ (pure only) | ✅ | ✅ | ✅ | ✅ |
+| Package                  | Domain Layer   | Application | Infrastructure | Presentation | Frontend |
+| ------------------------ | -------------- | ----------- | -------------- | ------------ | -------- |
+| `@draft-io/shared-types` | ❌             | ⚠️          | ⚠️             | ✅           | ✅       |
+| `@draft-io/shared-utils` | ✅ (pure only) | ✅          | ✅             | ✅           | ✅       |
 
 ## Error Handling
 

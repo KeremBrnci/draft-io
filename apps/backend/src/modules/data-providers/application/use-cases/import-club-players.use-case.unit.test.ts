@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 
 import { ExternalProvider } from '../../../../core/external-reference/external-provider';
+import { createMockTeamRepository } from '../../../../testing/repository-mocks';
 import { Player } from '../../../players/domain/entities/player.entity';
 import { PlayerStatus } from '../../../players/domain/enums/player-status.enum';
 import { DisplayName } from '../../../players/domain/value-objects/display-name.vo';
@@ -10,16 +11,15 @@ import { PersonName } from '../../../players/domain/value-objects/person-name.vo
 import { PlayerId } from '../../../players/domain/value-objects/player-id.vo';
 import { buildTestPlayerPositions } from '../../../players/testing/player-test.factory';
 import { Team } from '../../../teams/domain/entities/team.entity';
-import { createMockTeamRepository } from '../../../../testing/repository-mocks';
 import { TeamExternalReference } from '../../../teams/domain/value-objects/external-reference.vo';
 import { TeamId } from '../../../teams/domain/value-objects/team-id.vo';
 import { TeamName } from '../../../teams/domain/value-objects/team-name.vo';
 import type { ExternalPlayerRecord } from '../../domain/models/external-player-record';
 import type { PlayerProvider } from '../../domain/ports/player-provider.port';
 import type { ProviderRegistryPort } from '../../domain/ports/provider-registry.port';
-import type { ImportPlayerUseCase } from './import-player.use-case';
 
 import { ImportClubPlayersUseCase } from './import-club-players.use-case';
+import type { ImportPlayerUseCase } from './import-player.use-case';
 
 const CLUB_ID = '11';
 const LEAGUE_ID = 'GB1';
@@ -106,7 +106,11 @@ describe('ImportClubPlayersUseCase', () => {
       findByExternalReference: vi.fn().mockResolvedValue(team),
     });
 
-    const useCase = new ImportClubPlayersUseCase(providerRegistry, teamRepository, importPlayerUseCase);
+    const useCase = new ImportClubPlayersUseCase(
+      providerRegistry,
+      teamRepository,
+      importPlayerUseCase,
+    );
     const result = await useCase.execute({
       provider: 'TRANSFERMARKT',
       clubExternalId: CLUB_ID,

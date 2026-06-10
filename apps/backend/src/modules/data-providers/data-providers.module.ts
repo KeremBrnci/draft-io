@@ -2,6 +2,8 @@ import { Module } from '@nestjs/common';
 
 import { provideUseCase } from '../../common/nest/provide-use-case';
 import { PrismaService } from '../../infrastructure/database/prisma.service';
+import { CoachesModule } from '../coaches/coaches.module';
+import { COACH_REPOSITORY } from '../coaches/domain/repositories/coach.repository';
 import { LEAGUE_REPOSITORY } from '../leagues/domain/repositories/league.repository';
 import { LeaguesModule } from '../leagues/leagues.module';
 import { NATION_REPOSITORY } from '../nations/domain/repositories/nation.repository';
@@ -12,6 +14,7 @@ import { TEAM_REPOSITORY } from '../teams/domain/repositories/team.repository';
 import { TeamsModule } from '../teams/teams.module';
 
 import { EnrichCompetitionPlayersUseCase } from './application/use-cases/enrich-competition-players.use-case';
+import { EnrichPlayersFromSquadUseCase } from './application/use-cases/enrich-players-from-squad.use-case';
 import { GetAdminDashboardMetricsUseCase } from './application/use-cases/get-admin-dashboard-metrics.use-case';
 import { GetImportJobUseCase } from './application/use-cases/get-import-job.use-case';
 import { ImportAllTargetCompetitionsUseCase } from './application/use-cases/import-all-target-competitions.use-case';
@@ -30,30 +33,27 @@ import { ImportTeamUseCase } from './application/use-cases/import-team.use-case'
 import { ImportTeamsBatchUseCase } from './application/use-cases/import-teams-batch.use-case';
 import { ListCompetitionsByCountryUseCase } from './application/use-cases/list-competitions-by-country.use-case';
 import { ListImportFailedRecordsUseCase } from './application/use-cases/list-import-failed-records.use-case';
-import { ReconcileImportFailedRecordsUseCase } from './application/use-cases/reconcile-import-failed-records.use-case';
 import { ListImportJobLogsUseCase } from './application/use-cases/list-import-job-logs.use-case';
 import { ListImportJobsUseCase } from './application/use-cases/list-import-jobs.use-case';
 import { ListProviderCountriesUseCase } from './application/use-cases/list-provider-countries.use-case';
 import { ListTargetCompetitionsUseCase } from './application/use-cases/list-target-competitions.use-case';
+import { ReconcileImportFailedRecordsUseCase } from './application/use-cases/reconcile-import-failed-records.use-case';
 import { RetryImportJobUseCase } from './application/use-cases/retry-import-job.use-case';
 import { SearchLeaguesUseCase } from './application/use-cases/search-leagues.use-case';
 import { SearchPlayersUseCase } from './application/use-cases/search-players.use-case';
 import { SearchTeamsUseCase } from './application/use-cases/search-teams.use-case';
-import { COACH_REPOSITORY } from '../coaches/domain/repositories/coach.repository';
-import { CoachesModule } from '../coaches/coaches.module';
-import { EnrichPlayersFromSquadUseCase } from './application/use-cases/enrich-players-from-squad.use-case';
 import { SyncCoachesFromStaffUseCase } from './application/use-cases/sync-coaches-from-staff.use-case';
-import { SyncPlayerPositionsUseCase } from './application/use-cases/sync-player-positions.use-case';
 import { SyncMissingSquadPlayersUseCase } from './application/use-cases/sync-missing-squad-players.use-case';
+import { SyncPlayerPositionsUseCase } from './application/use-cases/sync-player-positions.use-case';
 import { SyncPlayerProfileUseCase } from './application/use-cases/sync-player-profile.use-case';
 import { PROVIDER_REGISTRY } from './domain/ports/provider-registry.port';
 import { IMPORT_FAILED_RECORD_REPOSITORY } from './domain/repositories/import-failed-record.repository';
 import { IMPORT_JOB_LOG_REPOSITORY } from './domain/repositories/import-job-log.repository';
 import { IMPORT_JOB_REPOSITORY } from './domain/repositories/import-job.repository';
-import { ProviderRegistry } from './infrastructure/provider-registry';
 import { PrismaImportFailedRecordRepository } from './infrastructure/persistence/prisma-import-failed-record.repository';
 import { PrismaImportJobLogRepository } from './infrastructure/persistence/prisma-import-job-log.repository';
 import { PrismaImportJobRepository } from './infrastructure/persistence/prisma-import-job.repository';
+import { ProviderRegistry } from './infrastructure/provider-registry';
 import { SportDbConfigService } from './infrastructure/sportdb/config/sportdb.config';
 import { SportDbHttpClient } from './infrastructure/sportdb/http/sportdb-http.client';
 import { SportDbLeagueProvider } from './infrastructure/sportdb/providers/sportdb-league.provider';
@@ -135,11 +135,7 @@ const JOB_DEPS = [
       PLAYER_REPOSITORY,
       ImportPlayerUseCase,
     ]),
-    provideUseCase(SyncCoachesFromStaffUseCase, [
-      TEAM_REPOSITORY,
-      COACH_REPOSITORY,
-      PrismaService,
-    ]),
+    provideUseCase(SyncCoachesFromStaffUseCase, [TEAM_REPOSITORY, COACH_REPOSITORY, PrismaService]),
     provideUseCase(SyncPlayerPositionsUseCase, [
       PLAYER_REPOSITORY,
       TEAM_REPOSITORY,

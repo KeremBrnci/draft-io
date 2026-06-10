@@ -16,13 +16,13 @@ The core fantasy is **being a manager**: scout the pool, outdraft opponents, opt
 
 ## Who are the users?
 
-| Persona | Motivation |
-|---------|------------|
-| **Draft enthusiast** | Enjoys snake drafts, pick strategy, and building the best possible squad under constraints |
-| **Football fan** | Wants to play with recognizable player archetypes, formations, and league structures |
+| Persona                | Motivation                                                                                  |
+| ---------------------- | ------------------------------------------------------------------------------------------- |
+| **Draft enthusiast**   | Enjoys snake drafts, pick strategy, and building the best possible squad under constraints  |
+| **Football fan**       | Wants to play with recognizable player archetypes, formations, and league structures        |
 | **Competitive player** | Seeks rankings, seasons, and repeatable skill expression through drafting and team building |
-| **Social group** | Friends who want a structured game night experience with lobby codes and shared drafts |
-| **Async player** | Prefers turn-based or timed drafts that fit around schedules |
+| **Social group**       | Friends who want a structured game night experience with lobby codes and shared drafts      |
+| **Async player**       | Prefers turn-based or timed drafts that fit around schedules                                |
 
 Primary audience: adults and older teens who follow football and enjoy fantasy/draft formats (similar mental model to fantasy sports or sports card drafting).
 
@@ -139,12 +139,12 @@ Each loop reinforces the previous: better drafting → better teams → better r
 
 ## Long-Term Progression
 
-| Layer | Progression |
-|-------|-------------|
-| **Account** | Stats, history, achievements (future) |
-| **Collection** | Player card expansion, special editions (Phase 2–4) |
-| **Ranked leagues** | Skill-based matchmaking into competitive seasons |
-| **Meta** | Formations, chemistry knowledge, draft meta evolution |
+| Layer              | Progression                                           |
+| ------------------ | ----------------------------------------------------- |
+| **Account**        | Stats, history, achievements (future)                 |
+| **Collection**     | Player card expansion, special editions (Phase 2–4)   |
+| **Ranked leagues** | Skill-based matchmaking into competitive seasons      |
+| **Meta**           | Formations, chemistry knowledge, draft meta evolution |
 
 Progression rewards **knowledge and drafting skill**, not pay-to-win mechanics (monetization TBD, not in current scope).
 
@@ -165,14 +165,14 @@ Progression rewards **knowledge and drafting skill**, not pay-to-win mechanics (
 
 These are **explicitly out of scope** unless the product direction changes via ADR:
 
-| Non-Goal | Rationale |
-|----------|-----------|
-| Real-time gameplay | Product is draft + simulation, not e-sports control |
-| FIFA-style control mechanics | No manual passing, shooting, or player switching |
-| Complex 3D rendering | UI focuses on cards, tables, and match summaries |
-| Pay-to-win card packs | Not designed in current phases |
-| Cross-platform sync with external games | Standalone product |
-| Blockchain / NFT players | Not part of vision |
+| Non-Goal                                | Rationale                                           |
+| --------------------------------------- | --------------------------------------------------- |
+| Real-time gameplay                      | Product is draft + simulation, not e-sports control |
+| FIFA-style control mechanics            | No manual passing, shooting, or player switching    |
+| Complex 3D rendering                    | UI focuses on cards, tables, and match summaries    |
+| Pay-to-win card packs                   | Not designed in current phases                      |
+| Cross-platform sync with external games | Standalone product                                  |
+| Blockchain / NFT players                | Not part of vision                                  |
 
 ---
 

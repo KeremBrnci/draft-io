@@ -63,7 +63,9 @@ export class BrowsePlayersUseCase {
       ...(query.name !== undefined ? { name: query.name } : {}),
       ...(query.position !== undefined ? { position: query.position } : {}),
       ...(query.primaryPosition !== undefined ? { primaryPosition: query.primaryPosition } : {}),
-      ...(query.secondaryPosition !== undefined ? { secondaryPosition: query.secondaryPosition } : {}),
+      ...(query.secondaryPosition !== undefined
+        ? { secondaryPosition: query.secondaryPosition }
+        : {}),
       ...(query.hasMultiplePositions !== undefined
         ? { hasMultiplePositions: query.hasMultiplePositions }
         : {}),
@@ -116,16 +118,11 @@ export class BrowsePlayersUseCase {
         age: computeAge(player.birthDate?.value ?? null),
         marketValue: player.marketValue?.value ?? null,
         teamId: player.teamId,
-        teamName:
-          team === undefined
-            ? null
-            : translateTeamName(team.name.value, teamExternalId),
+        teamName: team === undefined ? null : translateTeamName(team.name.value, teamExternalId),
         teamLogoUrl: resolveTransfermarktTeamLogoUrl(team?.logoUrl ?? null, teamExternalId),
         leagueId,
         leagueName:
-          league === undefined
-            ? null
-            : translateLeagueName(league.name.value, leagueExternalId),
+          league === undefined ? null : translateLeagueName(league.name.value, leagueExternalId),
         leagueLogoUrl: resolveTransfermarktLeagueLogoUrl(league?.logoUrl ?? null, leagueExternalId),
         overall: overallByPlayerId.get(player.id.value) ?? null,
         status: player.status,

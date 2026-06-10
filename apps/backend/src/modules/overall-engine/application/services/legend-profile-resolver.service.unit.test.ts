@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { OverallProfileTag } from '../../domain/enums/overall-profile-tag.enum';
 import { PlayerMetrics } from '../../domain/entities/player-metrics.entity';
+import { OverallProfileTag } from '../../domain/enums/overall-profile-tag.enum';
 import { PlayerMetricsId } from '../../domain/value-objects/player-metrics-id.vo';
 
 import { resolveProfileInputs } from './legend-profile-resolver.service';
@@ -27,7 +27,7 @@ function buildMetrics(overrides: {
 }
 
 describe('resolveProfileInputs', () => {
-  it('applies legend overrides for N\'Golo Kanté', () => {
+  it("applies legend overrides for N'Golo Kanté", () => {
     const resolved = resolveProfileInputs('225083', buildMetrics({}));
 
     expect(resolved.profileTag).toBe(OverallProfileTag.LEGEND_ACTIVE_OLD);
@@ -38,7 +38,11 @@ describe('resolveProfileInputs', () => {
   it('keeps manually higher admin scores', () => {
     const resolved = resolveProfileInputs(
       '225083',
-      buildMetrics({ careerScore: 99, legacyScore: 97, profileTag: OverallProfileTag.ELITE_CURRENT }),
+      buildMetrics({
+        careerScore: 99,
+        legacyScore: 97,
+        profileTag: OverallProfileTag.ELITE_CURRENT,
+      }),
     );
 
     expect(resolved.careerScore).toBe(99);
@@ -47,7 +51,10 @@ describe('resolveProfileInputs', () => {
   });
 
   it('returns stored metrics for unknown players', () => {
-    const resolved = resolveProfileInputs('999999', buildMetrics({ careerScore: 72, legacyScore: 10 }));
+    const resolved = resolveProfileInputs(
+      '999999',
+      buildMetrics({ careerScore: 72, legacyScore: 10 }),
+    );
 
     expect(resolved.careerScore).toBe(72);
     expect(resolved.legacyScore).toBe(10);

@@ -1,4 +1,4 @@
-import { ImportJob } from '../../domain/entities/import-job.entity';
+import { type ImportJob } from '../../domain/entities/import-job.entity';
 import type { ImportJobRepository } from '../../domain/repositories/import-job.repository';
 import { ImportJobId } from '../../domain/value-objects/import-job-id.vo';
 

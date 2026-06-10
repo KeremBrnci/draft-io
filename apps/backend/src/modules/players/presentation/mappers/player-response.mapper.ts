@@ -2,7 +2,9 @@ import type { PlayerPositionAssignmentDto, PlayerSummary } from '@draft-io/share
 
 import type { Player } from '../../domain/entities/player.entity';
 
-export function toPlayerPositionAssignments(player: Player): readonly PlayerPositionAssignmentDto[] {
+export function toPlayerPositionAssignments(
+  player: Player,
+): readonly PlayerPositionAssignmentDto[] {
   return player.positions.assignments.map((assignment) => ({
     positionCode: assignment.positionCode,
     isPrimary: assignment.isPrimary,

@@ -11,8 +11,9 @@ import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { HttpExceptionFilter } from '../../src/common/filters/http-exception.filter';
 import { LoggerService } from '../../src/common/logging/logger.service';
 import { ExternalProvider } from '../../src/core/external-reference/external-provider';
-import { ImportClubPlayersUseCase } from '../../src/modules/data-providers/application/use-cases/import-club-players.use-case';
+import { GetImportJobUseCase } from '../../src/modules/data-providers/application/use-cases/get-import-job.use-case';
 import { ImportAllTargetCompetitionsUseCase } from '../../src/modules/data-providers/application/use-cases/import-all-target-competitions.use-case';
+import { ImportClubPlayersUseCase } from '../../src/modules/data-providers/application/use-cases/import-club-players.use-case';
 import { ImportCompetitionClubsUseCase } from '../../src/modules/data-providers/application/use-cases/import-competition-clubs.use-case';
 import { ImportCompetitionPipelineUseCase } from '../../src/modules/data-providers/application/use-cases/import-competition-pipeline.use-case';
 import { ImportCompetitionPlayersUseCase } from '../../src/modules/data-providers/application/use-cases/import-competition-players.use-case';
@@ -21,7 +22,6 @@ import { ImportCountriesUseCase } from '../../src/modules/data-providers/applica
 import { ImportPlayerUseCase } from '../../src/modules/data-providers/application/use-cases/import-player.use-case';
 import { ImportTargetCompetitionUseCase } from '../../src/modules/data-providers/application/use-cases/import-target-competition.use-case';
 import { ImportTeamUseCase } from '../../src/modules/data-providers/application/use-cases/import-team.use-case';
-import { GetImportJobUseCase } from '../../src/modules/data-providers/application/use-cases/get-import-job.use-case';
 import { ListCompetitionsByCountryUseCase } from '../../src/modules/data-providers/application/use-cases/list-competitions-by-country.use-case';
 import { ListImportFailedRecordsUseCase } from '../../src/modules/data-providers/application/use-cases/list-import-failed-records.use-case';
 import { ListImportJobLogsUseCase } from '../../src/modules/data-providers/application/use-cases/list-import-job-logs.use-case';
@@ -29,13 +29,13 @@ import { ListImportJobsUseCase } from '../../src/modules/data-providers/applicat
 import { ListProviderCountriesUseCase } from '../../src/modules/data-providers/application/use-cases/list-provider-countries.use-case';
 import { ListTargetCompetitionsUseCase } from '../../src/modules/data-providers/application/use-cases/list-target-competitions.use-case';
 import { RetryImportJobUseCase } from '../../src/modules/data-providers/application/use-cases/retry-import-job.use-case';
-import { ImportJob } from '../../src/modules/data-providers/domain/entities/import-job.entity';
-import { ImportJobType } from '../../src/modules/data-providers/domain/enums/import-job-type';
-import { ImportJobId } from '../../src/modules/data-providers/domain/value-objects/import-job-id.vo';
 import { SearchLeaguesUseCase } from '../../src/modules/data-providers/application/use-cases/search-leagues.use-case';
 import { SearchPlayersUseCase } from '../../src/modules/data-providers/application/use-cases/search-players.use-case';
 import { SearchTeamsUseCase } from '../../src/modules/data-providers/application/use-cases/search-teams.use-case';
 import { SyncPlayerProfileUseCase } from '../../src/modules/data-providers/application/use-cases/sync-player-profile.use-case';
+import { ImportJob } from '../../src/modules/data-providers/domain/entities/import-job.entity';
+import { ImportJobType } from '../../src/modules/data-providers/domain/enums/import-job-type';
+import { ImportJobId } from '../../src/modules/data-providers/domain/value-objects/import-job-id.vo';
 import { AdminImportsController } from '../../src/modules/data-providers/presentation/controllers/admin-imports.controller';
 import { DisplayName } from '../../src/modules/players/domain/value-objects/display-name.vo';
 import { ExternalReference } from '../../src/modules/players/domain/value-objects/external-reference.vo';
@@ -108,7 +108,17 @@ describe('Admin Imports API (E2E)', () => {
   const importCountriesUseCase = { execute: vi.fn().mockResolvedValue([]) };
   const listCompetitionsByCountryUseCase = { execute: vi.fn().mockResolvedValue([]) };
   const importCompetitionsByCountryUseCase = { execute: vi.fn().mockResolvedValue([]) };
-  const listTargetCompetitionsUseCase = { execute: vi.fn().mockReturnValue([{ externalId: 'L1', slug: 'bundesliga', name: 'Bundesliga', countryName: 'Germany', tier: 1 }]) };
+  const listTargetCompetitionsUseCase = {
+    execute: vi.fn().mockReturnValue([
+      {
+        externalId: 'L1',
+        slug: 'bundesliga',
+        name: 'Bundesliga',
+        countryName: 'Germany',
+        tier: 1,
+      },
+    ]),
+  };
 
   const mockJob = ImportJob.create({
     id: ImportJobId.create('880e8400-e29b-41d4-a716-446655440099'),
@@ -148,7 +158,10 @@ describe('Admin Imports API (E2E)', () => {
         { provide: ListProviderCountriesUseCase, useValue: listProviderCountriesUseCase },
         { provide: ImportCountriesUseCase, useValue: importCountriesUseCase },
         { provide: ListCompetitionsByCountryUseCase, useValue: listCompetitionsByCountryUseCase },
-        { provide: ImportCompetitionsByCountryUseCase, useValue: importCompetitionsByCountryUseCase },
+        {
+          provide: ImportCompetitionsByCountryUseCase,
+          useValue: importCompetitionsByCountryUseCase,
+        },
         { provide: ListTargetCompetitionsUseCase, useValue: listTargetCompetitionsUseCase },
         { provide: ImportTargetCompetitionUseCase, useValue: importTargetCompetitionUseCase },
         { provide: ImportCompetitionClubsUseCase, useValue: importCompetitionClubsUseCase },
@@ -158,7 +171,10 @@ describe('Admin Imports API (E2E)', () => {
         { provide: ListImportJobLogsUseCase, useValue: listImportJobLogsUseCase },
         { provide: ListImportFailedRecordsUseCase, useValue: listImportFailedRecordsUseCase },
         { provide: ImportCompetitionPipelineUseCase, useValue: importCompetitionPipelineUseCase },
-        { provide: ImportAllTargetCompetitionsUseCase, useValue: importAllTargetCompetitionsUseCase },
+        {
+          provide: ImportAllTargetCompetitionsUseCase,
+          useValue: importAllTargetCompetitionsUseCase,
+        },
         { provide: RetryImportJobUseCase, useValue: retryImportJobUseCase },
       ],
     }).compile();
@@ -216,7 +232,9 @@ describe('Admin Imports API (E2E)', () => {
   });
 
   it('GET /api/v1/admin/imports/target-competitions returns curated list', async () => {
-    const response = await request(httpServer).get('/api/v1/admin/imports/target-competitions').expect(200);
+    const response = await request(httpServer)
+      .get('/api/v1/admin/imports/target-competitions')
+      .expect(200);
 
     expect(response.body.data[0].externalId).toBe('L1');
   });

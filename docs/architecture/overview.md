@@ -53,16 +53,16 @@ Each backend module is a self-contained bounded context:
 
 ## Planned Modules
 
-| Module | Status | Description |
-|--------|--------|-------------|
-| `auth` | Placeholder | JWT/session authentication |
-| `users` | Placeholder | User registration and profiles |
-| `players` | **Example** | Player card management |
+| Module       | Status      | Description                    |
+| ------------ | ----------- | ------------------------------ |
+| `auth`       | Placeholder | JWT/session authentication     |
+| `users`      | Placeholder | User registration and profiles |
+| `players`    | **Example** | Player card management         |
 | `formations` | Placeholder | Tactical formation definitions |
-| `lobbies` | Placeholder | Lobby creation and matchmaking |
-| `draft` | Placeholder | Draft room with pick order |
-| `matches` | Placeholder | Match scheduling and results |
-| `simulation` | Placeholder | Match engine and chemistry |
+| `lobbies`    | Placeholder | Lobby creation and matchmaking |
+| `draft`      | Placeholder | Draft room with pick order     |
+| `matches`    | Placeholder | Match scheduling and results   |
+| `simulation` | Placeholder | Match engine and chemistry     |
 
 ## Data Flow Example: Create Player
 

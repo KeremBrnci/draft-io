@@ -14,6 +14,7 @@ import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 
 import { SyncCoachesFromStaffUseCase } from '../modules/data-providers/application/use-cases/sync-coaches-from-staff.use-case';
+
 import { SeedAppModule } from './seed-app.module';
 
 const logger = new Logger('SyncCoaches');

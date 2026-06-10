@@ -1,17 +1,17 @@
 import { describe, expect, it } from 'vitest';
 
-import { Lobby } from '../../domain/entities/lobby.entity';
 import { LobbyParticipant } from '../../domain/entities/lobby-participant.entity';
+import { Lobby } from '../../domain/entities/lobby.entity';
 import { LobbyStatus } from '../../domain/enums/lobby-status.enum';
 import { RoomPhase } from '../../domain/enums/room-phase.enum';
-import { LobbyCode } from '../../domain/value-objects/lobby-code.vo';
-import { LobbyId } from '../../domain/value-objects/lobby-id.vo';
-import { LobbyName } from '../../domain/value-objects/lobby-name.vo';
-import { ParticipantDisplayName } from '../../domain/value-objects/participant-display-name.vo';
 import {
   LOBBY_INACTIVITY_TTL_MS,
   LobbyExpirationService,
 } from '../../domain/services/lobby-expiration.service';
+import { LobbyCode } from '../../domain/value-objects/lobby-code.vo';
+import { LobbyId } from '../../domain/value-objects/lobby-id.vo';
+import { LobbyName } from '../../domain/value-objects/lobby-name.vo';
+import { ParticipantDisplayName } from '../../domain/value-objects/participant-display-name.vo';
 
 function buildLobby(expiresAt: Date) {
   const host = LobbyParticipant.createHost(ParticipantDisplayName.create('Host'));

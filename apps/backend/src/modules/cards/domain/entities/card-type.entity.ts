@@ -1,6 +1,6 @@
 import { Entity } from '../../../../common/domain/entity';
-import { ReferenceCode } from '../value-objects/reference-code.vo';
-import { ReferenceId } from '../value-objects/reference-id.vo';
+import { type ReferenceCode } from '../value-objects/reference-code.vo';
+import { type ReferenceId } from '../value-objects/reference-id.vo';
 
 export interface CreateCardTypeProps {
   readonly id: ReferenceId;

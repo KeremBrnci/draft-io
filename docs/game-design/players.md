@@ -15,11 +15,11 @@ Players serve as the atomic building block for teams, chemistry calculations, an
 
 ### Attributes (Current Foundation)
 
-| Attribute | Type | Constraints |
-|-----------|------|-------------|
-| Name | `PlayerName` | 1–100 characters, trimmed |
-| Position | `Position` | One of 15 supported position codes |
-| Overall Rating | `OverallRating` | Integer 1–99 |
+| Attribute      | Type            | Constraints                        |
+| -------------- | --------------- | ---------------------------------- |
+| Name           | `PlayerName`    | 1–100 characters, trimmed          |
+| Position       | `Position`      | One of 15 supported position codes |
+| Overall Rating | `OverallRating` | Integer 1–99                       |
 
 ### Supported Positions
 

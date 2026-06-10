@@ -1,14 +1,15 @@
 import { parseExternalProvider } from '../../../../core/external-reference/external-provider';
 import type { LeagueRepository } from '../../../leagues/domain/repositories/league.repository';
 import { findTargetCompetitionByExternalId } from '../../domain/catalog/target-competitions.catalog';
-import { CompetitionAlreadyImportedError } from '../../domain/errors/import.errors';
 import { ImportJobType } from '../../domain/enums/import-job-type';
+import { CompetitionAlreadyImportedError } from '../../domain/errors/import.errors';
 import type { ImportFailedRecordRepository } from '../../domain/repositories/import-failed-record.repository';
 import type { ImportJobLogRepository } from '../../domain/repositories/import-job-log.repository';
 import type { ImportJobRepository } from '../../domain/repositories/import-job.repository';
 import { ImportJobId } from '../../domain/value-objects/import-job-id.vo';
 import { buildImportJobTrackerDeps } from '../services/import-job-tracker.factory';
 import { ImportJobTracker } from '../services/import-job-tracker.service';
+
 import type { EnrichCompetitionPlayersUseCase } from './enrich-competition-players.use-case';
 import type { ImportCompetitionClubsUseCase } from './import-competition-clubs.use-case';
 import type { ImportCompetitionPlayersUseCase } from './import-competition-players.use-case';
@@ -93,7 +94,12 @@ export class ImportCompetitionPipelineUseCase {
       { label: 'players', run: () => this.importCompetitionPlayersUseCase.execute(command) },
       ...(skipEnrichment
         ? []
-        : [{ label: 'enrichment' as const, run: () => this.enrichCompetitionPlayersUseCase.execute(command) }]),
+        : [
+            {
+              label: 'enrichment' as const,
+              run: () => this.enrichCompetitionPlayersUseCase.execute(command),
+            },
+          ]),
     ];
 
     for (const step of steps) {

@@ -18,7 +18,10 @@ import { UpdatePlayerUseCase } from '../../src/modules/players/application/use-c
 import { DisplayName } from '../../src/modules/players/domain/value-objects/display-name.vo';
 import { PlayerId } from '../../src/modules/players/domain/value-objects/player-id.vo';
 import { PlayersController } from '../../src/modules/players/presentation/controllers/players.controller';
-import { buildTestPlayer, buildTestPlayerPositions } from '../../src/modules/players/testing/player-test.factory';
+import {
+  buildTestPlayer,
+  buildTestPlayerPositions,
+} from '../../src/modules/players/testing/player-test.factory';
 
 const VALID_PLAYER_ID = '770e8400-e29b-41d4-a716-446655440002';
 

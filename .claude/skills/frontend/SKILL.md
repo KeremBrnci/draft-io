@@ -12,12 +12,12 @@ description: >-
 
 Use during implementation (lifecycle Step 5). Subordinate to `ai-constitution.md` and `workflow.mdc`.
 
-| Document | Path |
-|----------|------|
-| AI Constitution | `docs/architecture/ai-constitution.md` |
-| Workflow | `.cursor/rules/workflow.mdc` |
-| Universal instructions | `AGENTS.md` |
-| Project context | `.claude/skills/project-context/SKILL.md` |
+| Document               | Path                                      |
+| ---------------------- | ----------------------------------------- |
+| AI Constitution        | `docs/architecture/ai-constitution.md`    |
+| Workflow               | `.cursor/rules/workflow.mdc`              |
+| Universal instructions | `AGENTS.md`                               |
+| Project context        | `.claude/skills/project-context/SKILL.md` |
 
 ## Purpose
 
@@ -87,12 +87,12 @@ export async function listPlayers(): Promise<PlayerResponse[]> {
 
 ### Server vs Client Components
 
-| Use Server Component | Use Client Component (`'use client'`) |
-|---------------------|-------------------------------------|
-| Data fetching on render | onClick, onChange handlers |
-| SEO-critical content | useState, useEffect, useRef |
-| No interactivity | Browser APIs (localStorage, WebSocket) |
-| Initial page load | Animations, drag-and-drop (draft board) |
+| Use Server Component    | Use Client Component (`'use client'`)   |
+| ----------------------- | --------------------------------------- |
+| Data fetching on render | onClick, onChange handlers              |
+| SEO-critical content    | useState, useEffect, useRef             |
+| No interactivity        | Browser APIs (localStorage, WebSocket)  |
+| Initial page load       | Animations, drag-and-drop (draft board) |
 
 - Default to Server Components
 - Push `'use client'` to leaf components (buttons, timers, draft pick cards)
@@ -141,7 +141,9 @@ export default async function PlayersPage() {
       <h1>Players</h1>
       <ul>
         {players.map((p) => (
-          <li key={p.id}>{p.displayName} — {p.position} ({p.overallRating})</li>
+          <li key={p.id}>
+            {p.displayName} — {p.position} ({p.overallRating})
+          </li>
         ))}
       </ul>
     </main>
@@ -200,15 +202,15 @@ export async function getPlayer(id: string): Promise<PlayerResponse | null> {
 
 ## Anti-patterns
 
-| Anti-pattern | Correct approach |
-|--------------|------------------|
-| Fetching API in every child component | Fetch at page/layout level, pass props |
-| `'use client'` on entire pages | Leaf client components only |
-| Hardcoded `http://localhost:3001` | `NEXT_PUBLIC_API_URL` env var |
-| Duplicating position validation logic | Trust backend; show backend error messages |
-| Importing Prisma or NestJS types | Use shared-types package |
-| Global Redux for two screens | Local state until complexity warrants |
-| Skipping loading states | Skeleton or spinner during fetch |
-| Inline fetch without error boundary | Centralized API client with typed errors |
-| Storing authoritative draft state only in client | Sync with server/WebSocket |
-| CSS-in-JS library without team consensus | Match existing `globals.css` approach |
+| Anti-pattern                                     | Correct approach                           |
+| ------------------------------------------------ | ------------------------------------------ |
+| Fetching API in every child component            | Fetch at page/layout level, pass props     |
+| `'use client'` on entire pages                   | Leaf client components only                |
+| Hardcoded `http://localhost:3001`                | `NEXT_PUBLIC_API_URL` env var              |
+| Duplicating position validation logic            | Trust backend; show backend error messages |
+| Importing Prisma or NestJS types                 | Use shared-types package                   |
+| Global Redux for two screens                     | Local state until complexity warrants      |
+| Skipping loading states                          | Skeleton or spinner during fetch           |
+| Inline fetch without error boundary              | Centralized API client with typed errors   |
+| Storing authoritative draft state only in client | Sync with server/WebSocket                 |
+| CSS-in-JS library without team consensus         | Match existing `globals.css` approach      |

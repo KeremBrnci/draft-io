@@ -22,12 +22,12 @@ Presentation → Application → Domain ← Infrastructure
 
 ### Layer Responsibilities
 
-| Layer | Contains | Dependencies |
-|-------|----------|-------------|
-| **Domain** | Entities, Value Objects, Domain Errors, Repository Ports | None (pure TypeScript) |
-| **Application** | Use Cases, Commands, Queries | Domain only |
-| **Infrastructure** | Repositories, Mappers, External APIs | Domain (implements ports) |
-| **Presentation** | Controllers, DTOs, Validation | Application, Domain (mapping) |
+| Layer              | Contains                                                 | Dependencies                  |
+| ------------------ | -------------------------------------------------------- | ----------------------------- |
+| **Domain**         | Entities, Value Objects, Domain Errors, Repository Ports | None (pure TypeScript)        |
+| **Application**    | Use Cases, Commands, Queries                             | Domain only                   |
+| **Infrastructure** | Repositories, Mappers, External APIs                     | Domain (implements ports)     |
+| **Presentation**   | Controllers, DTOs, Validation                            | Application, Domain (mapping) |
 
 ## Rationale
 
@@ -39,14 +39,14 @@ Presentation → Application → Domain ← Infrastructure
 
 ## DDD Concepts Applied
 
-| Concept | Application in draft.io |
-|---------|------------------------|
-| **Entities** | `Player`, `DraftRoom`, `Match` (future) |
-| **Value Objects** | `PlayerId`, `OverallRating`, `PlayerPosition` |
-| **Aggregates** | `Player` (root), `Draft` (root, future) |
-| **Repositories** | Port interfaces in domain, Prisma adapters in infrastructure |
-| **Domain Events** | Planned for cross-module communication (future) |
-| **Bounded Contexts** | Each feature module is a bounded context |
+| Concept              | Application in draft.io                                      |
+| -------------------- | ------------------------------------------------------------ |
+| **Entities**         | `Player`, `DraftRoom`, `Match` (future)                      |
+| **Value Objects**    | `PlayerId`, `OverallRating`, `PlayerPosition`                |
+| **Aggregates**       | `Player` (root), `Draft` (root, future)                      |
+| **Repositories**     | Port interfaces in domain, Prisma adapters in infrastructure |
+| **Domain Events**    | Planned for cross-module communication (future)              |
+| **Bounded Contexts** | Each feature module is a bounded context                     |
 
 ## DDD Concepts Deferred
 

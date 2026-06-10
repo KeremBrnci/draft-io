@@ -1,15 +1,15 @@
 import { describe, expect, it } from 'vitest';
 
+import { getAllFormations } from '../../../formations/domain/constants/formation-templates';
 import { LobbyParticipant } from '../../domain/entities/lobby-participant.entity';
-import { ParticipantPhaseStatus, RoomPhase } from '../../domain/enums/room-phase.enum';
-import { LobbyStatus } from '../../domain/enums/lobby-status.enum';
 import { Lobby } from '../../domain/entities/lobby.entity';
+import { LobbyStatus } from '../../domain/enums/lobby-status.enum';
+import { ParticipantPhaseStatus, RoomPhase } from '../../domain/enums/room-phase.enum';
+import { FormationPoolService } from '../../domain/services/formation-pool.service';
 import { LobbyCode } from '../../domain/value-objects/lobby-code.vo';
 import { LobbyId } from '../../domain/value-objects/lobby-id.vo';
 import { LobbyName } from '../../domain/value-objects/lobby-name.vo';
 import { ParticipantDisplayName } from '../../domain/value-objects/participant-display-name.vo';
-import { FormationPoolService } from '../../domain/services/formation-pool.service';
-import { getAllFormations } from '../../../formations/domain/constants/formation-templates';
 
 describe('Lobby room phase machine', () => {
   const poolService = new FormationPoolService();
@@ -44,17 +44,15 @@ describe('Lobby room phase machine', () => {
       getAllFormations(),
     );
 
-    lobby.startFormationSelection(
-      lobby.participants[0]!.sessionToken,
-      pools,
-      new Date(),
-      null,
-    );
+    lobby.startFormationSelection(lobby.participants[0]!.sessionToken, pools, new Date(), null);
     expect(lobby.phase).toBe(RoomPhase.FORMATION_SELECTION);
 
     const hostPool = lobby.participants[0]!.formationOptionIds;
     lobby.selectFormation(lobby.participants[0]!.sessionToken, hostPool[0]!);
-    lobby.selectFormation(lobby.participants[1]!.sessionToken, lobby.participants[1]!.formationOptionIds[0]!);
+    lobby.selectFormation(
+      lobby.participants[1]!.sessionToken,
+      lobby.participants[1]!.formationOptionIds[0]!,
+    );
 
     expect(lobby.allFormationsSelected).toBe(true);
     lobby.startDraft(lobby.participants[0]!.sessionToken);

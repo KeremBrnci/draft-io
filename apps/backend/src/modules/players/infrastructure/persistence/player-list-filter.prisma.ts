@@ -1,5 +1,5 @@
-import type { Prisma } from '@prisma/client';
 import { expandPositionFilterCodes } from '@draft-io/shared-utils';
+import type { Prisma } from '@prisma/client';
 
 import type { PlayerListFilter, PlayerListSort } from '../../domain/repositories/player.repository';
 
@@ -31,10 +31,7 @@ function birthDateRangeFromAge(
   return filter;
 }
 
-function positionSomeFilter(
-  positionCode: string,
-  isPrimary?: boolean,
-): Prisma.PlayerWhereInput {
+function positionSomeFilter(positionCode: string, isPrimary?: boolean): Prisma.PlayerWhereInput {
   const matchCodes = expandPositionFilterCodes(positionCode);
 
   if (matchCodes.length <= 1) {

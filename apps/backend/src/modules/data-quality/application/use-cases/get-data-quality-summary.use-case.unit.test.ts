@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 
 import type { DataQualityRepository } from '../../domain/repositories/data-quality.repository';
+
 import { GetDataQualitySummaryUseCase } from './get-data-quality-summary.use-case';
 
 describe('GetDataQualitySummaryUseCase', () => {

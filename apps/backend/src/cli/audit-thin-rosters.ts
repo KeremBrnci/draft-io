@@ -57,12 +57,12 @@ async function main(): Promise<void> {
 
   try {
     const rows = await prisma.$queryRaw<
-      Array<{
+      {
         league: string;
         team: string;
         external_id: string;
         player_count: number;
-      }>
+      }[]
     >`
       SELECT
         l.external_id AS league,

@@ -13,13 +13,13 @@ description: >-
 
 Mandatory before major features (lifecycle Steps 1–5). Supreme workflow authority: `workflow.mdc`.
 
-| Document | Path |
-|----------|------|
-| AI Constitution | `docs/architecture/ai-constitution.md` |
-| Workflow | `.cursor/rules/workflow.mdc` |
-| Universal instructions | `AGENTS.md` |
+| Document                     | Path                                      |
+| ---------------------------- | ----------------------------------------- |
+| AI Constitution              | `docs/architecture/ai-constitution.md`    |
+| Workflow                     | `.cursor/rules/workflow.mdc`              |
+| Universal instructions       | `AGENTS.md`                               |
 | Project context (load first) | `.claude/skills/project-context/SKILL.md` |
-| Feature lifecycle | `docs/architecture/feature-lifecycle.md` |
+| Feature lifecycle            | `docs/architecture/feature-lifecycle.md`  |
 
 ## Purpose
 
@@ -47,14 +47,14 @@ Structure feature delivery for **draft.io** across roadmap phases, bounded conte
 
 ### Roadmap phases (summary)
 
-| Phase | Focus | Key modules |
-|-------|-------|-------------|
-| 1 | Players + Formations | positions, players, formations |
-| 2 | Lobby | lobbies, auth, users |
-| 3 | Draft | draft, lobbies, teams |
-| 4 | Chemistry | teams, simulation (calculator) |
-| 5 | Simulation + Matches | simulation, matches |
-| 6 | Leagues/seasons | leagues, matches |
+| Phase | Focus                | Key modules                    |
+| ----- | -------------------- | ------------------------------ |
+| 1     | Players + Formations | positions, players, formations |
+| 2     | Lobby                | lobbies, auth, users           |
+| 3     | Draft                | draft, lobbies, teams          |
+| 4     | Chemistry            | teams, simulation (calculator) |
+| 5     | Simulation + Matches | simulation, matches            |
+| 6     | Leagues/seasons      | leagues, matches               |
 
 **Do not skip phases.** If a feature needs draft but lobby doesn't exist, plan lobby first or scope a vertical slice with stubs.
 
@@ -78,62 +78,77 @@ Structure feature delivery for **draft.io** across roadmap phases, bounded conte
 # Feature: [Name]
 
 ## User story
+
 As a [role], I want [action] so that [outcome].
 
 ## Phase
+
 Phase N — [name]
 
 ## Design references
+
 - docs/game-design/[relevant].md
 - docs/architecture/game-domain-overview.md
 
 ## Modules affected
+
 - Backend: [modules]
 - Frontend: [pages/components]
 
 ## Domain model (new/changed)
+
 - Entity: ...
 - Value objects: ...
 - Events: ...
 - Invariants: ...
 
 ## API contract
-| Method | Path | Description |
-|--------|------|-------------|
-| POST | /drafts | Create draft room |
+
+| Method | Path    | Description       |
+| ------ | ------- | ----------------- |
+| POST   | /drafts | Create draft room |
 
 ## WebSocket events (if real-time)
+
 - `draft:pick-made` — payload shape
 - `draft:completed`
 
 ## Dependencies
+
 - [ ] Lobby module functional
 - [ ] Redis for ephemeral state
 
 ## Delivery slices
 
 ### Slice 1: Domain core (no HTTP)
+
 - DraftRoom entity, pick logic, unit tests
 
 ### Slice 2: API
+
 - Create draft, make pick endpoints, e2e tests
 
 ### Slice 3: Real-time
+
 - Socket.IO gateway, event publishing
 
 ### Slice 4: Frontend
+
 - Draft board UI, Playwright e2e
 
 ## Success criteria
+
 - [ ] User can complete a 2-player snake draft
 - [ ] Picks reflected in team starting eleven
 - [ ] architecture:check passes
 
 ## Open questions
+
 1. Auto-pick behavior on timer expiry?
 2. ...
 
 ## Assumptions
+
 - Snake draft as default order type
 ```
 
@@ -147,15 +162,15 @@ Phase N — [name]
 
 ### Cross-cutting concerns checklist
 
-| Concern | Plan explicitly |
-|---------|-----------------|
-| Auth | Who can perform action? |
-| Real-time | Socket.IO events + Redis state |
-| Idempotency | Draft picks, match simulation |
-| Migrations | Prisma schema changes |
-| Shared types | `@draft-io/shared-types` updates |
-| Events | Domain events for cross-module reactions |
-| Feature flags | If partial rollout needed |
+| Concern       | Plan explicitly                          |
+| ------------- | ---------------------------------------- |
+| Auth          | Who can perform action?                  |
+| Real-time     | Socket.IO events + Redis state           |
+| Idempotency   | Draft picks, match simulation            |
+| Migrations    | Prisma schema changes                    |
+| Shared types  | `@draft-io/shared-types` updates         |
+| Events        | Domain events for cross-module reactions |
+| Feature flags | If partial rollout needed                |
 
 ### API-first contracts
 
@@ -168,12 +183,12 @@ Define request/response shapes before implementation:
 
 ### Infrastructure dependencies
 
-| Feature | Infrastructure |
-|---------|----------------|
-| Lobby state | Redis |
-| Draft real-time | Socket.IO + Redis pub/sub |
-| Match simulation | None (in-process) |
-| Auth (future) | JWT, session store |
+| Feature          | Infrastructure            |
+| ---------------- | ------------------------- |
+| Lobby state      | Redis                     |
+| Draft real-time  | Socket.IO + Redis pub/sub |
+| Match simulation | None (in-process)         |
+| Auth (future)    | JWT, session store        |
 
 Plan infra setup as explicit slice zero if not yet operational.
 
@@ -218,15 +233,15 @@ Phase 3 draft UI shows player overall only. Chemistry preview is Phase 4 slice �
 
 ## Anti-patterns
 
-| Anti-pattern | Correct approach |
-|--------------|------------------|
-| Big-bang PR for entire draft system | Slice by domain → API → UI |
-| Starting UI before API contract | shared-types first |
-| Building simulation before draft | Follow phase order |
-| Ignoring open design questions | Resolve or document assumption |
-| No success criteria | Testable acceptance checklist |
-| Mixing auth + draft + sim in one plan | Separate features per phase |
-| Planning microservices | Modular monolith modules |
-| Skipping domain slice | Entities before controllers |
-| Frontend-only draft state | Backend authoritative + WS sync |
-| Underestimating real-time complexity | Explicit Socket.IO + Redis slice |
+| Anti-pattern                          | Correct approach                 |
+| ------------------------------------- | -------------------------------- |
+| Big-bang PR for entire draft system   | Slice by domain → API → UI       |
+| Starting UI before API contract       | shared-types first               |
+| Building simulation before draft      | Follow phase order               |
+| Ignoring open design questions        | Resolve or document assumption   |
+| No success criteria                   | Testable acceptance checklist    |
+| Mixing auth + draft + sim in one plan | Separate features per phase      |
+| Planning microservices                | Modular monolith modules         |
+| Skipping domain slice                 | Entities before controllers      |
+| Frontend-only draft state             | Backend authoritative + WS sync  |
+| Underestimating real-time complexity  | Explicit Socket.IO + Redis slice |

@@ -1,8 +1,8 @@
-import type { FormationRepository } from '../../../formations/domain/repositories/formation.repository';
 import type { Formation } from '../../../formations/domain/entities/formation.entity';
-import { RoomEventName, type RoomEventPayload } from '../../domain/events/room.events';
-import type { Lobby } from '../../domain/entities/lobby.entity';
+import type { FormationRepository } from '../../../formations/domain/repositories/formation.repository';
 import type { LobbyParticipant } from '../../domain/entities/lobby-participant.entity';
+import type { Lobby } from '../../domain/entities/lobby.entity';
+import { RoomEventName, type RoomEventPayload } from '../../domain/events/room.events';
 import type { LobbyRepository } from '../../domain/repositories/lobby.repository';
 import { LobbyCode } from '../../domain/value-objects/lobby-code.vo';
 import { SessionToken } from '../../domain/value-objects/session-token.vo';
@@ -40,22 +40,30 @@ export class SelectFormationUseCase {
 
     await this.lobbyRepository.save(lobby);
 
-    await this.roomEventsPublisher.publish(lobby.code.value, RoomEventName.PLAYER_SELECTED_FORMATION, {
-      lobbyCode: lobby.code.value,
-      phase: lobby.phase,
-      participantId: participant.id,
-      formationId: formation.id,
-      formationSelectedCount: lobby.formationSelectedCount,
-      participantCount: lobby.participants.length,
-    } satisfies RoomEventPayload);
-
-    if (lobby.allFormationsSelected) {
-      await this.roomEventsPublisher.publish(lobby.code.value, RoomEventName.ALL_FORMATIONS_SELECTED, {
+    await this.roomEventsPublisher.publish(
+      lobby.code.value,
+      RoomEventName.PLAYER_SELECTED_FORMATION,
+      {
         lobbyCode: lobby.code.value,
         phase: lobby.phase,
+        participantId: participant.id,
+        formationId: formation.id,
         formationSelectedCount: lobby.formationSelectedCount,
         participantCount: lobby.participants.length,
-      } satisfies RoomEventPayload);
+      } satisfies RoomEventPayload,
+    );
+
+    if (lobby.allFormationsSelected) {
+      await this.roomEventsPublisher.publish(
+        lobby.code.value,
+        RoomEventName.ALL_FORMATIONS_SELECTED,
+        {
+          lobbyCode: lobby.code.value,
+          phase: lobby.phase,
+          formationSelectedCount: lobby.formationSelectedCount,
+          participantCount: lobby.participants.length,
+        } satisfies RoomEventPayload,
+      );
     }
 
     return lobby;
@@ -93,9 +101,13 @@ export class GetFormationSelectionUseCase {
     let myFormationOptions: readonly Formation[] = [];
     if (participant !== null) {
       const formations = await Promise.all(
-        participant.formationOptionIds.map((formationId) => this.formationRepository.findById(formationId)),
+        participant.formationOptionIds.map((formationId) =>
+          this.formationRepository.findById(formationId),
+        ),
       );
-      myFormationOptions = formations.filter((formation): formation is Formation => formation !== null);
+      myFormationOptions = formations.filter(
+        (formation): formation is Formation => formation !== null,
+      );
     }
 
     return { lobby, participant, myFormationOptions };

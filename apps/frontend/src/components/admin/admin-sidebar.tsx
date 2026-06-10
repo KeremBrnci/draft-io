@@ -42,7 +42,11 @@ export function AdminSidebar(): React.ReactElement {
       </nav>
 
       <div className="admin-sidebar__footer">
-        <Link href="/" className="admin-sidebar__link" style={{ padding: '0.4rem 0', fontSize: '0.75rem' }}>
+        <Link
+          href="/"
+          className="admin-sidebar__link"
+          style={{ padding: '0.4rem 0', fontSize: '0.75rem' }}
+        >
           ← Back to home
         </Link>
       </div>

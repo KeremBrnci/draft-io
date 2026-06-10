@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
+import type { MatchTeamSnapshot } from '../models/match-simulation.types';
+
 import { generateDoubleRoundRobinFixtures } from './fixture-generator.service';
 import { MatchSimulationEngine } from './match-simulation-engine.service';
-import type { MatchTeamSnapshot } from '../models/match-simulation.types';
 
 function buildTeam(label: string, power: number): MatchTeamSnapshot {
   return {
@@ -26,7 +27,9 @@ describe('generateDoubleRoundRobinFixtures', () => {
   it('creates home-and-away fixtures for each pair', () => {
     expect(generateDoubleRoundRobinFixtures(['a', 'b']).length).toBe(2);
     expect(generateDoubleRoundRobinFixtures(['a', 'b', 'c', 'd']).length).toBe(12);
-    expect(generateDoubleRoundRobinFixtures(['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']).length).toBe(56);
+    expect(generateDoubleRoundRobinFixtures(['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']).length).toBe(
+      56,
+    );
   });
 });
 

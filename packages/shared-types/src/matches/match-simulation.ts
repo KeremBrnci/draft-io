@@ -1,9 +1,4 @@
-export type MatchStatusDto =
-  | 'SCHEDULED'
-  | 'LIVE'
-  | 'HALF_TIME'
-  | 'FULL_TIME'
-  | 'PAUSED';
+export type MatchStatusDto = 'SCHEDULED' | 'LIVE' | 'HALF_TIME' | 'FULL_TIME' | 'PAUSED';
 
 export type MatchEventTypeDto =
   | 'DANGEROUS_ATTACK'

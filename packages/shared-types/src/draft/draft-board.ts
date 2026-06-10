@@ -1,3 +1,9 @@
+import type { FormationSummaryDto } from '../formations/formation-summary.js';
+import type { RoomPhaseDto } from '../rooms/room-phase.js';
+
+import type { TeamChemistryResultDto } from './chemistry.js';
+import type { MatchPowerResultDto } from './match-power.js';
+
 export interface DraftSlotAssignmentDto {
   readonly slotIndex: number;
   readonly cardId: string;
@@ -38,16 +44,16 @@ export interface DraftParticipantReadinessDto {
 export interface DraftBoardStateDto {
   readonly lobbyId: string;
   readonly lobbyCode: string;
-  readonly phase: import('../rooms/room-phase.js').RoomPhaseDto;
-  readonly formation: import('../formations/formation-summary.js').FormationSummaryDto;
+  readonly phase: RoomPhaseDto;
+  readonly formation: FormationSummaryDto;
   readonly slots: readonly DraftSlotStateDto[];
   readonly nextSlotIndex: number | null;
   readonly rosterSize: number;
   readonly pickCount: number;
   readonly remainingBudget: number;
   readonly teamAverageOverall: number;
-  readonly chemistry: import('./chemistry.js').TeamChemistryResultDto;
-  readonly matchPower: import('./match-power.js').MatchPowerResultDto;
+  readonly chemistry: TeamChemistryResultDto;
+  readonly matchPower: MatchPowerResultDto;
   readonly isRosterComplete: boolean;
   readonly viewerIsReady: boolean;
   readonly readyCount: number;

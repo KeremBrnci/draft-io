@@ -1,8 +1,7 @@
 import { Entity } from '../../../../common/domain/entity';
-
 import type { OverallProfileTag } from '../enums/overall-profile-tag.enum';
 import type { OverallComponentScores } from '../models/overall-component-scores';
-import { OverallCalculationId } from '../value-objects/overall-calculation-id.vo';
+import { type OverallCalculationId } from '../value-objects/overall-calculation-id.vo';
 
 export interface OverallCalculationProps {
   readonly id: OverallCalculationId;
@@ -41,9 +40,7 @@ export class OverallCalculation extends Entity<OverallCalculationId> {
     this._createdAt = props.createdAt;
   }
 
-  static create(
-    props: Omit<OverallCalculationProps, 'createdAt'>,
-  ): OverallCalculation {
+  static create(props: Omit<OverallCalculationProps, 'createdAt'>): OverallCalculation {
     return new OverallCalculation({ ...props, createdAt: new Date() });
   }
 

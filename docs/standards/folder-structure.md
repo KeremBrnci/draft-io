@@ -141,18 +141,18 @@ docs/
 
 ## File Naming Conventions
 
-| Type | Pattern | Example |
-|------|---------|---------|
-| Entity | `{name}.entity.ts` | `player.entity.ts` |
-| Value Object | `{name}.vo.ts` | `player-id.vo.ts` |
-| Use Case | `{action}-{entity}.use-case.ts` | `create-player.use-case.ts` |
-| Command | `{action}-{entity}.command.ts` | `create-player.command.ts` |
-| Query | `{action}-{entity}.query.ts` | `get-player.query.ts` |
-| Repository Port | `{entity}.repository.port.ts` | `player.repository.port.ts` |
+| Type            | Pattern                         | Example                       |
+| --------------- | ------------------------------- | ----------------------------- |
+| Entity          | `{name}.entity.ts`              | `player.entity.ts`            |
+| Value Object    | `{name}.vo.ts`                  | `player-id.vo.ts`             |
+| Use Case        | `{action}-{entity}.use-case.ts` | `create-player.use-case.ts`   |
+| Command         | `{action}-{entity}.command.ts`  | `create-player.command.ts`    |
+| Query           | `{action}-{entity}.query.ts`    | `get-player.query.ts`         |
+| Repository Port | `{entity}.repository.port.ts`   | `player.repository.port.ts`   |
 | Repository Impl | `prisma-{entity}.repository.ts` | `prisma-player.repository.ts` |
-| Mapper | `{entity}.mapper.ts` | `player.mapper.ts` |
-| Controller | `{entities}.controller.ts` | `players.controller.ts` |
-| Request DTO | `{action}-{entity}.dto.ts` | `create-player.dto.ts` |
-| Response DTO | `{entity}-response.dto.ts` | `player-response.dto.ts` |
-| Unit Test | `{file}.unit.test.ts` | `player.entity.unit.test.ts` |
-| Module | `{feature}.module.ts` | `players.module.ts` |
+| Mapper          | `{entity}.mapper.ts`            | `player.mapper.ts`            |
+| Controller      | `{entities}.controller.ts`      | `players.controller.ts`       |
+| Request DTO     | `{action}-{entity}.dto.ts`      | `create-player.dto.ts`        |
+| Response DTO    | `{entity}-response.dto.ts`      | `player-response.dto.ts`      |
+| Unit Test       | `{file}.unit.test.ts`           | `player.entity.unit.test.ts`  |
+| Module          | `{feature}.module.ts`           | `players.module.ts`           |

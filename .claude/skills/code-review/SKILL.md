@@ -12,13 +12,13 @@ description: >-
 
 Mandatory before merge (lifecycle Step 7). Pair with `docs/architecture/ai-review-checklist.md`.
 
-| Document | Path |
-|----------|------|
-| AI Constitution | `docs/architecture/ai-constitution.md` |
-| Workflow | `.cursor/rules/workflow.mdc` |
-| Universal instructions | `AGENTS.md` |
-| Project context | `.claude/skills/project-context/SKILL.md` |
-| AI review checklist | `docs/architecture/ai-review-checklist.md` |
+| Document               | Path                                       |
+| ---------------------- | ------------------------------------------ |
+| AI Constitution        | `docs/architecture/ai-constitution.md`     |
+| Workflow               | `.cursor/rules/workflow.mdc`               |
+| Universal instructions | `AGENTS.md`                                |
+| Project context        | `.claude/skills/project-context/SKILL.md`  |
+| AI review checklist    | `docs/architecture/ai-review-checklist.md` |
 
 ## Purpose
 
@@ -118,6 +118,7 @@ Use consistent feedback severity:
 **Finding:** `create-team.use-case.ts` imports `PrismaTeamRepository`
 
 **Feedback:**
+
 > **Critical:** Application layer must depend on `TeamRepository` port, not Prisma implementation. Inject the interface token from domain; bind implementation in `teams.module.ts` only.
 
 ### Example 2: Suggestion — missing invariant test
@@ -125,6 +126,7 @@ Use consistent feedback severity:
 **Finding:** `Team.assignPlayerToSlot` added without tests
 
 **Feedback:**
+
 > **Suggestion:** Add unit tests for duplicate player rejection and invalid slot index. These invariants are core to roster management.
 
 ### Example 3: Critical — cross-module entity import
@@ -132,22 +134,27 @@ Use consistent feedback severity:
 **Finding:** `draft/domain/entities/draft-room.entity.ts` imports `Player` entity
 
 **Feedback:**
+
 > **Critical:** Draft domain must reference players by `PlayerId` only. Load player details in `MakeDraftPickUseCase` application layer.
 
 ### Example 4: Review summary template
 
 ```markdown
 ## Summary
+
 Adds draft pick use case with pool management.
 
 ## Critical
+
 - [ ] Fix presentation → infrastructure import in draft.controller.ts
 
 ## Suggestions
+
 - Consider extracting pick timer logic to value object
 - Add e2e test for concurrent pick rejection
 
 ## Verified
+
 - [x] architecture:check passes
 - [x] Unit tests for DraftRoom.makePick
 - [x] Aligns with docs/game-design/draft-system.md
@@ -178,15 +185,15 @@ Author completes before requesting review:
 
 ## Anti-patterns
 
-| Anti-pattern | Review response |
-|--------------|-----------------|
-| "LGTM" on 2000-line PR | Request split per `split-to-prs` skill |
-| Style-only review ignoring layers | Prioritize architecture first |
-| Approving without tests | Block merge for untested domain logic |
-| Nitpicking while missing layer violation | Focus critical issues first |
-| Requesting rewrite to different pattern | Suggest only if violates project conventions |
-| Ignoring game design doc drift | Flag behavior not in design docs |
-| Approving `any` types in domain | Require proper VOs/types |
-| Skipping migration review | Check schema matches entity model |
-| Frontend approving backend-only PR without arch check | Run architecture:check |
-| Debating formatting | Prettier handles it — focus on logic |
+| Anti-pattern                                          | Review response                              |
+| ----------------------------------------------------- | -------------------------------------------- |
+| "LGTM" on 2000-line PR                                | Request split per `split-to-prs` skill       |
+| Style-only review ignoring layers                     | Prioritize architecture first                |
+| Approving without tests                               | Block merge for untested domain logic        |
+| Nitpicking while missing layer violation              | Focus critical issues first                  |
+| Requesting rewrite to different pattern               | Suggest only if violates project conventions |
+| Ignoring game design doc drift                        | Flag behavior not in design docs             |
+| Approving `any` types in domain                       | Require proper VOs/types                     |
+| Skipping migration review                             | Check schema matches entity model            |
+| Frontend approving backend-only PR without arch check | Run architecture:check                       |
+| Debating formatting                                   | Prettier handles it — focus on logic         |

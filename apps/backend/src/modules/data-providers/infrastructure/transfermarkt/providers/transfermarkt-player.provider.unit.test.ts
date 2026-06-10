@@ -1,11 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { type TransfermarktConfigService } from '../config/transfermarkt.config';
 import type { TransfermarktClubPlayersDto } from '../dtos/transfermarkt.dto';
-import { TransfermarktConfigService } from '../config/transfermarkt.config';
-import { TransfermarktHttpClient } from '../http/transfermarkt-http.client';
+import { type TransfermarktHttpClient } from '../http/transfermarkt-http.client';
+
 import { TransfermarktPlayerProvider } from './transfermarkt-player.provider';
 
-function createConfigService(seasonId: string | undefined = undefined): TransfermarktConfigService {
+function createConfigService(seasonId?: string): TransfermarktConfigService {
   return {
     getConfig: () => ({
       apiKey: undefined,

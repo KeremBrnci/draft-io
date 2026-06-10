@@ -29,7 +29,8 @@ export class ProviderRegistry implements ProviderRegistryPort {
     private readonly transfermarktCountry: TransfermarktCountryProvider,
     @Inject(TransfermarktPlayerProvider)
     private readonly transfermarktPlayer: TransfermarktPlayerProvider,
-    @Inject(TransfermarktTeamProvider) private readonly transfermarktTeam: TransfermarktTeamProvider,
+    @Inject(TransfermarktTeamProvider)
+    private readonly transfermarktTeam: TransfermarktTeamProvider,
     @Inject(TransfermarktLeagueProvider)
     private readonly transfermarktLeague: TransfermarktLeagueProvider,
   ) {}

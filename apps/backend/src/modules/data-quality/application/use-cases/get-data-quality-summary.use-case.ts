@@ -1,4 +1,7 @@
-import type { DataQualityRepository, DataQualitySummary } from '../../domain/repositories/data-quality.repository';
+import type {
+  DataQualityRepository,
+  DataQualitySummary,
+} from '../../domain/repositories/data-quality.repository';
 
 export class GetDataQualitySummaryUseCase {
   constructor(private readonly dataQualityRepository: DataQualityRepository) {}

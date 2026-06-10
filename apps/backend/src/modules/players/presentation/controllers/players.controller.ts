@@ -17,10 +17,7 @@ import { ListPlayersUseCase } from '../../application/use-cases/list-players.use
 import { UpdatePlayerUseCase } from '../../application/use-cases/update-player.use-case';
 import { CreatePlayerDto } from '../dto/create-player.dto';
 import { UpdatePlayerDto } from '../dto/update-player.dto';
-import {
-  toPlayerSummary,
-  toPlayerSummaryList,
-} from '../mappers/player-response.mapper';
+import { toPlayerSummary, toPlayerSummaryList } from '../mappers/player-response.mapper';
 
 @Controller('players')
 export class PlayersController {

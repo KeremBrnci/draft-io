@@ -13,14 +13,15 @@ import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { PrismaClient } from '@prisma/client';
 
-import { SeedAppModule } from './seed-app.module';
-import { TARGET_COMPETITIONS } from '../modules/data-providers/domain/catalog/target-competitions.catalog';
+import { parseExternalProvider } from '../core/external-reference/external-provider';
 import { ImportCompetitionClubsUseCase } from '../modules/data-providers/application/use-cases/import-competition-clubs.use-case';
 import { ImportCompetitionPlayersUseCase } from '../modules/data-providers/application/use-cases/import-competition-players.use-case';
 import { ImportTargetCompetitionUseCase } from '../modules/data-providers/application/use-cases/import-target-competition.use-case';
-import { parseExternalProvider } from '../core/external-reference/external-provider';
+import { TARGET_COMPETITIONS } from '../modules/data-providers/domain/catalog/target-competitions.catalog';
 import { LEAGUE_REPOSITORY } from '../modules/leagues/domain/repositories/league.repository';
 import type { LeagueRepository } from '../modules/leagues/domain/repositories/league.repository';
+
+import { SeedAppModule } from './seed-app.module';
 
 const PROVIDER = 'TRANSFERMARKT';
 const logger = new Logger('ResumeFootballData');

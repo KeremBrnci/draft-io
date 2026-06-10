@@ -1,4 +1,9 @@
-import type { CoachBrowserItemDto, CoachSortFieldDto, PaginatedResponse, SortDirectionDto } from '@draft-io/shared-types';
+import type {
+  CoachBrowserItemDto,
+  CoachSortFieldDto,
+  PaginatedResponse,
+  SortDirectionDto,
+} from '@draft-io/shared-types';
 
 import { apiGetPaginated } from './client';
 

@@ -3,7 +3,7 @@ import type { ImportFailedRecordRepository } from '../../domain/repositories/imp
 import type { ImportFailedRecordType } from '../../domain/repositories/import-failed-record.repository';
 import type { ImportJobLogRepository } from '../../domain/repositories/import-job-log.repository';
 import type { ImportJobRepository } from '../../domain/repositories/import-job.repository';
-import { ImportJobId } from '../../domain/value-objects/import-job-id.vo';
+import { type ImportJobId } from '../../domain/value-objects/import-job-id.vo';
 
 export interface ImportJobTrackerDependencies {
   readonly importJobRepository: ImportJobRepository;

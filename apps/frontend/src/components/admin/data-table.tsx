@@ -129,7 +129,9 @@ export function DataTable<T>({
       </table>
 
       {pagination !== undefined ? (
-        <div className={`admin-pagination${showInitialLoading ? ' admin-pagination--skeleton' : ''}`}>
+        <div
+          className={`admin-pagination${showInitialLoading ? ' admin-pagination--skeleton' : ''}`}
+        >
           {showInitialLoading ? (
             <>
               <Skeleton className="admin-skeleton--pagination-text" />

@@ -1,12 +1,12 @@
 import type { FormationRepository } from '../../../formations/domain/repositories/formation.repository';
-import type { StartLobbyCommand } from '../commands/lobby-ready.commands';
-import { RoomEventName, type RoomEventPayload } from '../../domain/events/room.events';
-import { RoomPhase } from '../../domain/enums/room-phase.enum';
 import type { Lobby } from '../../domain/entities/lobby.entity';
+import { RoomPhase } from '../../domain/enums/room-phase.enum';
+import { RoomEventName, type RoomEventPayload } from '../../domain/events/room.events';
 import type { LobbyRepository } from '../../domain/repositories/lobby.repository';
 import { FormationPoolService } from '../../domain/services/formation-pool.service';
 import { LobbyCode } from '../../domain/value-objects/lobby-code.vo';
 import { SessionToken } from '../../domain/value-objects/session-token.vo';
+import type { StartLobbyCommand } from '../commands/lobby-ready.commands';
 import { LobbyLifecycleService } from '../services/lobby-lifecycle.service';
 import type { RoomEventsPublisher } from '../services/room-events.publisher';
 
@@ -45,12 +45,16 @@ export class StartLobbyUseCase {
 
     await this.lobbyRepository.save(lobby);
 
-    await this.roomEventsPublisher.publish(lobby.code.value, RoomEventName.FORMATION_SELECTION_STARTED, {
-      lobbyCode: lobby.code.value,
-      phase: RoomPhase.FORMATION_SELECTION,
-      participantCount: lobby.participants.length,
-      formationSelectedCount: 0,
-    } satisfies RoomEventPayload);
+    await this.roomEventsPublisher.publish(
+      lobby.code.value,
+      RoomEventName.FORMATION_SELECTION_STARTED,
+      {
+        lobbyCode: lobby.code.value,
+        phase: RoomPhase.FORMATION_SELECTION,
+        participantCount: lobby.participants.length,
+        formationSelectedCount: 0,
+      } satisfies RoomEventPayload,
+    );
 
     return { lobby };
   }

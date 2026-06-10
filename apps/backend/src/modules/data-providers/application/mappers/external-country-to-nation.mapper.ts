@@ -15,7 +15,10 @@ export function mapExternalCountryToDomain(record: ExternalCountryRecord): Natio
   });
 }
 
-export function applyExternalCountryImport(existing: Nation, record: ExternalCountryRecord): Nation {
+export function applyExternalCountryImport(
+  existing: Nation,
+  record: ExternalCountryRecord,
+): Nation {
   return Nation.reconstitute({
     id: existing.id,
     externalReference: NationExternalReference.create(record.provider, record.externalId),

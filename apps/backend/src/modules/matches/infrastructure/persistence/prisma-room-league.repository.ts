@@ -1,7 +1,10 @@
-import { Injectable } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
 
+import { Injectable } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
+
 import { PrismaService } from '../../../../infrastructure/database/prisma.service';
+import type { MatchTeamSnapshot } from '../../../simulation/domain/models/match-simulation.types';
 import { generateDoubleRoundRobinFixtures } from '../../../simulation/domain/services/fixture-generator.service';
 import type {
   CreateLeagueInput,
@@ -13,7 +16,6 @@ import type {
   RoomMatchRecord,
   RoomStandingRecord,
 } from '../../domain/repositories/room-league.repository';
-import type { MatchTeamSnapshot } from '../../../simulation/domain/models/match-simulation.types';
 
 @Injectable()
 export class PrismaRoomLeagueRepository implements RoomLeagueRepository {
@@ -21,7 +23,9 @@ export class PrismaRoomLeagueRepository implements RoomLeagueRepository {
 
   async findByLobbyId(lobbyId: string): Promise<RoomLeagueRecord | null> {
     const record = await this.prisma.roomLeague.findUnique({ where: { lobbyId } });
-    return record === null ? null : { id: record.id, lobbyId: record.lobbyId, status: record.status };
+    return record === null
+      ? null
+      : { id: record.id, lobbyId: record.lobbyId, status: record.status };
   }
 
   async createLeague(input: CreateLeagueInput): Promise<RoomLeagueRecord> {
@@ -175,8 +179,8 @@ export class PrismaRoomLeagueRepository implements RoomLeagueRepository {
           homeXg: input.homeXg,
           awayXg: input.awayXg,
           simulationSeed: input.simulationSeed,
-          homeSnapshot: input.homeSnapshot as object,
-          awaySnapshot: input.awaySnapshot as object,
+          homeSnapshot: input.homeSnapshot as unknown as Prisma.InputJsonValue,
+          awaySnapshot: input.awaySnapshot as unknown as Prisma.InputJsonValue,
           manOfTheMatchCardId: input.manOfTheMatchCardId,
         },
       });
@@ -232,7 +236,10 @@ export class PrismaRoomLeagueRepository implements RoomLeagueRepository {
     return this.toMatchRecord(created);
   }
 
-  async listMatchEvents(matchId: string, revealedOnly: boolean): Promise<readonly RoomMatchEventRecord[]> {
+  async listMatchEvents(
+    matchId: string,
+    revealedOnly: boolean,
+  ): Promise<readonly RoomMatchEventRecord[]> {
     const records = await this.prisma.roomMatchEvent.findMany({
       where: {
         matchId,
@@ -331,7 +338,8 @@ export class PrismaRoomLeagueRepository implements RoomLeagueRepository {
           lost: homeStanding.lost + (awayWon ? 1 : 0),
           goalsFor: homeStanding.goalsFor + input.homeScore,
           goalsAgainst: homeStanding.goalsAgainst + input.awayScore,
-          goalDifference: homeStanding.goalsFor + input.homeScore - (homeStanding.goalsAgainst + input.awayScore),
+          goalDifference:
+            homeStanding.goalsFor + input.homeScore - (homeStanding.goalsAgainst + input.awayScore),
           points: homeStanding.points + (homeWon ? 3 : drawn ? 1 : 0),
         },
       });
@@ -345,7 +353,8 @@ export class PrismaRoomLeagueRepository implements RoomLeagueRepository {
           lost: awayStanding.lost + (homeWon ? 1 : 0),
           goalsFor: awayStanding.goalsFor + input.awayScore,
           goalsAgainst: awayStanding.goalsAgainst + input.homeScore,
-          goalDifference: awayStanding.goalsFor + input.awayScore - (awayStanding.goalsAgainst + input.homeScore),
+          goalDifference:
+            awayStanding.goalsFor + input.awayScore - (awayStanding.goalsAgainst + input.homeScore),
           points: awayStanding.points + (awayWon ? 3 : drawn ? 1 : 0),
         },
       });

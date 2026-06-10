@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import type { Formation as PrismaFormation } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 
 import { PrismaService } from '../../../../infrastructure/database/prisma.service';
 import type { PositionCode } from '../../../positions/domain/value-objects/position.vo';
@@ -75,7 +76,7 @@ export async function seedFormationsIfEmpty(prisma: PrismaService): Promise<void
       data: {
         id: data.id,
         code: data.code,
-        slots: data.slots as object,
+        slots: data.slots as unknown as Prisma.InputJsonValue,
       },
     });
   }

@@ -144,9 +144,7 @@ describe('imported nationality coverage', () => {
   });
 
   it('translates every provider-style label from the imported dataset', () => {
-    const providerStyle = IMPORTED_NATIONALITIES.filter((value) =>
-      /^(THE |DR )|,|'/i.test(value),
-    );
+    const providerStyle = IMPORTED_NATIONALITIES.filter((value) => /^(THE |DR )|,|'/i.test(value));
 
     for (const nationality of providerStyle) {
       expect(translateNationality(nationality)).not.toBe(nationality);

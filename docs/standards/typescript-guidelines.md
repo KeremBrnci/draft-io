@@ -4,16 +4,16 @@
 
 All packages extend `tsconfig.base.json` with these strict flags:
 
-| Flag | Purpose |
-|------|---------|
-| `strict` | Enable all strict type-checking options |
-| `noImplicitAny` | Disallow implicit `any` types |
-| `strictNullChecks` | `null` and `undefined` are distinct types |
-| `noUncheckedIndexedAccess` | Index access returns `T \| undefined` |
-| `noImplicitReturns` | All code paths must return a value |
-| `noUnusedLocals` | Error on unused local variables |
-| `noUnusedParameters` | Error on unused parameters |
-| `exactOptionalPropertyTypes` | Distinguish missing from `undefined` |
+| Flag                         | Purpose                                   |
+| ---------------------------- | ----------------------------------------- |
+| `strict`                     | Enable all strict type-checking options   |
+| `noImplicitAny`              | Disallow implicit `any` types             |
+| `strictNullChecks`           | `null` and `undefined` are distinct types |
+| `noUncheckedIndexedAccess`   | Index access returns `T \| undefined`     |
+| `noImplicitReturns`          | All code paths must return a value        |
+| `noUnusedLocals`             | Error on unused local variables           |
+| `noUnusedParameters`         | Error on unused parameters                |
+| `exactOptionalPropertyTypes` | Distinguish missing from `undefined`      |
 
 ## Prohibited Patterns
 
@@ -85,7 +85,10 @@ Prefer **string union types** over TypeScript enums:
 type PlayerPosition = 'GK' | 'CB' | 'ST';
 
 // ❌ Avoid
-enum PlayerPosition { GK = 'GK', CB = 'CB' }
+enum PlayerPosition {
+  GK = 'GK',
+  CB = 'CB',
+}
 ```
 
 ## Null Handling
@@ -116,19 +119,19 @@ if (player === null) {
 
 ```typescript
 // ✅ Constrain generics
-function findById<T extends Entity<unknown>>(repo: Repository<T>, id: string): Promise<T | null>
+function findById<T extends Entity<unknown>>(repo: Repository<T>, id: string): Promise<T | null>;
 
 // ❌ Unconstrained generics
-function findById<T>(repo: Repository<T>, id: string): Promise<T | null>
+function findById<T>(repo: Repository<T>, id: string): Promise<T | null>;
 ```
 
 ## Module Resolution
 
-| Package | Module System | Resolution |
-|---------|--------------|------------|
-| Backend | CommonJS | Node |
-| Frontend | ESNext | Bundler |
-| Shared packages | NodeNext | NodeNext |
+| Package         | Module System | Resolution |
+| --------------- | ------------- | ---------- |
+| Backend         | CommonJS      | Node       |
+| Frontend        | ESNext        | Bundler    |
+| Shared packages | NodeNext      | NodeNext   |
 
 ## Testing Types
 

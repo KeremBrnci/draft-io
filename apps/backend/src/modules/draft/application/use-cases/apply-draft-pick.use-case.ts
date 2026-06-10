@@ -1,22 +1,22 @@
-import type { ApplyDraftPickCommand } from '../commands/draft-balance.commands';
 import {
   DraftParticipantNotFoundError,
   DraftSessionNotFoundError,
   InvalidDraftPickError,
 } from '../../domain/errors/draft.errors';
-import type { DraftSession } from '../../domain/repositories/draft-session.repository';
-import type { DraftPoolRepository } from '../../domain/repositories/draft-pool.repository';
-import type { DraftSessionRepository } from '../../domain/repositories/draft-session.repository';
 import {
   applyPick,
   canAffordPick,
   pickCost,
   picksRemaining,
 } from '../../domain/models/participant-draft-state';
+import type { DraftPoolRepository } from '../../domain/repositories/draft-pool.repository';
+import type { DraftSession } from '../../domain/repositories/draft-session.repository';
+import type { DraftSessionRepository } from '../../domain/repositories/draft-session.repository';
 import { expandDraftEligiblePositionCodes } from '../../domain/services/expand-draft-position-codes';
 import { PositionCompatibilityService } from '../../domain/services/position-compatibility.service';
 import { SurpriseLedgerService } from '../../domain/services/surprise-ledger.service';
 import { TierClassifier } from '../../domain/services/tier-classifier.service';
+import type { ApplyDraftPickCommand } from '../commands/draft-balance.commands';
 
 export class ApplyDraftPickUseCase {
   constructor(
@@ -85,14 +85,7 @@ export class ApplyDraftPickUseCase {
       throw new InvalidDraftPickError('Card is not eligible for selected position');
     }
 
-    if (
-      !canAffordPick(
-        participant,
-        card,
-        session.config.pickCostMultiplier,
-        session.rosterSize,
-      )
-    ) {
+    if (!canAffordPick(participant, card, session.config.pickCostMultiplier, session.rosterSize)) {
       throw new InvalidDraftPickError('Pick exceeds remaining power budget');
     }
 
@@ -119,7 +112,9 @@ export class ApplyDraftPickUseCase {
         : {}),
     });
 
-    const draftedCards = await this.draftPoolRepository.findByIds(updatedParticipant.draftedCardIds);
+    const draftedCards = await this.draftPoolRepository.findByIds(
+      updatedParticipant.draftedCardIds,
+    );
     const withCredit = surpriseLedger.accrueLateLuckCredit(updatedParticipant, draftedCards);
 
     const participants = [...session.participants];

@@ -21,10 +21,7 @@ export function inferCareerFromMarketValue(marketValue: number | null): number {
   return scoreFromBrackets(marketValue, INFERRED_CAREER_BRACKETS);
 }
 
-export function inferLegacyFromProfile(
-  marketValue: number | null,
-  age: number | null,
-): number {
+export function inferLegacyFromProfile(marketValue: number | null, age: number | null): number {
   if (marketValue === null || marketValue <= 0) {
     return DEFAULT_LEGACY_SCORE;
   }

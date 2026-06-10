@@ -28,9 +28,7 @@ export interface CoachCardProps extends Omit<FootballCardProps, 'face' | 'entity
 }
 
 export function CoachCard({ coach, ...cardProps }: CoachCardProps): React.ReactElement {
-  return (
-    <FootballCard face={mapCoachToCardFace(coach)} entityKind="coach" {...cardProps} />
-  );
+  return <FootballCard face={mapCoachToCardFace(coach)} entityKind="coach" {...cardProps} />;
 }
 
 export function mapPlayerToCardFace(player: {
@@ -46,8 +44,7 @@ export function mapPlayerToCardFace(player: {
   readonly leagueId?: string | null;
 }): CardFaceData {
   const primaryAssignment =
-    player.positions?.find((assignment) => assignment.isPrimary) ??
-    player.positions?.[0];
+    player.positions?.find((assignment) => assignment.isPrimary) ?? player.positions?.[0];
   const positionCode = primaryAssignment?.positionCode ?? player.position;
   const subtitle = translatePositionCode(positionCode);
 
@@ -68,9 +65,7 @@ export interface PlayerCardProps extends Omit<FootballCardProps, 'face' | 'entit
 }
 
 export function PlayerCard({ player, ...cardProps }: PlayerCardProps): React.ReactElement {
-  return (
-    <FootballCard face={mapPlayerToCardFace(player)} entityKind="player" {...cardProps} />
-  );
+  return <FootballCard face={mapPlayerToCardFace(player)} entityKind="player" {...cardProps} />;
 }
 
 export function resolvePrimaryPositionSubtitle(

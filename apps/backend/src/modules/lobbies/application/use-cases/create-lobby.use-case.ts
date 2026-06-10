@@ -1,11 +1,11 @@
-import { Lobby } from '../../domain/entities/lobby.entity';
 import { LobbyParticipant } from '../../domain/entities/lobby-participant.entity';
+import { Lobby } from '../../domain/entities/lobby.entity';
+import type { LobbyRepository } from '../../domain/repositories/lobby.repository';
 import { generateLobbyCode } from '../../domain/services/lobby-code.generator';
 import { LobbyCode } from '../../domain/value-objects/lobby-code.vo';
 import { LobbyId } from '../../domain/value-objects/lobby-id.vo';
 import { LobbyName } from '../../domain/value-objects/lobby-name.vo';
 import { ParticipantDisplayName } from '../../domain/value-objects/participant-display-name.vo';
-import type { LobbyRepository } from '../../domain/repositories/lobby.repository';
 import type { CreateLobbyCommand } from '../commands/create-lobby.command';
 import type { LobbySession } from '../read-models/lobby-session';
 import { LobbyLifecycleService } from '../services/lobby-lifecycle.service';

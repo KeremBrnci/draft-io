@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 
-import { PrismaService } from '../../../../infrastructure/database/prisma.service';
 import type { ExternalProvider } from '../../../../core/external-reference/external-provider';
+import { PrismaService } from '../../../../infrastructure/database/prisma.service';
 import type { Nation } from '../../domain/entities/nation.entity';
 import type { NationRepository } from '../../domain/repositories/nation.repository';
 import type { NationId } from '../../domain/value-objects/nation-id.vo';

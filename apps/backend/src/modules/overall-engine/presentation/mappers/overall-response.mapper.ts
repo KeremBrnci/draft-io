@@ -5,11 +5,11 @@ import type {
   RecalculateOverallResultDto,
 } from '@draft-io/shared-types';
 
+import type { CalculatePlayerOverallResult } from '../../application/use-cases/calculate-player-overall.use-case';
+import type { RecalculateOverallResult } from '../../application/use-cases/recalculate-overall.use-case';
 import type { OverallCalculation } from '../../domain/entities/overall-calculation.entity';
 import type { PlayerMetrics } from '../../domain/entities/player-metrics.entity';
 import type { OverallAlgorithmVersionRecord } from '../../domain/repositories/overall-algorithm-version.repository';
-import type { CalculatePlayerOverallResult } from '../../application/use-cases/calculate-player-overall.use-case';
-import type { RecalculateOverallResult } from '../../application/use-cases/recalculate-overall.use-case';
 
 export function toPlayerMetricsDto(
   metrics: PlayerMetrics,

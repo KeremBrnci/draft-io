@@ -2,7 +2,7 @@ import type { PlayerPosition as PrismaPlayerPosition } from '@prisma/client';
 
 import { Position } from '../../../positions/domain/value-objects/position.vo';
 import { PlayerPosition } from '../../domain/entities/player-position.entity';
-import { PlayerId } from '../../domain/value-objects/player-id.vo';
+import { type PlayerId } from '../../domain/value-objects/player-id.vo';
 import { PlayerPositionId } from '../../domain/value-objects/player-position-id.vo';
 import { PlayerPositions } from '../../domain/value-objects/player-positions.vo';
 
@@ -23,9 +23,7 @@ export function toPlayerPositionsDomain(
   return PlayerPositions.fromAssignments(assignments);
 }
 
-export function toPlayerPositionPersistence(
-  assignment: PlayerPosition,
-): {
+export function toPlayerPositionPersistence(assignment: PlayerPosition): {
   id: string;
   playerId: string;
   positionCode: string;

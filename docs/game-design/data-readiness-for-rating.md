@@ -10,14 +10,14 @@ Rating formulas need reliable inputs. Guessing overall from incomplete imports p
 
 ## Required Before Overall Design
 
-| Field | Required? | Blocks rating? |
-|-------|-----------|----------------|
-| `primaryPosition` | Yes | Yes — position weights |
-| `birthDate` / age | Yes | Yes — age curves |
-| `marketValue` | Strongly preferred | Yes for market-calibrated tiers |
-| `teamId` / `leagueId` | Preferred | Chemistry later, not base overall |
-| `imageUrl` | No | UI only |
-| `nationality` | Preferred | Chemistry later |
+| Field                 | Required?          | Blocks rating?                    |
+| --------------------- | ------------------ | --------------------------------- |
+| `primaryPosition`     | Yes                | Yes — position weights            |
+| `birthDate` / age     | Yes                | Yes — age curves                  |
+| `marketValue`         | Strongly preferred | Yes for market-calibrated tiers   |
+| `teamId` / `leagueId` | Preferred          | Chemistry later, not base overall |
+| `imageUrl`            | No                 | UI only                           |
+| `nationality`         | Preferred          | Chemistry later                   |
 
 ## Acceptable Gaps
 
@@ -27,7 +27,7 @@ Rating formulas need reliable inputs. Guessing overall from incomplete imports p
 
 ## Unacceptable Gaps
 
-- >20% players missing position or age in target leagues
+- > 20% players missing position or age in target leagues
 - Market value missing for most squad players
 - Duplicate `(provider, externalId)` rows
 

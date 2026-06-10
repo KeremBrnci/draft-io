@@ -1,6 +1,6 @@
 import { ValueObject } from '../../../../common/domain/value-object';
 import {
-  ExternalProvider,
+  type ExternalProvider,
   parseExternalProvider,
 } from '../../../../core/external-reference/external-provider';
 import { InvalidLeagueExternalReferenceError } from '../errors/league.errors';

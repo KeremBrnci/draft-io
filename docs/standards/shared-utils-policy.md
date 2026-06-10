@@ -10,25 +10,25 @@ Package is **actively maintained** with a small, curated set of pure utilities. 
 
 ## Allowed
 
-| Category | Examples | Requirements |
-|----------|----------|--------------|
-| String helpers | `slugify`, `isNonEmptyString` | Pure, deterministic |
-| Number helpers | `clamp` | Pure, no domain meaning |
-| Type guards | `assertNever` | Exhaustiveness checking |
-| Date formatting | ISO format helpers (future) | No timezone business rules |
-| ID formatting | `generateCode` (future) | No domain-specific validation |
+| Category        | Examples                      | Requirements                  |
+| --------------- | ----------------------------- | ----------------------------- |
+| String helpers  | `slugify`, `isNonEmptyString` | Pure, deterministic           |
+| Number helpers  | `clamp`                       | Pure, no domain meaning       |
+| Type guards     | `assertNever`                 | Exhaustiveness checking       |
+| Date formatting | ISO format helpers (future)   | No timezone business rules    |
+| ID formatting   | `generateCode` (future)       | No domain-specific validation |
 
 ## Forbidden
 
-| Category | Why |
-|----------|-----|
-| Business rules | Belongs in domain layer |
-| Domain validation | Belongs in value objects |
-| Player/team/draft logic | Module-specific |
-| Framework wrappers | Belongs in app infrastructure |
-| HTTP clients | Belongs in frontend `lib/api` or backend infrastructure |
-| NestJS helpers | Belongs in `apps/backend/src/common/` |
-| Configuration access | No `process.env` in shared-utils |
+| Category                | Why                                                     |
+| ----------------------- | ------------------------------------------------------- |
+| Business rules          | Belongs in domain layer                                 |
+| Domain validation       | Belongs in value objects                                |
+| Player/team/draft logic | Module-specific                                         |
+| Framework wrappers      | Belongs in app infrastructure                           |
+| HTTP clients            | Belongs in frontend `lib/api` or backend infrastructure |
+| NestJS helpers          | Belongs in `apps/backend/src/common/`                   |
+| Configuration access    | No `process.env` in shared-utils                        |
 
 ## Adding a New Utility
 
@@ -59,9 +59,9 @@ Position validation belongs in `positions/domain/value-objects/position.vo.ts`.
 
 ## Relationship to shared-types
 
-| Package | Contains |
-|---------|----------|
+| Package        | Contains                           |
+| -------------- | ---------------------------------- |
 | `shared-types` | TypeScript types and API contracts |
-| `shared-utils` | Pure runtime utility functions |
+| `shared-utils` | Pure runtime utility functions     |
 
 Never put types in shared-utils. Never put business logic in shared-types.

@@ -8,10 +8,21 @@ import { AdminPageHeader } from '@/components/admin/admin-page-header';
 import { FilterRowSkeleton } from '@/components/admin/admin-skeletons';
 import { DataTable, type DataTableColumn } from '@/components/admin/data-table';
 import { EntityImage } from '@/components/admin/entity-image';
-import { listLeagues, listTeams, type LeagueSummaryDto, type TeamSummaryDto } from '@/lib/api/catalog';
+import {
+  listLeagues,
+  listTeams,
+  type LeagueSummaryDto,
+  type TeamSummaryDto,
+} from '@/lib/api/catalog';
 import { browseCoaches } from '@/lib/api/coaches';
 
-const SORTABLE_COLUMNS = new Set<string>(['name', 'age', 'appointedDate', 'createdAt', 'updatedAt']);
+const SORTABLE_COLUMNS = new Set<string>([
+  'name',
+  'age',
+  'appointedDate',
+  'createdAt',
+  'updatedAt',
+]);
 
 const COACH_COLUMNS: DataTableColumn<CoachBrowserItemDto>[] = [
   {
@@ -205,7 +216,9 @@ export default function AdminCoachesPage(): React.ReactElement {
                 >
                   <option value="">Tüm ligler</option>
                   {leagues.map((league) => (
-                    <option key={league.id} value={league.id}>{league.name}</option>
+                    <option key={league.id} value={league.id}>
+                      {league.name}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -234,7 +247,9 @@ export default function AdminCoachesPage(): React.ReactElement {
                         : 'Tüm kulüpler'}
                   </option>
                   {teams.map((team) => (
-                    <option key={team.id} value={team.id}>{team.name}</option>
+                    <option key={team.id} value={team.id}>
+                      {team.name}
+                    </option>
                   ))}
                 </select>
               </div>

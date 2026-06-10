@@ -1,10 +1,7 @@
-import {
-  DEFAULT_CAREER_SCORE,
-  DEFAULT_LEGACY_SCORE,
-} from '../../domain/config/overall-v1.config';
 import { findLegendPlayerProfile } from '../../domain/config/legend-player-profiles.config';
-import type { OverallProfileTag } from '../../domain/enums/overall-profile-tag.enum';
+import { DEFAULT_CAREER_SCORE, DEFAULT_LEGACY_SCORE } from '../../domain/config/overall-v1.config';
 import type { PlayerMetrics } from '../../domain/entities/player-metrics.entity';
+import type { OverallProfileTag } from '../../domain/enums/overall-profile-tag.enum';
 
 export interface ResolvedProfileInputs {
   readonly careerScore: number;

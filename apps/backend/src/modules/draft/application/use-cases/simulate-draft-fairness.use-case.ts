@@ -1,7 +1,7 @@
 import type { DraftFairnessSimulationResultDto } from '@draft-io/shared-types';
 
-import type { SimulateDraftFairnessCommand } from '../commands/draft-balance.commands';
 import { DEFAULT_DRAFT_BALANCE_CONFIG } from '../../domain/config/default-draft-balance.config';
+import type { DraftPickOption } from '../../domain/models/draft-pick-option';
 import type { DraftPoolCard } from '../../domain/models/draft-pool-card';
 import {
   applyPick,
@@ -10,16 +10,28 @@ import {
   picksRemaining,
   remainingBudget,
 } from '../../domain/models/participant-draft-state';
-import type { DraftPickOption } from '../../domain/models/draft-pick-option';
-import { SeededRandomSource } from '../../infrastructure/random/seeded-random-source';
 import { BudgetAllocator } from '../../domain/services/budget-allocator.service';
 import { ChemistryCalculator } from '../../domain/services/chemistry-calculator.service';
 import { MatchPowerCalculator } from '../../domain/services/match-power-calculator.service';
 import { PickOptionGenerator } from '../../domain/services/pick-option-generator.service';
 import { SurpriseLedgerService } from '../../domain/services/surprise-ledger.service';
 import { TierClassifier } from '../../domain/services/tier-classifier.service';
+import { SeededRandomSource } from '../../infrastructure/random/seeded-random-source';
+import type { SimulateDraftFairnessCommand } from '../commands/draft-balance.commands';
 
-const FORMATION_POSITIONS = ['GK', 'CB', 'CB', 'LB', 'RB', 'CDM', 'CM', 'CM', 'LW', 'RW', 'ST'] as const;
+const FORMATION_POSITIONS = [
+  'GK',
+  'CB',
+  'CB',
+  'LB',
+  'RB',
+  'CDM',
+  'CM',
+  'CM',
+  'LW',
+  'RW',
+  'ST',
+] as const;
 
 export class SimulateDraftFairnessUseCase {
   async execute(command: SimulateDraftFairnessCommand): Promise<DraftFairnessSimulationResultDto> {
@@ -43,7 +55,8 @@ export class SimulateDraftFairnessUseCase {
       const states = participantIds.map((participantId) =>
         createParticipantDraftState({
           participantId,
-          powerBudget: budgets.get(participantId) ?? config.targetTeamAverageOverall * config.rosterSize,
+          powerBudget:
+            budgets.get(participantId) ?? config.targetTeamAverageOverall * config.rosterSize,
         }),
       );
 
@@ -108,49 +121,49 @@ export class SimulateDraftFairnessUseCase {
       }
 
       for (let index = 0; index < participantCount; index += 1) {
-      const state = states[index];
-      if (state === undefined) {
-        continue;
+        const state = states[index];
+        if (state === undefined) {
+          continue;
+        }
+
+        const drafted = pool.filter((card) => state.draftedCardIds.includes(card.cardId));
+        const avgOverall =
+          drafted.length === 0
+            ? 0
+            : drafted.reduce((sum, card) => sum + card.overall, 0) / drafted.length;
+
+        const chemistry = chemistryCalculator.calculateTeamChemistry(
+          drafted.map((card) => ({
+            cardId: card.cardId,
+            teamId: card.teamId,
+            leagueId: card.leagueId,
+            nationality: card.nationality,
+          })),
+        );
+        const matchPower = matchPowerCalculator.calculate(avgOverall, chemistry.teamChemistry);
+
+        overallByParticipant[index]?.push(avgOverall);
+        chemistryByParticipant[index]?.push(chemistry.teamChemistry);
+        matchPowerByParticipant[index]?.push(matchPower.matchPower);
+        eliteByParticipant[index]?.push(state.elitePicksTaken);
       }
 
-      const drafted = pool.filter((card) => state.draftedCardIds.includes(card.cardId));
-      const avgOverall =
-        drafted.length === 0
-          ? 0
-          : drafted.reduce((sum, card) => sum + card.overall, 0) / drafted.length;
+      const runOveralls = states
+        .map((state) => {
+          const drafted = pool.filter((card) => state.draftedCardIds.includes(card.cardId));
+          if (drafted.length === 0) {
+            return 0;
+          }
+          return drafted.reduce((sum, card) => sum + card.overall, 0) / drafted.length;
+        })
+        .filter((value) => value > 0);
 
-      const chemistry = chemistryCalculator.calculateTeamChemistry(
-        drafted.map((card) => ({
-          cardId: card.cardId,
-          teamId: card.teamId,
-          leagueId: card.leagueId,
-          nationality: card.nationality,
-        })),
-      );
-      const matchPower = matchPowerCalculator.calculate(avgOverall, chemistry.teamChemistry);
-
-      overallByParticipant[index]?.push(avgOverall);
-      chemistryByParticipant[index]?.push(chemistry.teamChemistry);
-      matchPowerByParticipant[index]?.push(matchPower.matchPower);
-      eliteByParticipant[index]?.push(state.elitePicksTaken);
+      if (runOveralls.length > 0) {
+        runSpreads.push(Math.max(...runOveralls) - Math.min(...runOveralls));
+      }
     }
 
-    const runOveralls = states
-      .map((state) => {
-        const drafted = pool.filter((card) => state.draftedCardIds.includes(card.cardId));
-        if (drafted.length === 0) {
-          return 0;
-        }
-        return drafted.reduce((sum, card) => sum + card.overall, 0) / drafted.length;
-      })
-      .filter((value) => value > 0);
-
-    if (runOveralls.length > 0) {
-      runSpreads.push(Math.max(...runOveralls) - Math.min(...runOveralls));
-    }
-  }
-
-  const perParticipantStats = participantIds.map((_, index) => ({
+    const perParticipantStats = participantIds.map((_, index) => ({
       participantIndex: index,
       meanOverall: mean(overallByParticipant[index] ?? []),
       meanChemistry: mean(chemistryByParticipant[index] ?? []),
@@ -194,7 +207,7 @@ export class SimulateDraftFairnessUseCase {
           Math.floor(((index + 1) / input.count) * (input.overallRange[1] - input.overallRange[0]));
 
         cards.push({
-          cardId: `card-${idCounter += 1}`,
+          cardId: `card-${(idCounter += 1)}`,
           playerId: `player-${idCounter}`,
           displayName: `Player ${idCounter}`,
           overall,

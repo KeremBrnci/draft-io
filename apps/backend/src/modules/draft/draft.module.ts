@@ -11,9 +11,9 @@ import { SimulateDraftFairnessUseCase } from './application/use-cases/simulate-d
 import { RANDOM_SOURCE } from './domain/ports/random-source.port';
 import { DRAFT_POOL_REPOSITORY } from './domain/repositories/draft-pool.repository';
 import { DRAFT_SESSION_REPOSITORY } from './domain/repositories/draft-session.repository';
-import { MathRandomSource } from './infrastructure/random/math-random-source';
 import { PrismaDraftPoolRepository } from './infrastructure/persistence/prisma-draft-pool.repository';
 import { PrismaDraftSessionRepository } from './infrastructure/persistence/prisma-draft-session.repository';
+import { MathRandomSource } from './infrastructure/random/math-random-source';
 import { DraftBalanceController } from './presentation/controllers/draft-balance.controller';
 
 @Module({

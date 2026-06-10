@@ -1,14 +1,14 @@
 import { parseExternalProvider } from '../../../../core/external-reference/external-provider';
+import { type PrismaService } from '../../../../infrastructure/database/prisma.service';
 import { Coach } from '../../../coaches/domain/entities/coach.entity';
 import type { CoachRepository } from '../../../coaches/domain/repositories/coach.repository';
 import { CoachId } from '../../../coaches/domain/value-objects/coach-id.vo';
 import type { TeamRepository } from '../../../teams/domain/repositories/team.repository';
-import { PrismaService } from '../../../../infrastructure/database/prisma.service';
+import { TransfermarktStaffPageClient } from '../../infrastructure/transfermarkt/scraping/transfermarkt-staff-page.client';
 import {
   findHeadCoachFromStaffPage,
   splitCoachName,
 } from '../../infrastructure/transfermarkt/scraping/transfermarkt-staff-page.parser';
-import { TransfermarktStaffPageClient } from '../../infrastructure/transfermarkt/scraping/transfermarkt-staff-page.client';
 
 export interface SyncCoachesFromStaffCommand {
   readonly provider: string;
@@ -21,8 +21,16 @@ export interface SyncCoachesFromStaffResult {
   readonly updated: number;
   readonly missing: number;
   readonly failed: number;
-  readonly coaches: readonly { readonly externalId: string; readonly displayName: string; readonly teamName: string }[];
-  readonly failures: readonly { readonly externalId: string; readonly displayName: string; readonly reason: string }[];
+  readonly coaches: readonly {
+    readonly externalId: string;
+    readonly displayName: string;
+    readonly teamName: string;
+  }[];
+  readonly failures: readonly {
+    readonly externalId: string;
+    readonly displayName: string;
+    readonly reason: string;
+  }[];
 }
 
 const REQUEST_DELAY_MS = 250;
@@ -43,8 +51,8 @@ export class SyncCoachesFromStaffUseCase {
         ? await this.resolveSingleTeam(provider, command.clubExternalId)
         : await this.teamRepository.findAll();
 
-    const coaches: Array<{ externalId: string; displayName: string; teamName: string }> = [];
-    const failures: Array<{ externalId: string; displayName: string; reason: string }> = [];
+    const coaches: { externalId: string; displayName: string; teamName: string }[] = [];
+    const failures: { externalId: string; displayName: string; reason: string }[] = [];
     let scannedTeams = 0;
     let imported = 0;
     let updated = 0;

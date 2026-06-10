@@ -1,6 +1,8 @@
 import { Entity } from '../../../../common/domain/entity';
 import { LobbyStatus } from '../enums/lobby-status.enum';
 import { ParticipantPhaseStatus, RoomPhase } from '../enums/room-phase.enum';
+import { CoachSelectionIncompleteError } from '../errors/coach-selection.errors';
+import { FormationSelectionIncompleteError } from '../errors/formation-selection.errors';
 import {
   DuplicateParticipantDisplayNameError,
   InvalidLobbyCapacityError,
@@ -11,14 +13,13 @@ import {
   LobbyNotStartableError,
   NotLobbyHostError,
 } from '../errors/lobby.errors';
-import { CoachSelectionIncompleteError } from '../errors/coach-selection.errors';
-import { FormationSelectionIncompleteError } from '../errors/formation-selection.errors';
-import { LobbyParticipant } from './lobby-participant.entity';
 import type { LobbyCode } from '../value-objects/lobby-code.vo';
 import type { LobbyId } from '../value-objects/lobby-id.vo';
 import type { LobbyName } from '../value-objects/lobby-name.vo';
 import type { ParticipantDisplayName } from '../value-objects/participant-display-name.vo';
 import type { SessionToken } from '../value-objects/session-token.vo';
+
+import { LobbyParticipant } from './lobby-participant.entity';
 
 const MIN_PLAYERS = 2;
 const MAX_PLAYERS = 12;
@@ -136,7 +137,11 @@ export class Lobby extends Entity<LobbyId> {
       throw new LobbyNotJoinableError(this._phase);
     }
 
-    if (this._phase === RoomPhase.LOBBY && this._status !== LobbyStatus.OPEN && this._status !== LobbyStatus.FULL) {
+    if (
+      this._phase === RoomPhase.LOBBY &&
+      this._status !== LobbyStatus.OPEN &&
+      this._status !== LobbyStatus.FULL
+    ) {
       throw new LobbyNotJoinableError(this._status);
     }
 
@@ -278,8 +283,9 @@ export class Lobby extends Entity<LobbyId> {
 
   findParticipantBySessionToken(sessionToken: SessionToken): LobbyParticipant | null {
     return (
-      this._participants.find((participant) => participant.sessionToken.value === sessionToken.value) ??
-      null
+      this._participants.find(
+        (participant) => participant.sessionToken.value === sessionToken.value,
+      ) ?? null
     );
   }
 
@@ -292,13 +298,18 @@ export class Lobby extends Entity<LobbyId> {
   }
 
   get allParticipantsReady(): boolean {
-    return this._participants.length >= 2 && this._participants.every((participant) => participant.isReady);
+    return (
+      this._participants.length >= 2 &&
+      this._participants.every((participant) => participant.isReady)
+    );
   }
 
   get allFormationsSelected(): boolean {
     return (
       this._participants.length >= 2 &&
-      this._participants.every((participant) => participant.phaseStatus === ParticipantPhaseStatus.FORMATION_SELECTED)
+      this._participants.every(
+        (participant) => participant.phaseStatus === ParticipantPhaseStatus.FORMATION_SELECTED,
+      )
     );
   }
 

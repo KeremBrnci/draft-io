@@ -6,12 +6,12 @@ Generate **game-owned overall** values (1–99) for player cards. The engine is 
 
 ## Responsibilities
 
-| Artifact | Role |
-|----------|------|
-| `OverallCalculationContext` | Inputs for calculation |
-| `OverallCalculationResult` | Output overall value |
-| `OverallCalculationStrategy` | Pluggable algorithm |
-| `OverallCalculator` | Facade delegating to strategies |
+| Artifact                     | Role                            |
+| ---------------------------- | ------------------------------- |
+| `OverallCalculationContext`  | Inputs for calculation          |
+| `OverallCalculationResult`   | Output overall value            |
+| `OverallCalculationStrategy` | Pluggable algorithm             |
+| `OverallCalculator`          | Facade delegating to strategies |
 
 ## Module Structure
 
@@ -55,11 +55,11 @@ Multiple strategies can be registered later (e.g. `market-value-v1`, `baseline-v
 
 ## Integration with Player Domain
 
-| Event | Behavior |
-|-------|----------|
-| Import | Placeholder overall until engine runs |
-| Manual API update | `MANUAL_OVERRIDE` blocks recalculation |
-| Future batch job | `RecalculateOverallUseCase` calls `OverallCalculator` |
+| Event             | Behavior                                              |
+| ----------------- | ----------------------------------------------------- |
+| Import            | Placeholder overall until engine runs                 |
+| Manual API update | `MANUAL_OVERRIDE` blocks recalculation                |
+| Future batch job  | `RecalculateOverallUseCase` calls `OverallCalculator` |
 
 ## Current State (V1 shipped)
 
@@ -83,14 +83,14 @@ See also:
 
 ## Risks
 
-| Risk | Mitigation |
-|------|------------|
-| Premature algorithm in import path | Stub + placeholder policy |
-| apiOverallHint used directly | Documented forbidden; review checklist |
+| Risk                               | Mitigation                             |
+| ---------------------------------- | -------------------------------------- |
+| Premature algorithm in import path | Stub + placeholder policy              |
+| apiOverallHint used directly       | Documented forbidden; review checklist |
 
 ## Alternatives
 
-| Alternative | Why rejected |
-|-------------|--------------|
+| Alternative                     | Why rejected                    |
+| ------------------------------- | ------------------------------- |
 | Inline overall in import mapper | No testability or strategy swap |
-| Overall in frontend | Violates domain ownership |
+| Overall in frontend             | Violates domain ownership       |

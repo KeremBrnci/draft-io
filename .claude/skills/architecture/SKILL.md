@@ -13,11 +13,11 @@ description: >-
 
 Mandatory before structural changes. Subordinate to `docs/architecture/ai-constitution.md` (priority 2 rule: `architecture.mdc`).
 
-| Document | Path |
-|----------|------|
-| AI Constitution | `docs/architecture/ai-constitution.md` |
-| Workflow | `.cursor/rules/workflow.mdc` |
-| Universal instructions | `AGENTS.md` |
+| Document                     | Path                                      |
+| ---------------------------- | ----------------------------------------- |
+| AI Constitution              | `docs/architecture/ai-constitution.md`    |
+| Workflow                     | `.cursor/rules/workflow.mdc`              |
+| Universal instructions       | `AGENTS.md`                               |
 | Project context (load first) | `.claude/skills/project-context/SKILL.md` |
 
 ## Purpose
@@ -59,12 +59,12 @@ draft.io/
 
 ### Backend layer rules (enforced by `.dependency-cruiser.cjs`)
 
-| Layer | May depend on | Must NOT depend on |
-|-------|---------------|-------------------|
-| **domain** | Other domain VOs (sparingly), `common/domain` | application, infrastructure, presentation, NestJS, Prisma |
-| **application** | domain, `common/` | infrastructure, presentation, NestJS, Prisma |
-| **infrastructure** | domain, application ports, Prisma | presentation |
-| **presentation** | application use cases, DTOs | infrastructure (except `*.module.ts` wiring) |
+| Layer              | May depend on                                 | Must NOT depend on                                        |
+| ------------------ | --------------------------------------------- | --------------------------------------------------------- |
+| **domain**         | Other domain VOs (sparingly), `common/domain` | application, infrastructure, presentation, NestJS, Prisma |
+| **application**    | domain, `common/`                             | infrastructure, presentation, NestJS, Prisma              |
+| **infrastructure** | domain, application ports, Prisma             | presentation                                              |
+| **presentation**   | application use cases, DTOs                   | infrastructure (except `*.module.ts` wiring)              |
 
 Run `pnpm architecture:check` after structural changes.
 
@@ -158,15 +158,15 @@ Simulation engine stays framework-free; orchestration stays in application.
 
 ## Anti-patterns
 
-| Anti-pattern | Why it's wrong | Correct approach |
-|--------------|----------------|------------------|
-| Shared `entities/` folder across modules | Breaks bounded contexts | One `domain/entities/` per module |
-| Fat controllers with business rules | Untestable, violates layers | Thin controller → use case → domain |
-| Prisma client in use cases | Couples application to ORM | Repository port + infrastructure adapter |
-| `@Injectable()` on use cases | Couples application to NestJS | `provideUseCase()` factory |
-| Direct Prisma joins across modules | Hidden coupling, shared schema leaks | Application-level ID resolution |
-| Importing `Team` into `draft/domain` | Cross-context entity coupling | Pass `teamId` string |
-| Microservice extraction prematurely | Operational complexity | Modular monolith until scale demands split |
-| Putting simulation math in controllers | Wrong layer | Domain service or value objects |
-| Frontend duplicating backend validation rules | Drift risk | Backend is source of truth; frontend mirrors UX only |
-| Skipping `architecture:check` in CI | Regressions slip through | Fix violations before merge |
+| Anti-pattern                                  | Why it's wrong                       | Correct approach                                     |
+| --------------------------------------------- | ------------------------------------ | ---------------------------------------------------- |
+| Shared `entities/` folder across modules      | Breaks bounded contexts              | One `domain/entities/` per module                    |
+| Fat controllers with business rules           | Untestable, violates layers          | Thin controller → use case → domain                  |
+| Prisma client in use cases                    | Couples application to ORM           | Repository port + infrastructure adapter             |
+| `@Injectable()` on use cases                  | Couples application to NestJS        | `provideUseCase()` factory                           |
+| Direct Prisma joins across modules            | Hidden coupling, shared schema leaks | Application-level ID resolution                      |
+| Importing `Team` into `draft/domain`          | Cross-context entity coupling        | Pass `teamId` string                                 |
+| Microservice extraction prematurely           | Operational complexity               | Modular monolith until scale demands split           |
+| Putting simulation math in controllers        | Wrong layer                          | Domain service or value objects                      |
+| Frontend duplicating backend validation rules | Drift risk                           | Backend is source of truth; frontend mirrors UX only |
+| Skipping `architecture:check` in CI           | Regressions slip through             | Fix violations before merge                          |

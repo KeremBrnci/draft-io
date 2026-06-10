@@ -15,14 +15,18 @@ async function main(): Promise<void> {
 
   const baseUrl = configService.getConfig().baseUrl;
   console.log(`Base URL: ${baseUrl}`);
-  console.log(`API key: ${configService.getConfig().apiKey ? 'set (optional)' : 'not set — OK for fly.dev'}`);
+  console.log(
+    `API key: ${configService.getConfig().apiKey ? 'set (optional)' : 'not set — OK for fly.dev'}`,
+  );
 
   const httpClient = new TransfermarktHttpClient(configService);
   const countryProvider = new TransfermarktCountryProvider();
   const playerProvider = new TransfermarktPlayerProvider(httpClient, configService);
 
   const countries = await countryProvider.listCountries();
-  console.log(`Countries (seed): ${String(countries.length)} — first: ${countries[0]?.name ?? 'n/a'}`);
+  console.log(
+    `Countries (seed): ${String(countries.length)} — first: ${countries[0]?.name ?? 'n/a'}`,
+  );
 
   try {
     const players = await playerProvider.searchPlayers('messi');
@@ -35,7 +39,9 @@ async function main(): Promise<void> {
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     console.warn(`Live player search failed: ${message}`);
-    console.warn('Public fly.dev may be rate-limited or blocked by Transfermarkt — try self-hosting felipeall/transfermarkt-api.');
+    console.warn(
+      'Public fly.dev may be rate-limited or blocked by Transfermarkt — try self-hosting felipeall/transfermarkt-api.',
+    );
   }
 
   try {

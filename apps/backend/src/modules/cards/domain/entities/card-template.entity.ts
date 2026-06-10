@@ -1,5 +1,5 @@
 import { Entity } from '../../../../common/domain/entity';
-import { ReferenceId } from '../value-objects/reference-id.vo';
+import { type ReferenceId } from '../value-objects/reference-id.vo';
 
 export interface CreateCardTemplateProps {
   readonly id: ReferenceId;

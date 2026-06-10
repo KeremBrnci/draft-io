@@ -16,13 +16,13 @@ Formations constrain team building and influence chemistry and simulation outcom
 
 ### Supported Formations (Foundation)
 
-| Code | Description |
-|------|-------------|
-| `4-4-2` | Four defenders, four midfielders, two strikers |
-| `4-3-3` | Four defenders, three midfielders, three forwards |
-| `4-2-3-1` | Four defenders, two CDMs, three attacking mids, one striker |
-| `3-5-2` | Three centre-backs, five midfielders, two strikers |
-| `5-3-2` | Five defenders (with wing-backs), three midfielders, two strikers |
+| Code      | Description                                                       |
+| --------- | ----------------------------------------------------------------- |
+| `4-4-2`   | Four defenders, four midfielders, two strikers                    |
+| `4-3-3`   | Four defenders, three midfielders, three forwards                 |
+| `4-2-3-1` | Four defenders, two CDMs, three attacking mids, one striker       |
+| `3-5-2`   | Three centre-backs, five midfielders, two strikers                |
+| `5-3-2`   | Five defenders (with wing-backs), three midfielders, two strikers |
 
 ### Data Source
 

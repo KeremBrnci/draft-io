@@ -4,11 +4,11 @@
 
 Today a single `Player` aggregate combines:
 
-| Concern | Examples on `Player` |
-|---------|---------------------|
-| Identity | `firstName`, `displayName`, `nationality`, `externalReference` |
-| Provider mirror | `teamId`, `leagueId`, `marketValue`, `age` |
-| **Gameplay strength** | **`overall`, `overallSource`** |
+| Concern               | Examples on `Player`                                           |
+| --------------------- | -------------------------------------------------------------- |
+| Identity              | `firstName`, `displayName`, `nationality`, `externalReference` |
+| Provider mirror       | `teamId`, `leagueId`, `marketValue`, `age`                     |
+| **Gameplay strength** | **`overall`, `overallSource`**                                 |
 
 API contracts (`PlayerSummary`) expose `overallRating` and `overallSource` on the player resource. Import pipeline assigns overall via `import-overall.policy.ts` (SportDB placeholder 50, Transfermarkt null). Teams reference `StartingEleven.playerIds` — today player UUIDs, intended to become card UUIDs.
 
@@ -30,17 +30,17 @@ Player (identity)  →  1:N  →  Card (playable asset)
 Card                 →  used by  →  Draft, Team.startingEleven, Simulation
 ```
 
-| Concept | Owns |
-|---------|------|
+| Concept    | Owns                                                                                       |
+| ---------- | ------------------------------------------------------------------------------------------ |
 | **Player** | Real person: names, nationality, positions (provider default), image, status, provider IDs |
-| **Card** | Gameplay: `overall`, `cardType`, `rarity`, `cardVersion`, `releaseDate`, `isActive` |
+| **Card**   | Gameplay: `overall`, `cardType`, `rarity`, `cardVersion`, `releaseDate`, `isActive`        |
 
 Examples:
 
-| Player | Cards |
-|--------|-------|
-| Lionel Messi | Base 89, TOTY 98, Prime Icon 99 |
-| Cristiano Ronaldo | Base 88, Prime 96, Icon 97 |
+| Player            | Cards                           |
+| ----------------- | ------------------------------- |
+| Lionel Messi      | Base 89, TOTY 98, Prime Icon 99 |
+| Cristiano Ronaldo | Base 88, Prime 96, Icon 97      |
 
 Future fields (document only, not implemented): `chemistryModifier`, `specialTraits`, `cardArt`, `eventMetadata`.
 

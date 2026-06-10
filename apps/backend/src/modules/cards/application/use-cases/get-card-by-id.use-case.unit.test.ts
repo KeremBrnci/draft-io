@@ -1,5 +1,10 @@
 import { describe, expect, it, vi } from 'vitest';
 
+import { CardNotFoundError } from '../../domain/errors/card.errors';
+import type { CardRarityRepository } from '../../domain/repositories/card-rarity.repository';
+import type { CardTemplateRepository } from '../../domain/repositories/card-template.repository';
+import type { CardTypeRepository } from '../../domain/repositories/card-type.repository';
+import type { CardRepository } from '../../domain/repositories/card.repository';
 import {
   buildTestCard,
   buildTestCardRarity,
@@ -7,11 +12,6 @@ import {
   buildTestCardType,
   TEST_CARD_ID,
 } from '../../testing/card-test.factory';
-import { CardNotFoundError } from '../../domain/errors/card.errors';
-import type { CardRarityRepository } from '../../domain/repositories/card-rarity.repository';
-import type { CardTemplateRepository } from '../../domain/repositories/card-template.repository';
-import type { CardTypeRepository } from '../../domain/repositories/card-type.repository';
-import type { CardRepository } from '../../domain/repositories/card.repository';
 import { CardEnrichmentService } from '../services/card-enrichment.service';
 
 import { GetCardByIdUseCase } from './get-card-by-id.use-case';

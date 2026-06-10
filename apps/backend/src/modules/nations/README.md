@@ -11,9 +11,9 @@ Represent national teams or country affiliations for players and competitions.
 
 ## Public API
 
-| Method | Endpoint | Use Case |
-|--------|----------|----------|
-| GET | `/api/v1/nations` | `ListNationsUseCase` |
+| Method | Endpoint          | Use Case             |
+| ------ | ----------------- | -------------------- |
+| GET    | `/api/v1/nations` | `ListNationsUseCase` |
 
 ## Dependencies
 

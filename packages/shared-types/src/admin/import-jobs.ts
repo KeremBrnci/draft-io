@@ -1,15 +1,5 @@
-export type ImportJobStatusDto =
-  | 'PENDING'
-  | 'RUNNING'
-  | 'COMPLETED'
-  | 'PARTIAL'
-  | 'FAILED';
-export type ImportJobTypeDto =
-  | 'COMPETITION'
-  | 'CLUBS'
-  | 'PLAYERS'
-  | 'ENRICHMENT'
-  | 'PIPELINE';
+export type ImportJobStatusDto = 'PENDING' | 'RUNNING' | 'COMPLETED' | 'PARTIAL' | 'FAILED';
+export type ImportJobTypeDto = 'COMPETITION' | 'CLUBS' | 'PLAYERS' | 'ENRICHMENT' | 'PIPELINE';
 
 export interface ImportJobLogDto {
   readonly id: string;
@@ -48,10 +38,7 @@ export interface ImportJobDto {
   readonly createdAt: string;
 }
 
-export type TargetCompetitionImportStatusDto =
-  | 'NOT_IMPORTED'
-  | 'RUNNING'
-  | 'IMPORTED';
+export type TargetCompetitionImportStatusDto = 'NOT_IMPORTED' | 'RUNNING' | 'IMPORTED';
 
 export interface TargetCompetitionDto {
   readonly externalId: string;

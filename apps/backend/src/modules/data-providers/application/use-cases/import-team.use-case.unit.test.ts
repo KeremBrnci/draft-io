@@ -1,15 +1,15 @@
 import { describe, expect, it, vi } from 'vitest';
 
 import { ExternalProvider } from '../../../../core/external-reference/external-provider';
-import type { NationRepository } from '../../../nations/domain/repositories/nation.repository';
 import {
   createMockLeagueRepository,
   createMockTeamRepository,
 } from '../../../../testing/repository-mocks';
+import type { NationRepository } from '../../../nations/domain/repositories/nation.repository';
 import { ExternalTeamNotFoundError } from '../../domain/errors/data-provider.errors';
 import type { ExternalTeamRecord } from '../../domain/models/external-team-record';
-import type { TeamProvider } from '../../domain/ports/team-provider.port';
 import type { ProviderRegistryPort } from '../../domain/ports/provider-registry.port';
+import type { TeamProvider } from '../../domain/ports/team-provider.port';
 import { mapExternalTeamToDomain } from '../mappers/external-team-to-team.mapper';
 
 import { ImportTeamUseCase } from './import-team.use-case';

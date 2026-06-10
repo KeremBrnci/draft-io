@@ -12,13 +12,13 @@ description: >-
 
 Use during lifecycle Steps 6 and 9. Subordinate to `ai-constitution.md` and `ai-review-checklist.md`.
 
-| Document | Path |
-|----------|------|
-| AI Constitution | `docs/architecture/ai-constitution.md` |
-| Workflow | `.cursor/rules/workflow.mdc` |
-| Universal instructions | `AGENTS.md` |
-| Project context | `.claude/skills/project-context/SKILL.md` |
-| AI review checklist | `docs/architecture/ai-review-checklist.md` |
+| Document               | Path                                       |
+| ---------------------- | ------------------------------------------ |
+| AI Constitution        | `docs/architecture/ai-constitution.md`     |
+| Workflow               | `.cursor/rules/workflow.mdc`               |
+| Universal instructions | `AGENTS.md`                                |
+| Project context        | `.claude/skills/project-context/SKILL.md`  |
+| AI review checklist    | `docs/architecture/ai-review-checklist.md` |
 
 ## Purpose
 
@@ -60,13 +60,13 @@ Establish consistent testing strategy across the draft.io monorepo: fast unit te
 
 ### File naming and location
 
-| Layer | Pattern | Location |
-|-------|---------|----------|
-| Unit | `*.unit.test.ts` | Colocated with source |
-| Integration | `*.integration.test.ts` | `apps/backend/test/integration/` |
-| Backend e2e | `*.e2e.test.ts` | `apps/backend/test/e2e/` |
-| Frontend unit | `*.test.ts` | Colocated in `apps/frontend/src/` |
-| Frontend e2e | `*.spec.ts` | Playwright test directory |
+| Layer         | Pattern                 | Location                          |
+| ------------- | ----------------------- | --------------------------------- |
+| Unit          | `*.unit.test.ts`        | Colocated with source             |
+| Integration   | `*.integration.test.ts` | `apps/backend/test/integration/`  |
+| Backend e2e   | `*.e2e.test.ts`         | `apps/backend/test/e2e/`          |
+| Frontend unit | `*.test.ts`             | Colocated in `apps/frontend/src/` |
+| Frontend e2e  | `*.spec.ts`             | Playwright test directory         |
 
 ### Backend Vitest configs
 
@@ -121,14 +121,14 @@ const useCase = new CreatePlayerUseCase(repo);
 
 ### What to test where
 
-| Concern | Layer |
-|---------|-------|
-| `OverallRating.create(150)` throws | Unit (VO) |
-| `Player.updatePosition` updates timestamp | Unit (entity) |
-| `CreatePlayerUseCase` saves new player | Unit (use case, mock repo) |
-| `PrismaPlayerRepository.findById` returns entity | Integration |
-| `POST /players` returns 201 | E2e |
-| Player list renders on page | Playwright |
+| Concern                                          | Layer                      |
+| ------------------------------------------------ | -------------------------- |
+| `OverallRating.create(150)` throws               | Unit (VO)                  |
+| `Player.updatePosition` updates timestamp        | Unit (entity)              |
+| `CreatePlayerUseCase` saves new player           | Unit (use case, mock repo) |
+| `PrismaPlayerRepository.findById` returns entity | Integration                |
+| `POST /players` returns 201                      | E2e                        |
+| Player list renders on page                      | Playwright                 |
 
 ### CI expectations
 
@@ -217,15 +217,15 @@ describe('POST /players', () => {
 
 ## Anti-patterns
 
-| Anti-pattern | Correct approach |
-|--------------|------------------|
-| Testing use cases through HTTP | Unit test use case directly |
-| Real database in unit tests | Mock repository port |
-| Snapshot testing entire API responses | Assert specific fields |
-| `setTimeout` in tests without fake timers | `vi.useFakeTimers()` |
-| Shared mutable test state across files | Isolated setup/teardown per test |
-| Skipping error path tests | Test `*_NOT_FOUND`, `INVALID_*` cases |
-| Playwright testing every pixel | Critical paths only |
-| 100% coverage on mappers/DTOs | Focus on domain and use cases |
-| Flaky e2e from race conditions | `await expect(locator).toBeVisible()` |
-| Testing Prisma schema in unit tests | Integration layer only |
+| Anti-pattern                              | Correct approach                      |
+| ----------------------------------------- | ------------------------------------- |
+| Testing use cases through HTTP            | Unit test use case directly           |
+| Real database in unit tests               | Mock repository port                  |
+| Snapshot testing entire API responses     | Assert specific fields                |
+| `setTimeout` in tests without fake timers | `vi.useFakeTimers()`                  |
+| Shared mutable test state across files    | Isolated setup/teardown per test      |
+| Skipping error path tests                 | Test `*_NOT_FOUND`, `INVALID_*` cases |
+| Playwright testing every pixel            | Critical paths only                   |
+| 100% coverage on mappers/DTOs             | Focus on domain and use cases         |
+| Flaky e2e from race conditions            | `await expect(locator).toBeVisible()` |
+| Testing Prisma schema in unit tests       | Integration layer only                |

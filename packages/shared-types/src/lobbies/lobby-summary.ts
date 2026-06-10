@@ -1,13 +1,15 @@
+import type { ParticipantPhaseStatusDto, RoomPhaseDto } from '../rooms/room-phase.js';
+
 export type LobbyStatusDto = 'OPEN' | 'FULL' | 'STARTED' | 'CLOSED';
 
-export type { RoomPhaseDto, ParticipantPhaseStatusDto } from '../rooms/room-phase.js';
+export type { RoomPhaseDto, ParticipantPhaseStatusDto };
 
 export interface LobbyParticipantDto {
   readonly id: string;
   readonly displayName: string;
   readonly isHost: boolean;
   readonly isReady: boolean;
-  readonly phaseStatus: import('../rooms/room-phase.js').ParticipantPhaseStatusDto;
+  readonly phaseStatus: ParticipantPhaseStatusDto;
   readonly selectedFormationId: string | null;
   readonly joinedAt: string;
 }
@@ -17,7 +19,7 @@ export interface LobbySummaryDto {
   readonly name: string;
   readonly code: string;
   readonly status: LobbyStatusDto;
-  readonly phase: import('../rooms/room-phase.js').RoomPhaseDto;
+  readonly phase: RoomPhaseDto;
   readonly maxPlayers: number;
   readonly participantCount: number;
   readonly participants: readonly LobbyParticipantDto[];

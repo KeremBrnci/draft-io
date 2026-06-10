@@ -1,7 +1,4 @@
-import type {
-  DataQualityIssueDto,
-  DataQualitySummaryDto,
-} from '@draft-io/shared-types';
+import type { DataQualityIssueDto, DataQualitySummaryDto } from '@draft-io/shared-types';
 
 import type {
   DataQualityIssue,

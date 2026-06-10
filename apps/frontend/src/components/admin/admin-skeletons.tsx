@@ -38,11 +38,7 @@ export function FilterRowSkeleton(): React.ReactElement {
   );
 }
 
-export function StatCardsSkeleton({
-  count = 5,
-}: {
-  readonly count?: number;
-}): React.ReactElement {
+export function StatCardsSkeleton({ count = 5 }: { readonly count?: number }): React.ReactElement {
   return (
     <div className="admin-card-grid">
       {Array.from({ length: count }).map((_, index) => (

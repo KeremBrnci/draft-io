@@ -1,4 +1,7 @@
-import type { ImportJobLogEntry, ImportJobLogRepository } from '../../domain/repositories/import-job-log.repository';
+import type {
+  ImportJobLogEntry,
+  ImportJobLogRepository,
+} from '../../domain/repositories/import-job-log.repository';
 import { ImportJobId } from '../../domain/value-objects/import-job-id.vo';
 
 export interface ListImportJobLogsQuery {

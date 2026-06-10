@@ -47,7 +47,9 @@ function mapPositionCode(position: string): string {
   return normalizeExternalPositionCode(position) ?? 'CM';
 }
 
-export function extractListItems<T>(response: TransfermarktListResponse<T> | readonly T[]): readonly T[] {
+export function extractListItems<T>(
+  response: TransfermarktListResponse<T> | readonly T[],
+): readonly T[] {
   if (Array.isArray(response)) {
     return response;
   }
@@ -79,9 +81,7 @@ export function mapCompetitionDto(
   };
 }
 
-export function mapCompetitionSearchResult(
-  dto: TransfermarktCompetitionDto,
-): LeagueSearchResult {
+export function mapCompetitionSearchResult(dto: TransfermarktCompetitionDto): LeagueSearchResult {
   return {
     slug: dto.slug ?? slugify(dto.name),
     externalId: dto.id,

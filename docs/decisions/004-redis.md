@@ -33,14 +33,14 @@ Use **Redis 7** for caching, session storage, and pub/sub messaging.
 
 ## Usage Patterns
 
-| Pattern | Redis Feature | Example |
-|---------|--------------|---------|
-| Draft room state | Hash | `draft:room:{id}:state` |
-| Pick queue | List | `draft:room:{id}:queue` |
-| Lobby pub/sub | Pub/Sub | `lobby:{id}:events` |
+| Pattern           | Redis Feature | Example                      |
+| ----------------- | ------------- | ---------------------------- |
+| Draft room state  | Hash          | `draft:room:{id}:state`      |
+| Pick queue        | List          | `draft:room:{id}:queue`      |
+| Lobby pub/sub     | Pub/Sub       | `lobby:{id}:events`          |
 | Player card cache | String (JSON) | `cache:player:{id}` with TTL |
-| Session storage | Hash with TTL | `session:{token}` |
-| Leaderboard | Sorted Set | `league:{id}:standings` |
+| Session storage   | Hash with TTL | `session:{token}`            |
+| Leaderboard       | Sorted Set    | `league:{id}:standings`      |
 
 ## Key Naming Convention
 

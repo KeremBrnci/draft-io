@@ -51,7 +51,7 @@ export function parseTransfermarktMarketValue(raw: string | null | undefined): n
     return null;
   }
 
-  const match = normalized.match(/^([\d.,]+)(m|k|bn|th)?$/i);
+  const match = /^([\d.,]+)(m|k|bn|th)?$/i.exec(normalized);
   if (match === null) {
     return null;
   }
@@ -77,12 +77,15 @@ export function parseTransfermarktMarketValue(raw: string | null | undefined): n
   return Math.round(amount);
 }
 
-function parseBirthDate(raw: string | null | undefined): { dateOfBirth: string | null; age: number | null } {
+function parseBirthDate(raw: string | null | undefined): {
+  dateOfBirth: string | null;
+  age: number | null;
+} {
   if (raw === null || raw === undefined) {
     return { dateOfBirth: null, age: null };
   }
 
-  const match = raw.trim().match(/^(\d{2})\/(\d{2})\/(\d{4})(?:\s*\((\d{1,2})\))?/);
+  const match = /^(\d{2})\/(\d{2})\/(\d{4})(?:\s*\((\d{1,2})\))?/.exec(raw.trim());
   if (match === null) {
     return { dateOfBirth: null, age: null };
   }
@@ -100,9 +103,8 @@ export function parseTransfermarktSquadPage(html: string): readonly ScrapedSquad
   for (const rowMatch of html.matchAll(SQUAD_ROW_PATTERN)) {
     const row = rowMatch[1] ?? '';
 
-    const profileMatch = row.match(
-      /<a href="\/([^"]+)\/profil\/spieler\/(\d+)"[^>]*>\s*([^<]+?)\s*<\/a>/,
-    );
+    const profileMatch =
+      /<a href="\/([^"]+)\/profil\/spieler\/(\d+)"[^>]*>\s*([^<]+?)\s*<\/a>/.exec(row);
     if (profileMatch === null) {
       continue;
     }
@@ -115,20 +117,16 @@ export function parseTransfermarktSquadPage(html: string): readonly ScrapedSquad
       continue;
     }
     const positionMatch =
-      row.match(/<td class="hauptlink">[\s\S]*?<\/tr>\s*<tr>\s*<td>\s*([^<]+?)\s*<\/td>/) ??
-      row.match(/class="posrela">[\s\S]*?<tr>\s*<td>\s*([^<]+?)\s*<\/td>/);
-    const birthMatch = row.match(
-      /<td class="zentriert">\s*(\d{2}\/\d{2}\/\d{4}(?:\s*\(\d{1,2}\))?)\s*<\/td>/,
-    );
+      /<td class="hauptlink">[\s\S]*?<\/tr>\s*<tr>\s*<td>\s*([^<]+?)\s*<\/td>/.exec(row) ??
+      /class="posrela">[\s\S]*?<tr>\s*<td>\s*([^<]+?)\s*<\/td>/.exec(row);
+    const birthMatch =
+      /<td class="zentriert">\s*(\d{2}\/\d{2}\/\d{4}(?:\s*\(\d{1,2}\))?)\s*<\/td>/.exec(row);
     const nationalityMatch =
-      row.match(/class="flaggenrahmen"[^>]*title="([^"]+)"/) ??
-      row.match(/title="([^"]+)"[^>]*class="flaggenrahmen"/);
-    const imageMatch = row.match(
-      /data-src="(https:\/\/img\.a\.transfermarkt\.technology\/portrait\/[^"]+)"/,
-    );
-    const marketValueMatch = row.match(
-      /<td class="rechts hauptlink">[\s\S]*?<a[^>]*>([^<]*)<\/a>/,
-    );
+      /class="flaggenrahmen"[^>]*title="([^"]+)"/.exec(row) ??
+      /title="([^"]+)"[^>]*class="flaggenrahmen"/.exec(row);
+    const imageMatch =
+      /data-src="(https:\/\/img\.a\.transfermarkt\.technology\/portrait\/[^"]+)"/.exec(row);
+    const marketValueMatch = /<td class="rechts hauptlink">[\s\S]*?<a[^>]*>([^<]*)<\/a>/.exec(row);
 
     const birth = parseBirthDate(birthMatch?.[1] ?? null);
 

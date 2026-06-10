@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { InvalidDisplayNameError } from '../errors/player.errors';
+
 import { DisplayName } from './display-name.vo';
 import { PersonName } from './person-name.vo';
 

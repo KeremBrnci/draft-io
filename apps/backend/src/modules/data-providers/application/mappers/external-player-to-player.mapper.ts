@@ -44,7 +44,11 @@ function mergeExternalPlayerPositions(
 }
 
 function resolveBirthDate(record: ExternalPlayerRecord): BirthDate | null {
-  if (record.dateOfBirth !== undefined && record.dateOfBirth !== null && record.dateOfBirth.length > 0) {
+  if (
+    record.dateOfBirth !== undefined &&
+    record.dateOfBirth !== null &&
+    record.dateOfBirth.length > 0
+  ) {
     try {
       return BirthDate.create(new Date(record.dateOfBirth));
     } catch {
@@ -115,12 +119,9 @@ export function applyExternalPlayerImport(
     leagueId: context.leagueId ?? existing.leagueId,
     positions: mergeExternalPlayerPositions(existing, record),
     marketValue:
-      record.marketValue === null
-        ? existing.marketValue
-        : MarketValue.create(record.marketValue),
+      record.marketValue === null ? existing.marketValue : MarketValue.create(record.marketValue),
     marketValueCurrency: record.marketValueCurrency ?? existing.marketValueCurrency,
-    imageUrl:
-      record.imageUrl === null ? existing.imageUrl : ImageUrl.create(record.imageUrl),
+    imageUrl: record.imageUrl === null ? existing.imageUrl : ImageUrl.create(record.imageUrl),
     status: parsePlayerStatus(record.status),
     createdAt: existing.createdAt,
     updatedAt: new Date(),

@@ -1,9 +1,9 @@
 import { describe, expect, it, vi } from 'vitest';
 
+import { createMockPlayerRepository } from '../../../../testing/repository-mocks';
 import { DisplayName } from '../../domain/value-objects/display-name.vo';
 import { PlayerId } from '../../domain/value-objects/player-id.vo';
 import { buildTestPlayer, buildTestPlayerPositions } from '../../testing/player-test.factory';
-import { createMockPlayerRepository } from '../../../../testing/repository-mocks';
 
 import { ListPlayersUseCase } from './list-players.use-case';
 

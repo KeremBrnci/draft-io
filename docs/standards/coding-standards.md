@@ -52,12 +52,12 @@ Depend on abstractions, not concretions.
 
 ## DTO Usage
 
-| Layer | DTO Type | Purpose |
-|-------|----------|---------|
-| Presentation | Request DTOs | Input validation (`class-validator`) |
-| Presentation | Response DTOs | Output shape for API consumers |
-| Application | Commands/Queries | Internal operation parameters |
-| Domain | Entities/VOs | Business objects with invariants |
+| Layer        | DTO Type         | Purpose                              |
+| ------------ | ---------------- | ------------------------------------ |
+| Presentation | Request DTOs     | Input validation (`class-validator`) |
+| Presentation | Response DTOs    | Output shape for API consumers       |
+| Application  | Commands/Queries | Internal operation parameters        |
+| Domain       | Entities/VOs     | Business objects with invariants     |
 
 Rules:
 

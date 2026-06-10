@@ -4,12 +4,12 @@
 
 Every calculation is tagged with an `OverallAlgorithmVersion` record (e.g. `V1`).
 
-| Rule | Behavior |
-|------|----------|
-| Immutable history | `overall_calculations` rows are never updated or deleted by recalculation |
-| Version on record | Each calculation stores `algorithmVersionId` |
-| Active version | `overall_algorithm_versions.isActive` flags supported versions |
-| Future V2/V3 | New strategies register under a new version code without migrating old rows |
+| Rule              | Behavior                                                                    |
+| ----------------- | --------------------------------------------------------------------------- |
+| Immutable history | `overall_calculations` rows are never updated or deleted by recalculation   |
+| Version on record | Each calculation stores `algorithmVersionId`                                |
+| Active version    | `overall_algorithm_versions.isActive` flags supported versions              |
+| Future V2/V3      | New strategies register under a new version code without migrating old rows |
 
 ## Recalculation strategy
 
@@ -38,10 +38,10 @@ Clearing an override (future admin action) will allow the next recalculation to 
 
 ## Metrics vs history
 
-| Artifact | Cardinality | Updated on recalc |
-|----------|-------------|-------------------|
-| `PlayerMetrics` | 1 per player | Yes (upsert) |
-| `OverallCalculation` | Many per player | Append only |
+| Artifact             | Cardinality     | Updated on recalc |
+| -------------------- | --------------- | ----------------- |
+| `PlayerMetrics`      | 1 per player    | Yes (upsert)      |
+| `OverallCalculation` | Many per player | Append only       |
 
 Compare `GET /admin/overall/history/:playerId` entries to audit formula changes across versions.
 

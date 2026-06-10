@@ -11,7 +11,9 @@ export class AdminCoachesController {
 
   @Get()
   @HttpCode(HttpStatus.OK)
-  async browse(@Query() query: BrowseCoachesQueryDto): Promise<PaginatedResponse<CoachBrowserItemDto>> {
+  async browse(
+    @Query() query: BrowseCoachesQueryDto,
+  ): Promise<PaginatedResponse<CoachBrowserItemDto>> {
     const result = await this.browseCoachesUseCase.execute({
       ...(query.name !== undefined ? { name: query.name } : {}),
       ...(query.role !== undefined ? { role: query.role } : {}),

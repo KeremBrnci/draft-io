@@ -1,4 +1,7 @@
-import type { Player as PrismaPlayer, PlayerPosition as PrismaPlayerPosition } from '@prisma/client';
+import type {
+  Player as PrismaPlayer,
+  PlayerPosition as PrismaPlayerPosition,
+} from '@prisma/client';
 import { type Decimal } from '@prisma/client/runtime/library';
 
 import { parseExternalProvider } from '../../../../core/external-reference/external-provider';
@@ -39,9 +42,7 @@ export function toPlayerDomain(record: PrismaPlayerWithPositions): Player {
     leagueId: record.leagueId,
     positions: toPlayerPositionsDomain(playerId, record.positions),
     marketValue:
-      record.marketValue === null
-        ? null
-        : MarketValue.create(decimalToNumber(record.marketValue)),
+      record.marketValue === null ? null : MarketValue.create(decimalToNumber(record.marketValue)),
     marketValueCurrency: record.marketValueCurrency,
     imageUrl: record.imageUrl === null ? null : ImageUrl.create(record.imageUrl),
     status: parsePlayerStatus(record.status),

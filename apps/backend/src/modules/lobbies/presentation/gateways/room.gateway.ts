@@ -26,7 +26,10 @@ export class RoomGateway {
   }
 
   @SubscribeMessage('join_room')
-  handleJoinRoom(@ConnectedSocket() client: Socket, @MessageBody() body: { readonly code?: string }): void {
+  handleJoinRoom(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() body: { readonly code?: string },
+  ): void {
     const code = normalizeRoomCode(body.code ?? '');
     if (code.length === 0) {
       return;
@@ -37,7 +40,10 @@ export class RoomGateway {
   }
 
   @SubscribeMessage('leave_room')
-  handleLeaveRoom(@ConnectedSocket() client: Socket, @MessageBody() body: { readonly code?: string }): void {
+  handleLeaveRoom(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() body: { readonly code?: string },
+  ): void {
     const code = normalizeRoomCode(body.code ?? '');
     if (code.length === 0) {
       return;

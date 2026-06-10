@@ -32,7 +32,10 @@ function buildUseCase(leagueProvider: LeagueProvider) {
     save: vi.fn(),
   };
 
-  return { useCase: new ImportLeagueUseCase(providerRegistry, leagueRepository, nationRepository), leagueRepository };
+  return {
+    useCase: new ImportLeagueUseCase(providerRegistry, leagueRepository, nationRepository),
+    leagueRepository,
+  };
 }
 
 describe('ImportLeagueUseCase', () => {

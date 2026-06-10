@@ -13,12 +13,12 @@ description: >-
 
 Use during implementation (lifecycle Step 5). Subordinate to `ai-constitution.md` and `workflow.mdc`.
 
-| Document | Path |
-|----------|------|
-| AI Constitution | `docs/architecture/ai-constitution.md` |
-| Workflow | `.cursor/rules/workflow.mdc` |
-| Universal instructions | `AGENTS.md` |
-| Project context | `.claude/skills/project-context/SKILL.md` |
+| Document               | Path                                      |
+| ---------------------- | ----------------------------------------- |
+| AI Constitution        | `docs/architecture/ai-constitution.md`    |
+| Workflow               | `.cursor/rules/workflow.mdc`              |
+| Universal instructions | `AGENTS.md`                               |
+| Project context        | `.claude/skills/project-context/SKILL.md` |
 
 ## Purpose
 
@@ -73,7 +73,9 @@ export class CreatePlayerUseCase {
   constructor(private readonly playerRepository: PlayerRepository) {}
 
   async execute(command: CreatePlayerCommand): Promise<Player> {
-    const player = Player.create({ /* value objects */ });
+    const player = Player.create({
+      /* value objects */
+    });
     await this.playerRepository.save(player);
     return player;
   }
@@ -190,15 +192,15 @@ Inject `PLAYER_REPOSITORY` from `PlayersModule` exports — still no entity cros
 
 ## Anti-patterns
 
-| Anti-pattern | Correct approach |
-|--------------|------------------|
-| `@Injectable()` on use cases | `provideUseCase()` |
-| Returning Prisma models from use cases | Map to domain entity, then to DTO |
-| `try/catch` swallowing domain errors in controllers | Let global exception filter handle |
-| HTTP status codes in domain errors | Convention-based codes only |
-| Generic `Error` throws | Typed `DomainError` subclasses |
-| Business logic in `prisma-*.repository.ts` | Repository is persistence only |
-| God use case handling 5 operations | One use case per operation |
-| Leaking `uuid` generation into domain entity | Generate ID in use case or VO factory |
-| Skipping response mapper (returning entity in controller) | Always map to response DTO |
-| Importing controllers across modules | Import exported use cases only |
+| Anti-pattern                                              | Correct approach                      |
+| --------------------------------------------------------- | ------------------------------------- |
+| `@Injectable()` on use cases                              | `provideUseCase()`                    |
+| Returning Prisma models from use cases                    | Map to domain entity, then to DTO     |
+| `try/catch` swallowing domain errors in controllers       | Let global exception filter handle    |
+| HTTP status codes in domain errors                        | Convention-based codes only           |
+| Generic `Error` throws                                    | Typed `DomainError` subclasses        |
+| Business logic in `prisma-*.repository.ts`                | Repository is persistence only        |
+| God use case handling 5 operations                        | One use case per operation            |
+| Leaking `uuid` generation into domain entity              | Generate ID in use case or VO factory |
+| Skipping response mapper (returning entity in controller) | Always map to response DTO            |
+| Importing controllers across modules                      | Import exported use cases only        |

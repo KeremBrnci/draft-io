@@ -12,13 +12,13 @@ Gameplay must never call Transfermarkt directly.
 
 ## Authentication
 
-| Variable | Required | Default |
-|----------|----------|---------|
-| `TRANSFERMARKT_API_KEY` | No (felipeall fly.dev is keyless) | — |
-| `TRANSFERMARKT_BASE_URL` | No | `https://transfermarkt-api.fly.dev` |
-| `TRANSFERMARKT_RPS_LIMIT` | No | `2` |
-| `TRANSFERMARKT_TIMEOUT_MS` | No | `10000` |
-| `TRANSFERMARKT_RETRY_ATTEMPTS` | No | `2` |
+| Variable                       | Required                          | Default                             |
+| ------------------------------ | --------------------------------- | ----------------------------------- |
+| `TRANSFERMARKT_API_KEY`        | No (felipeall fly.dev is keyless) | —                                   |
+| `TRANSFERMARKT_BASE_URL`       | No                                | `https://transfermarkt-api.fly.dev` |
+| `TRANSFERMARKT_RPS_LIMIT`      | No                                | `2`                                 |
+| `TRANSFERMARKT_TIMEOUT_MS`     | No                                | `10000`                             |
+| `TRANSFERMARKT_RETRY_ATTEMPTS` | No                                | `2`                                 |
 
 The public [felipeall/transfermarkt-api](https://github.com/felipeall/transfermarkt-api) deployment does **not** require an API key. `TRANSFERMARKT_API_KEY` is optional (for private gateways that use `X-API-Key`). Countries are bootstrapped from a local seed list because the upstream API has no `/countries` endpoint.
 

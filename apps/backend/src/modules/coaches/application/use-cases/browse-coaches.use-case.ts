@@ -82,8 +82,7 @@ export class BrowseCoachesUseCase {
         appointedDate: formatDate(coach.appointedDate),
         contractExpires: formatDate(coach.contractExpires),
         teamId: coach.teamId,
-        teamName:
-          team === undefined ? null : translateTeamName(team.name.value, teamExternalId),
+        teamName: team === undefined ? null : translateTeamName(team.name.value, teamExternalId),
         teamLogoUrl: resolveTransfermarktTeamLogoUrl(team?.logoUrl ?? null, teamExternalId),
         leagueId,
         leagueName:

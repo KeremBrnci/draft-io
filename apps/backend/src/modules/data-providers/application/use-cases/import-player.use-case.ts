@@ -8,8 +8,8 @@ import type { PlayerRepository } from '../../../players/domain/repositories/play
 import type { TeamRepository } from '../../../teams/domain/repositories/team.repository';
 import { TeamId } from '../../../teams/domain/value-objects/team-id.vo';
 import { ExternalPlayerNotFoundError } from '../../domain/errors/data-provider.errors';
-import type { ProviderRegistryPort } from '../../domain/ports/provider-registry.port';
 import type { ExternalPlayerRecord } from '../../domain/models/external-player-record';
+import type { ProviderRegistryPort } from '../../domain/ports/provider-registry.port';
 import type { ImportPlayerCommand } from '../commands/import-player.command';
 import {
   applyExternalPlayerImport,

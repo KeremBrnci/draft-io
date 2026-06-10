@@ -15,7 +15,8 @@ export class LeagueScoringStrategy {
       return NO_LEAGUE_SCORE;
     }
 
-    const tierScore = LEAGUE_TIER_SCORES[context.leagueExternalId.toUpperCase()] ?? DEFAULT_LEAGUE_SCORE;
+    const tierScore =
+      LEAGUE_TIER_SCORES[context.leagueExternalId.toUpperCase()] ?? DEFAULT_LEAGUE_SCORE;
     const starFloor = starLeagueFloorFromMarketValue(context.marketValue);
 
     if (starFloor !== null) {

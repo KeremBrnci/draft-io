@@ -13,13 +13,13 @@ description: >-
 
 Required before game rule changes (workflow Steps 1–2). Subordinate to `game-domain.mdc` and `ai-constitution.md`.
 
-| Document | Path |
-|----------|------|
-| AI Constitution | `docs/architecture/ai-constitution.md` |
-| Workflow | `.cursor/rules/workflow.mdc` |
-| Universal instructions | `AGENTS.md` |
-| Project context | `.claude/skills/project-context/SKILL.md` |
-| Project vision | `docs/architecture/project-vision.md` |
+| Document               | Path                                      |
+| ---------------------- | ----------------------------------------- |
+| AI Constitution        | `docs/architecture/ai-constitution.md`    |
+| Workflow               | `.cursor/rules/workflow.mdc`              |
+| Universal instructions | `AGENTS.md`                               |
+| Project context        | `.claude/skills/project-context/SKILL.md` |
+| Project vision         | `docs/architecture/project-vision.md`     |
 
 ## Purpose
 
@@ -53,16 +53,16 @@ Create/join Lobby → Configure draft settings → Draft players → Build team
 
 ### Domain modules and game concepts
 
-| Module | Game concept | Key rules |
-|--------|--------------|-----------|
-| **positions** | 15 position codes | Vocabulary for players, formations, slots |
-| **players** | Player cards | Name, position, overall rating (sub-stats future) |
-| **formations** | Tactical templates | 11 slots with allowed positions per slot |
-| **teams** | User squads | Starting eleven, formation code, manager (future) |
-| **nations** | National identity | Links for chemistry and leagues |
-| **leagues** | Season competition | Teams grouped by nation/season |
-| **draft** | Multiplayer pick flow | Turn order, pool, timer, roster assignment |
-| **simulation** | Match resolution | Score, events from team stats + chemistry |
+| Module         | Game concept          | Key rules                                         |
+| -------------- | --------------------- | ------------------------------------------------- |
+| **positions**  | 15 position codes     | Vocabulary for players, formations, slots         |
+| **players**    | Player cards          | Name, position, overall rating (sub-stats future) |
+| **formations** | Tactical templates    | 11 slots with allowed positions per slot          |
+| **teams**      | User squads           | Starting eleven, formation code, manager (future) |
+| **nations**    | National identity     | Links for chemistry and leagues                   |
+| **leagues**    | Season competition    | Teams grouped by nation/season                    |
+| **draft**      | Multiplayer pick flow | Turn order, pool, timer, roster assignment        |
+| **simulation** | Match resolution      | Score, events from team stats + chemistry         |
 
 ### Players (`docs/game-design/players.md`)
 
@@ -91,12 +91,12 @@ Create/join Lobby → Configure draft settings → Draft players → Build team
 
 **Settings to support:**
 
-| Setting | Impact |
-|---------|--------|
-| Pool size | Total draftable players |
-| Roster size | Picks per participant |
-| Pick timer | Auto-pick on expiry |
-| Draft order | Snake vs linear fairness |
+| Setting        | Impact                              |
+| -------------- | ----------------------------------- |
+| Pool size      | Total draftable players             |
+| Roster size    | Picks per participant               |
+| Pick timer     | Auto-pick on expiry                 |
+| Draft order    | Snake vs linear fairness            |
 | Formation lock | Pre- vs post-draft formation choice |
 
 ### Chemistry (`docs/game-design/chemistry-system.md`)
@@ -178,15 +178,15 @@ Use seeded PRNG (`MatchSeed` VO) so identical inputs reproduce identical results
 
 ## Anti-patterns
 
-| Anti-pattern | Correct approach |
-|--------------|------------------|
-| Hardcoding 4-4-2 slots in draft module | Reference formations module by code |
-| Letting users field any 11 players | Enforce formation slot positions |
-| Computing chemistry in frontend only | Backend domain/service is authoritative |
-| Ignoring draft timer edge cases | Auto-pick, pause-on-disconnect per design decision |
-| FIFA-exact stat names without doc reference | Follow `docs/game-design/players.md` |
-| Simulation randomness without seed | Deterministic replay support |
-| Mixing league standings into draft module | Separate bounded contexts |
-| Implementing auction draft before snake works | Follow phased roadmap |
-| Player overall as float | Integer 1–99 per design |
-| Skipping design doc open questions | Resolve or document assumption in PR |
+| Anti-pattern                                  | Correct approach                                   |
+| --------------------------------------------- | -------------------------------------------------- |
+| Hardcoding 4-4-2 slots in draft module        | Reference formations module by code                |
+| Letting users field any 11 players            | Enforce formation slot positions                   |
+| Computing chemistry in frontend only          | Backend domain/service is authoritative            |
+| Ignoring draft timer edge cases               | Auto-pick, pause-on-disconnect per design decision |
+| FIFA-exact stat names without doc reference   | Follow `docs/game-design/players.md`               |
+| Simulation randomness without seed            | Deterministic replay support                       |
+| Mixing league standings into draft module     | Separate bounded contexts                          |
+| Implementing auction draft before snake works | Follow phased roadmap                              |
+| Player overall as float                       | Integer 1–99 per design                            |
+| Skipping design doc open questions            | Resolve or document assumption in PR               |

@@ -4,13 +4,13 @@ Shared TypeScript types and API contracts for the draft.io platform.
 
 ## Allowed Usage
 
-| Consumer | Allowed | Notes |
-|----------|---------|-------|
-| Frontend (`apps/frontend`) | ✅ Yes | API response types, shared enums, pagination |
-| Backend Presentation layer | ✅ Yes | DTO mapping targets, API contracts |
-| Backend Application layer | ⚠️ Sparingly | Prefer domain types; use for cross-boundary contracts only |
-| Backend Domain layer | ❌ No | Domain must remain framework-agnostic and self-contained |
-| Backend Infrastructure layer | ⚠️ Sparingly | Mapping to/from external APIs only |
+| Consumer                     | Allowed      | Notes                                                      |
+| ---------------------------- | ------------ | ---------------------------------------------------------- |
+| Frontend (`apps/frontend`)   | ✅ Yes       | API response types, shared enums, pagination               |
+| Backend Presentation layer   | ✅ Yes       | DTO mapping targets, API contracts                         |
+| Backend Application layer    | ⚠️ Sparingly | Prefer domain types; use for cross-boundary contracts only |
+| Backend Domain layer         | ❌ No        | Domain must remain framework-agnostic and self-contained   |
+| Backend Infrastructure layer | ⚠️ Sparingly | Mapping to/from external APIs only                         |
 
 ## What Belongs Here
 

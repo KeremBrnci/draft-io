@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 
 import { DataQualityIssueCode } from '../../domain/enums/data-quality-issue-code';
 import type { DataQualityRepository } from '../../domain/repositories/data-quality.repository';
+
 import { ListDataQualityIssuesUseCase } from './list-data-quality-issues.use-case';
 
 describe('ListDataQualityIssuesUseCase', () => {

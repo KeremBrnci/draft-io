@@ -1,4 +1,5 @@
 import type { League } from '../../../leagues/domain/entities/league.entity';
+
 import type { ImportLeagueUseCase } from './import-league.use-case';
 import type { ListCompetitionsByCountryUseCase } from './list-competitions-by-country.use-case';
 

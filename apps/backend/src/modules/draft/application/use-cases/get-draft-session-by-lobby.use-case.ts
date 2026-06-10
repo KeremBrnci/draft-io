@@ -1,6 +1,6 @@
-import type { GetDraftSessionByLobbyQuery } from '../queries/get-draft-session-by-lobby.query';
 import type { DraftSession } from '../../domain/repositories/draft-session.repository';
 import type { DraftSessionRepository } from '../../domain/repositories/draft-session.repository';
+import type { GetDraftSessionByLobbyQuery } from '../queries/get-draft-session-by-lobby.query';
 
 export class GetDraftSessionByLobbyUseCase {
   constructor(private readonly draftSessionRepository: DraftSessionRepository) {}

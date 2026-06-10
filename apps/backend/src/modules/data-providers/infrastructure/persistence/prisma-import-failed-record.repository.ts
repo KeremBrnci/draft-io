@@ -1,5 +1,6 @@
-import { Injectable } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
+
+import { Injectable } from '@nestjs/common';
 
 import { PrismaService } from '../../../../infrastructure/database/prisma.service';
 import type {
@@ -29,7 +30,9 @@ export class PrismaImportFailedRecordRepository implements ImportFailedRecordRep
     return this.toEntry(record);
   }
 
-  async findByJobId(jobId: CreateImportFailedRecordProps['jobId']): Promise<readonly ImportFailedRecordEntry[]> {
+  async findByJobId(
+    jobId: CreateImportFailedRecordProps['jobId'],
+  ): Promise<readonly ImportFailedRecordEntry[]> {
     const records = await this.prisma.importFailedRecord.findMany({
       where: { jobId: jobId.value },
       orderBy: { createdAt: 'desc' },

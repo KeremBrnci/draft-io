@@ -13,12 +13,12 @@ description: >-
 
 Use when scaffolding backend modules during lifecycle Step 5. Subordinate to `architecture.mdc` and `ai-constitution.md`.
 
-| Document | Path |
-|----------|------|
-| AI Constitution | `docs/architecture/ai-constitution.md` |
-| Workflow | `.cursor/rules/workflow.mdc` |
-| Universal instructions | `AGENTS.md` |
-| Project context | `.claude/skills/project-context/SKILL.md` |
+| Document               | Path                                      |
+| ---------------------- | ----------------------------------------- |
+| AI Constitution        | `docs/architecture/ai-constitution.md`    |
+| Workflow               | `.cursor/rules/workflow.mdc`              |
+| Universal instructions | `AGENTS.md`                               |
+| Project context        | `.claude/skills/project-context/SKILL.md` |
 
 ## Purpose
 
@@ -121,7 +121,7 @@ export class EntityModule {}
 import { EntityModule } from './modules/{module}/{module}.module';
 
 @Module({
-  imports: [PlayersModule, EntityModule, /* ... */],
+  imports: [PlayersModule, EntityModule /* ... */],
 })
 export class AppModule {}
 ```
@@ -142,9 +142,7 @@ Add model to `schema.prisma`, run migration, never expose Prisma types outside i
 // draft.module.ts — needs players
 @Module({
   imports: [PlayersModule],
-  providers: [
-    provideUseCase(MakeDraftPickUseCase, [DRAFT_REPOSITORY, PLAYER_REPOSITORY]),
-  ],
+  providers: [provideUseCase(MakeDraftPickUseCase, [DRAFT_REPOSITORY, PLAYER_REPOSITORY])],
 })
 export class DraftModule {}
 ```
@@ -222,15 +220,15 @@ Static game data with no database:
 
 ## Anti-patterns
 
-| Anti-pattern | Correct approach |
-|--------------|------------------|
-| Single `service.ts` with all logic | Layered use cases + domain |
-| Skipping repository port | Interface in domain always |
-| `@Injectable()` on use cases | `provideUseCase()` |
-| Business logic in `{module}.module.ts` | Module is DI wiring only |
-| Importing `PlayersModule` in domain | Application layer injection only |
-| Giant controller file | One controller per aggregate resource |
-| Shared `dto/` folder at src root | Per-module `presentation/dto/` |
-| Prisma client as provider | Repository implementation class |
-| Forgetting to export use cases | Explicit `exports` array |
-| Creating module without aggregate design | Domain model first |
+| Anti-pattern                             | Correct approach                      |
+| ---------------------------------------- | ------------------------------------- |
+| Single `service.ts` with all logic       | Layered use cases + domain            |
+| Skipping repository port                 | Interface in domain always            |
+| `@Injectable()` on use cases             | `provideUseCase()`                    |
+| Business logic in `{module}.module.ts`   | Module is DI wiring only              |
+| Importing `PlayersModule` in domain      | Application layer injection only      |
+| Giant controller file                    | One controller per aggregate resource |
+| Shared `dto/` folder at src root         | Per-module `presentation/dto/`        |
+| Prisma client as provider                | Repository implementation class       |
+| Forgetting to export use cases           | Explicit `exports` array              |
+| Creating module without aggregate design | Domain model first                    |

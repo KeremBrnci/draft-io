@@ -1,9 +1,9 @@
 import type { PaginationParams } from '@draft-io/shared-types';
-import type { Prisma } from '@prisma/client';
 import { Injectable } from '@nestjs/common';
+import type { Prisma } from '@prisma/client';
 
-import { PrismaService } from '../../../../infrastructure/database/prisma.service';
 import type { ExternalProvider } from '../../../../core/external-reference/external-provider';
+import { PrismaService } from '../../../../infrastructure/database/prisma.service';
 import type { Player } from '../../domain/entities/player.entity';
 import type {
   PlayerListFilter,
@@ -13,6 +13,7 @@ import type {
 import type { PlayerId } from '../../domain/value-objects/player-id.vo';
 import { toPlayerPositionPersistence } from '../mappers/player-position.mapper';
 import { toPlayerDomain, toPlayerPersistence } from '../mappers/player.mapper';
+
 import { toPrismaPlayerOrderBy, toPrismaPlayerWhere } from './player-list-filter.prisma';
 
 const POSITIONS_INCLUDE = {

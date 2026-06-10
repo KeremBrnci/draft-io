@@ -43,7 +43,10 @@ export default function FormationSelectionPage(): React.ReactElement {
         return;
       }
     } catch (loadError) {
-      if (loadError instanceof ApiClientError && (loadError.statusCode === 410 || loadError.statusCode === 404)) {
+      if (
+        loadError instanceof ApiClientError &&
+        (loadError.statusCode === 410 || loadError.statusCode === 404)
+      ) {
         clearLobbySession(code);
         setError('Oda bulunamadı veya süresi doldu.');
         return;
@@ -176,7 +179,9 @@ export default function FormationSelectionPage(): React.ReactElement {
               <div className="play-ready-meter__track">
                 <div
                   className="play-ready-meter__fill"
-                  style={{ width: `${totalPlayers === 0 ? 0 : (selectedCount / totalPlayers) * 100}%` }}
+                  style={{
+                    width: `${totalPlayers === 0 ? 0 : (selectedCount / totalPlayers) * 100}%`,
+                  }}
                 />
               </div>
               <p className="play-ready-meter__hint">

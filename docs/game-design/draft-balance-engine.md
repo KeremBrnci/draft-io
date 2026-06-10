@@ -7,12 +7,12 @@ The Draft Balance Engine creates **fair teams** while preserving **randomness, e
 The game must never feel predetermined.  
 The game must never feel completely random.
 
-| Target | Avoid |
-|--------|-------|
-| Fairness + excitement | Perfect balance |
-| Meaningful decisions | Pure luck |
+| Target                    | Avoid                                  |
+| ------------------------- | -------------------------------------- |
+| Fairness + excitement     | Perfect balance                        |
+| Meaningful decisions      | Pure luck                              |
 | “I have a chance to win.” | “The game was decided before kickoff.” |
-| “Anything can happen.” | Identical, chess-like drafts |
+| “Anything can happen.”    | Identical, chess-like drafts           |
 
 ### Target player experience
 
@@ -20,12 +20,12 @@ Success means one player can say **“I got lucky.”** without another saying *
 
 ### Intended skill mix (design north star)
 
-| Factor | Approx. weight |
-|--------|----------------|
-| Correct pick decisions | ~50% |
-| Team building (structure, links) | ~25% |
-| Chemistry | ~15% |
-| Luck / wildcards | ~10% |
+| Factor                           | Approx. weight |
+| -------------------------------- | -------------- |
+| Correct pick decisions           | ~50%           |
+| Team building (structure, links) | ~25%           |
+| Chemistry                        | ~15%           |
+| Luck / wildcards                 | ~10%           |
 
 These are **design targets**, not hard simulation weights. They guide tuning and UX copy.
 
@@ -33,13 +33,13 @@ These are **design targets**, not hard simulation weights. They guide tuning and
 
 ## Relationship to other systems
 
-| System | Role |
-|--------|------|
-| [Draft System](./draft-system.md) | Turn flow, card picks, roster assembly |
-| [Chemistry System](./chemistry-system.md) | Link bonuses on drafted cards |
-| [Match Power](./match-power.md) | Pre-match strength from overall + chemistry |
-| [Position System](./position-system.md) | Slot eligibility via `PlayerPosition` |
-| [Card System](./card-system.md) | Draft picks are **Cards**, not Players |
+| System                                    | Role                                        |
+| ----------------------------------------- | ------------------------------------------- |
+| [Draft System](./draft-system.md)         | Turn flow, card picks, roster assembly      |
+| [Chemistry System](./chemistry-system.md) | Link bonuses on drafted cards               |
+| [Match Power](./match-power.md)           | Pre-match strength from overall + chemistry |
+| [Position System](./position-system.md)   | Slot eligibility via `PlayerPosition`       |
+| [Card System](./card-system.md)           | Draft picks are **Cards**, not Players      |
 
 The balance engine runs **inside draft pick generation** and **at lobby/draft start** (budget allocation). It does not replace the overall engine or card creation pipeline.
 
@@ -75,11 +75,11 @@ All thresholds, budgets, and probabilities live in **configuration** (future: `D
 // Example shape — not implementation
 interface DraftBalanceConfig {
   readonly tiers: readonly DraftTierConfig[];
-  readonly targetTeamAverageOverall: number;      // e.g. 87
-  readonly budgetDeviationMaxPercent: number;     // e.g. 3
-  readonly finalOverallSpreadMax: number;         // e.g. 3
-  readonly candidatesPerPick: number;             // e.g. 5
-  readonly wildcardProbability: number;           // e.g. 0.08
+  readonly targetTeamAverageOverall: number; // e.g. 87
+  readonly budgetDeviationMaxPercent: number; // e.g. 3
+  readonly finalOverallSpreadMax: number; // e.g. 3
+  readonly candidatesPerPick: number; // e.g. 5
+  readonly wildcardProbability: number; // e.g. 0.08
   readonly eliteOpportunityBaseRate: number;
   readonly positionWeights: PositionWeightConfig;
 }
@@ -91,13 +91,13 @@ interface DraftBalanceConfig {
 
 Cards are classified into draft tiers by **card overall** (from `Card.overall`).
 
-| Tier | Example overall range | Role in balance |
-|------|----------------------|-----------------|
-| S | 92+ | Elite / surprise anchors |
-| A | 88–91 | Strong picks |
-| B | 84–87 | Solid core |
-| C | 80–83 | Role players |
-| D | 75–79 | Risk / development |
+| Tier | Example overall range | Role in balance          |
+| ---- | --------------------- | ------------------------ |
+| S    | 92+                   | Elite / surprise anchors |
+| A    | 88–91                 | Strong picks             |
+| B    | 84–87                 | Solid core               |
+| C    | 80–83                 | Role players             |
+| D    | 75–79                 | Risk / development       |
 
 Thresholds are **configurable** per game mode or season. The engine reads tier boundaries from config, not hardcoded constants.
 
@@ -119,12 +119,12 @@ Budget represents total “draft currency” spent across all picks. Every card 
 
 **Example target:** 11-player squad, ~87 average overall → budget scale ~960 per player (configurable formula).
 
-| Player | Hidden budget (example) |
-|--------|-------------------------|
-| Player 1 | 960 |
-| Player 2 | 955 |
-| Player 3 | 962 |
-| Player 4 | 958 |
+| Player   | Hidden budget (example) |
+| -------- | ----------------------- |
+| Player 1 | 960                     |
+| Player 2 | 955                     |
+| Player 3 | 962                     |
+| Player 4 | 958                     |
 
 ### Fairness rule
 
@@ -155,11 +155,11 @@ Examples: Rodri, Mbappé, Haaland, Yamal — surfaced as exciting options, not g
 
 Track per drafter:
 
-| Field | Purpose |
-|-------|---------|
+| Field             | Purpose                                 |
+| ----------------- | --------------------------------------- |
 | `elitePicksTaken` | Count of S/A tier picks above threshold |
-| `surpriseDebt` | Compensation owed after early luck |
-| `surpriseCredit` | Pre-paid budget for late elite windows |
+| `surpriseDebt`    | Compensation owed after early luck      |
+| `surpriseCredit`  | Pre-paid budget for late elite windows  |
 
 **Early luck:** player takes Haaland in round 2 → `surpriseDebt` increases → mid/late picks skew toward medium/risky options or lower tier ceilings until debt cleared.
 
@@ -177,13 +177,13 @@ When a drafter selects a **formation slot / position**, the engine generates **N
 
 Every choice set must include at least:
 
-| Slot type | Intent |
-|-----------|--------|
-| **Strong** | High overall, safe floor |
-| **Medium** | Balanced value |
-| **Risky** | Lower floor, higher ceiling or budget savings |
-| **Chemistry** | Boosts existing club/nation/league links |
-| **Wildcard** | See [Wildcard system](#wildcard-system) |
+| Slot type     | Intent                                        |
+| ------------- | --------------------------------------------- |
+| **Strong**    | High overall, safe floor                      |
+| **Medium**    | Balanced value                                |
+| **Risky**     | Lower floor, higher ceiling or budget savings |
+| **Chemistry** | Boosts existing club/nation/league links      |
+| **Wildcard**  | See [Wildcard system](#wildcard-system)       |
 
 Rules:
 
@@ -212,13 +212,13 @@ Wildcards inject **excitement without destroying balance**.
 
 ### Wildcard types (examples)
 
-| Type | Example |
-|------|---------|
-| Legend card | Special high-profile edition |
-| Rare special | Limited `CardType` (Hero, Event) |
-| High chemistry | Weak overall but +3 link potential |
-| Out-of-position | Elite player, secondary slot only |
-| Young talent | High ceiling, lower current overall |
+| Type            | Example                             |
+| --------------- | ----------------------------------- |
+| Legend card     | Special high-profile edition        |
+| Rare special    | Limited `CardType` (Hero, Event)    |
+| High chemistry  | Weak overall but +3 link potential  |
+| Out-of-position | Elite player, secondary slot only   |
+| Young talent    | High ceiling, lower current overall |
 
 ### Probability
 
@@ -234,11 +234,11 @@ Wildcards inject **excitement without destroying balance**.
 
 Uses `PlayerPosition` assignments on the player linked to each card.
 
-| Assignment | Eligibility weight |
-|------------|-------------------|
-| Primary position | 100% |
-| Secondary position | 90% |
-| Third position | 80% |
+| Assignment         | Eligibility weight |
+| ------------------ | ------------------ |
+| Primary position   | 100%               |
+| Secondary position | 90%                |
+| Third position     | 80%                |
 
 - Slot filter: card eligible if player has matching `positionCode` (primary or secondary).
 - Candidate ranking: prefer primary > secondary > tertiary.
@@ -272,13 +272,13 @@ After each pick (optional debug / production metrics):
 
 Run **1,000 simulated drafts** with synthetic drafters (random choice heuristics):
 
-| Metric | Target |
-|--------|--------|
-| Mean team overall per slot | Within configured spread |
-| Std dev of final team overall | Low; no outlier > 3 avg overall |
-| Elite pick distribution | No participant > 2× others consistently |
-| Mean chemistry | Comparable across participants |
-| Mean match power | See [Match Power](./match-power.md) |
+| Metric                        | Target                                  |
+| ----------------------------- | --------------------------------------- |
+| Mean team overall per slot    | Within configured spread                |
+| Std dev of final team overall | Low; no outlier > 3 avg overall         |
+| Elite pick distribution       | No participant > 2× others consistently |
+| Mean chemistry                | Comparable across participants          |
+| Mean match power              | See [Match Power](./match-power.md)     |
 
 **Pass criteria:** no participant archetype (always-first-picker, always-snake-tail) gains > **5% win rate advantage** in simulation vs uniform baseline (future: tie to match simulation).
 
@@ -288,28 +288,28 @@ Run **1,000 simulated drafts** with synthetic drafters (random choice heuristics
 
 Persist aggregates for live tuning (future tables / analytics):
 
-| Metric | Use |
-|--------|-----|
-| Average draft rating | Balance drift detection |
-| Average chemistry | Link system health |
-| Average match power | End-to-end strength |
-| Pick rates | Over/under-selected cards |
-| Win rates | Outcome fairness (post-simulation) |
-| Wildcard pick rate | Excitement vs balance |
-| Tier distribution per draft | Pool health |
+| Metric                      | Use                                |
+| --------------------------- | ---------------------------------- |
+| Average draft rating        | Balance drift detection            |
+| Average chemistry           | Link system health                 |
+| Average match power         | End-to-end strength                |
+| Pick rates                  | Over/under-selected cards          |
+| Win rates                   | Outcome fairness (post-simulation) |
+| Wildcard pick rate          | Excitement vs balance              |
+| Tier distribution per draft | Pool health                        |
 
 ---
 
 ## Implementation phases
 
-| Phase | Scope |
-|-------|-------|
-| **V1 — Docs + config schema** | This document; config types; no runtime |
-| **V2 — Budget + tiers** | Allocate budgets at draft start; tier classification |
-| **V3 — Pick generator** | 5-candidate sets with composition rules |
-| **V4 — Surprise ledger** | Elite debt/credit weighting |
-| **V5 — Wildcards** | Configurable wildcard slot |
-| **V6 — Simulation harness** | 1k-draft Monte Carlo validation |
+| Phase                         | Scope                                                |
+| ----------------------------- | ---------------------------------------------------- |
+| **V1 — Docs + config schema** | This document; config types; no runtime              |
+| **V2 — Budget + tiers**       | Allocate budgets at draft start; tier classification |
+| **V3 — Pick generator**       | 5-candidate sets with composition rules              |
+| **V4 — Surprise ledger**      | Elite debt/credit weighting                          |
+| **V5 — Wildcards**            | Configurable wildcard slot                           |
+| **V6 — Simulation harness**   | 1k-draft Monte Carlo validation                      |
 
 ---
 

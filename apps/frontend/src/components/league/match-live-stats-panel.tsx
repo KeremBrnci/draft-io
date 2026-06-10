@@ -101,16 +101,10 @@ function DuelStatRow({
       </div>
       <div className="league-duel-stat__bar" role="presentation">
         {share.home > 0 ? (
-          <div
-            className="league-duel-stat__bar-home"
-            style={{ width: `${share.home}%` }}
-          />
+          <div className="league-duel-stat__bar-home" style={{ width: `${share.home}%` }} />
         ) : null}
         {share.away > 0 ? (
-          <div
-            className="league-duel-stat__bar-away"
-            style={{ width: `${share.away}%` }}
-          />
+          <div className="league-duel-stat__bar-away" style={{ width: `${share.away}%` }} />
         ) : null}
       </div>
     </div>

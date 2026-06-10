@@ -1,7 +1,7 @@
 import type { PlayerPositionAssignmentDto } from '@draft-io/shared-types';
 
-import type { PlayerStatus } from '../../domain/enums/player-status.enum';
 import type { Position } from '../../../positions/domain/value-objects/position.vo';
+import type { PlayerStatus } from '../../domain/enums/player-status.enum';
 
 export interface PlayerBrowserItem {
   readonly id: string;

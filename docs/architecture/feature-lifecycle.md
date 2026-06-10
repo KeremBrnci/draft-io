@@ -96,12 +96,12 @@ Findings grouped: Critical / Major / Minor
 
 ## Phase Mapping
 
-| Roadmap Phase | Lifecycle emphasis |
-|---------------|-------------------|
-| Phase 1 (Players) | Domain design + testing |
-| Phase 2 (Lobby) | Architecture review + real-time patterns |
-| Phase 3 (Draft) | Game design + event infrastructure |
-| Phase 4 (Chemistry) | Domain modeling + simulation-engine skill |
-| Phase 5 (Simulation) | Determinism + seeded testing |
-| Phase 6 (Leagues) | Data model + persistence |
-| Phase 7 (Mobile) | API contracts + feature-planning |
+| Roadmap Phase        | Lifecycle emphasis                        |
+| -------------------- | ----------------------------------------- |
+| Phase 1 (Players)    | Domain design + testing                   |
+| Phase 2 (Lobby)      | Architecture review + real-time patterns  |
+| Phase 3 (Draft)      | Game design + event infrastructure        |
+| Phase 4 (Chemistry)  | Domain modeling + simulation-engine skill |
+| Phase 5 (Simulation) | Determinism + seeded testing              |
+| Phase 6 (Leagues)    | Data model + persistence                  |
+| Phase 7 (Mobile)     | API contracts + feature-planning          |

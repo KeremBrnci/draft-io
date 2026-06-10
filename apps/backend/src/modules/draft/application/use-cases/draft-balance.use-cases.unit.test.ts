@@ -1,13 +1,14 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 
-import type { DraftSession } from '../../domain/repositories/draft-session.repository';
 import type { DraftPoolRepository } from '../../domain/repositories/draft-pool.repository';
+import type { DraftSession } from '../../domain/repositories/draft-session.repository';
 import type { DraftSessionRepository } from '../../domain/repositories/draft-session.repository';
-import { InitializeDraftSessionUseCase } from './initialize-draft-session.use-case';
-import { GeneratePickOptionsUseCase } from './generate-pick-options.use-case';
-import { ApplyDraftPickUseCase } from './apply-draft-pick.use-case';
 import { SeededRandomSource } from '../../infrastructure/random/seeded-random-source';
 import { buildTestDraftPoolCard, buildTestPool } from '../../testing/draft-test.factory';
+
+import { ApplyDraftPickUseCase } from './apply-draft-pick.use-case';
+import { GeneratePickOptionsUseCase } from './generate-pick-options.use-case';
+import { InitializeDraftSessionUseCase } from './initialize-draft-session.use-case';
 
 class InMemoryDraftSessionRepository implements DraftSessionRepository {
   private sessions = new Map<string, DraftSession>();

@@ -4,20 +4,20 @@ Generated during replacement of `primaryPosition` + `secondaryPositions[]` with 
 
 ## Files created
 
-| File | Purpose |
-|------|---------|
-| `apps/backend/src/modules/players/domain/entities/player-position.entity.ts` | `PlayerPosition` child entity |
-| `apps/backend/src/modules/players/domain/value-objects/player-position-id.vo.ts` | Position assignment ID |
-| `apps/backend/src/modules/players/domain/value-objects/player-positions.vo.ts` | Validated position set |
-| `apps/backend/src/modules/players/domain/errors/player-position.errors.ts` | Domain validation errors |
-| `apps/backend/src/modules/players/application/mappers/map-external-player-positions.ts` | Import mapping |
-| `apps/backend/src/modules/players/infrastructure/mappers/player-position.mapper.ts` | Prisma ↔ domain |
-| `packages/shared-types/src/players/player-position-assignment.ts` | API DTO |
-| `apps/backend/prisma/MIGRATION_PLAYER_POSITIONS.md` | SQL migration plan |
-| `docs/architecture/player-position-model.md` | Architecture doc |
-| `docs/game-design/position-system.md` | Game design doc |
-| `docs/architecture/player-position-migration-report.md` | This report |
-| `*.unit.test.ts` (positions, mapper, import) | Domain and mapping tests |
+| File                                                                                    | Purpose                       |
+| --------------------------------------------------------------------------------------- | ----------------------------- |
+| `apps/backend/src/modules/players/domain/entities/player-position.entity.ts`            | `PlayerPosition` child entity |
+| `apps/backend/src/modules/players/domain/value-objects/player-position-id.vo.ts`        | Position assignment ID        |
+| `apps/backend/src/modules/players/domain/value-objects/player-positions.vo.ts`          | Validated position set        |
+| `apps/backend/src/modules/players/domain/errors/player-position.errors.ts`              | Domain validation errors      |
+| `apps/backend/src/modules/players/application/mappers/map-external-player-positions.ts` | Import mapping                |
+| `apps/backend/src/modules/players/infrastructure/mappers/player-position.mapper.ts`     | Prisma ↔ domain               |
+| `packages/shared-types/src/players/player-position-assignment.ts`                       | API DTO                       |
+| `apps/backend/prisma/MIGRATION_PLAYER_POSITIONS.md`                                     | SQL migration plan            |
+| `docs/architecture/player-position-model.md`                                            | Architecture doc              |
+| `docs/game-design/position-system.md`                                                   | Game design doc               |
+| `docs/architecture/player-position-migration-report.md`                                 | This report                   |
+| `*.unit.test.ts` (positions, mapper, import)                                            | Domain and mapping tests      |
 
 ## Files updated
 
@@ -61,9 +61,9 @@ Generated during replacement of `primaryPosition` + `secondaryPositions[]` with 
 
 ## Files deleted
 
-| File | Reason |
-|------|--------|
-| `secondary-positions.vo.ts` | Replaced by `PlayerPositions` |
+| File                                  | Reason                                         |
+| ------------------------------------- | ---------------------------------------------- |
+| `secondary-positions.vo.ts`           | Replaced by `PlayerPositions`                  |
 | `secondary-positions.vo.unit.test.ts` | Replaced by `player-positions.vo.unit.test.ts` |
 
 ## Unchanged (provider boundary)
@@ -76,16 +76,16 @@ These still use `primaryPosition` / `secondaryPositions` on `ExternalPlayerRecor
 
 ## Migration complexity
 
-| Area | Complexity | Notes |
-|------|------------|-------|
-| Prisma schema | Medium | New table + drop 2 columns |
-| Domain | Medium | New VO/entity, Player aggregate change |
-| Repository | Medium | Transactional position replace |
-| Queries/filters | Medium | Join via `positions` relation |
-| API | Low | Backward-compatible shorthand fields |
-| Frontend admin UI | Low | No UI changes required yet |
-| Import pipeline | Low | Mapper at boundary |
-| Data quality | Low | groupBy on `player_positions` |
+| Area              | Complexity | Notes                                  |
+| ----------------- | ---------- | -------------------------------------- |
+| Prisma schema     | Medium     | New table + drop 2 columns             |
+| Domain            | Medium     | New VO/entity, Player aggregate change |
+| Repository        | Medium     | Transactional position replace         |
+| Queries/filters   | Medium     | Join via `positions` relation          |
+| API               | Low        | Backward-compatible shorthand fields   |
+| Frontend admin UI | Low        | No UI changes required yet             |
+| Import pipeline   | Low        | Mapper at boundary                     |
+| Data quality      | Low        | groupBy on `player_positions`          |
 
 ## Recommended migration order
 
@@ -97,12 +97,12 @@ These still use `primaryPosition` / `secondaryPositions` on `ExternalPlayerRecor
 
 ## Risks
 
-| Risk | Mitigation |
-|------|------------|
+| Risk                              | Mitigation                                                                 |
+| --------------------------------- | -------------------------------------------------------------------------- |
 | DB not migrated but code deployed | Run migration before deploy; integration tests skip without `DATABASE_URL` |
-| Invalid legacy position codes | Data quality flags; import validates via `Position.create()` |
-| Performance on position filters | Indexes on `player_id`, `position_code`, `is_primary` |
-| Breaking API clients | `position` + `secondaryPositions` retained on responses |
+| Invalid legacy position codes     | Data quality flags; import validates via `Position.create()`               |
+| Performance on position filters   | Indexes on `player_id`, `position_code`, `is_primary`                      |
+| Breaking API clients              | `position` + `secondaryPositions` retained on responses                    |
 
 ## Recommended next sprint
 

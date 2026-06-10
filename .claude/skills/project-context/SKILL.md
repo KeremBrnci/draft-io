@@ -32,12 +32,12 @@ None — this skill is self-contained. Optionally cross-check:
 
 ## Governance references
 
-| Document | Path |
-|----------|------|
-| AI Constitution | `docs/architecture/ai-constitution.md` |
-| Workflow rule | `.cursor/rules/workflow.mdc` |
-| Universal instructions | `AGENTS.md` |
-| AI review checklist | `docs/architecture/ai-review-checklist.md` |
+| Document               | Path                                       |
+| ---------------------- | ------------------------------------------ |
+| AI Constitution        | `docs/architecture/ai-constitution.md`     |
+| Workflow rule          | `.cursor/rules/workflow.mdc`               |
+| Universal instructions | `AGENTS.md`                                |
+| AI review checklist    | `docs/architecture/ai-review-checklist.md` |
 
 ---
 
@@ -68,24 +68,24 @@ Full vision: `docs/architecture/project-vision.md`
 
 ### Implemented
 
-| Module | What exists |
-|--------|-------------|
-| `positions` | 15 position codes, `Position` VO, list API |
-| `players` | Aggregate, CRUD use cases, Prisma repo, unit tests |
-| `formations` | 5 templates, in-memory repo, list/get API |
-| `teams` | Aggregate, starting eleven VO, list API (skeleton) |
-| `nations` | Skeleton aggregate, list API |
-| `leagues` | Skeleton aggregate, list API |
-| `core/events` | `DomainEvent`, `EventBus` abstractions (no impl) |
+| Module        | What exists                                        |
+| ------------- | -------------------------------------------------- |
+| `positions`   | 15 position codes, `Position` VO, list API         |
+| `players`     | Aggregate, CRUD use cases, Prisma repo, unit tests |
+| `formations`  | 5 templates, in-memory repo, list/get API          |
+| `teams`       | Aggregate, starting eleven VO, list API (skeleton) |
+| `nations`     | Skeleton aggregate, list API                       |
+| `leagues`     | Skeleton aggregate, list API                       |
+| `core/events` | `DomainEvent`, `EventBus` abstractions (no impl)   |
 
 ### Placeholder (empty modules — do not implement without approval)
 
-| Module | Phase |
-|--------|-------|
-| `lobbies` | Phase 5 |
-| `draft` | Phase 6 |
-| `matches` | Phase 8 |
-| `simulation` | Phase 8 |
+| Module          | Phase    |
+| --------------- | -------- |
+| `lobbies`       | Phase 5  |
+| `draft`         | Phase 6  |
+| `matches`       | Phase 8  |
+| `simulation`    | Phase 8  |
 | `auth`, `users` | Phase 2+ |
 
 ### Not implemented
@@ -103,18 +103,18 @@ Full vision: `docs/architecture/project-vision.md`
 
 ## Future Roadmap
 
-| Phase | Focus |
-|-------|-------|
-| **Phase 1** | Players, formations, positions, team foundations *(current)* |
-| **Phase 2** | Player database expansion, card sub-stats |
-| **Phase 3** | Rating engine |
-| **Phase 4** | Card system |
-| **Phase 5** | Lobby |
-| **Phase 6** | Draft |
-| **Phase 7** | Chemistry |
-| **Phase 8** | Match simulation |
-| **Phase 9** | Leagues and seasons |
-| **Phase 10** | Mobile app |
+| Phase        | Focus                                                        |
+| ------------ | ------------------------------------------------------------ |
+| **Phase 1**  | Players, formations, positions, team foundations _(current)_ |
+| **Phase 2**  | Player database expansion, card sub-stats                    |
+| **Phase 3**  | Rating engine                                                |
+| **Phase 4**  | Card system                                                  |
+| **Phase 5**  | Lobby                                                        |
+| **Phase 6**  | Draft                                                        |
+| **Phase 7**  | Chemistry                                                    |
+| **Phase 8**  | Match simulation                                             |
+| **Phase 9**  | Leagues and seasons                                          |
+| **Phase 10** | Mobile app                                                   |
 
 Detail: `docs/architecture/future-roadmap.md`
 
@@ -122,27 +122,27 @@ Detail: `docs/architecture/future-roadmap.md`
 
 ## Core Principles
 
-| Principle | Meaning |
-|-----------|---------|
-| **Domain First** | Game rules in domain/application; never in UI or Prisma |
-| **Architecture First** | Clean Architecture layers enforced by CI |
-| **Testability First** | Domain rules unit-tested; coverage gates in CI |
-| **Deterministic Simulation** | Seeded, reproducible engines (when built) |
-| **Long-Term Maintainability** | Multi-year, multi-agent codebase via AI constitution |
+| Principle                     | Meaning                                                 |
+| ----------------------------- | ------------------------------------------------------- |
+| **Domain First**              | Game rules in domain/application; never in UI or Prisma |
+| **Architecture First**        | Clean Architecture layers enforced by CI                |
+| **Testability First**         | Domain rules unit-tested; coverage gates in CI          |
+| **Deterministic Simulation**  | Seeded, reproducible engines (when built)               |
+| **Long-Term Maintainability** | Multi-year, multi-agent codebase via AI constitution    |
 
 ---
 
 ## Technical Stack
 
-| Layer | Technology |
-|-------|------------|
-| Backend | NestJS modular monolith, TypeScript |
-| Frontend | Next.js 15 App Router, TypeScript |
-| Database | PostgreSQL + Prisma (infrastructure only) |
-| Cache | Redis (future: lobby/draft) |
-| Monorepo | pnpm workspaces |
-| Testing | Vitest (unit/integration/e2e), Playwright (frontend) |
-| Enforcement | dependency-cruiser, ESLint layer rules |
+| Layer       | Technology                                           |
+| ----------- | ---------------------------------------------------- |
+| Backend     | NestJS modular monolith, TypeScript                  |
+| Frontend    | Next.js 15 App Router, TypeScript                    |
+| Database    | PostgreSQL + Prisma (infrastructure only)            |
+| Cache       | Redis (future: lobby/draft)                          |
+| Monorepo    | pnpm workspaces                                      |
+| Testing     | Vitest (unit/integration/e2e), Playwright (frontend) |
+| Enforcement | dependency-cruiser, ESLint layer rules               |
 
 Reference module: `apps/backend/src/modules/players/`
 

@@ -1,6 +1,6 @@
-import { LobbyCode } from '../../domain/value-objects/lobby-code.vo';
 import type { Lobby } from '../../domain/entities/lobby.entity';
 import type { LobbyRepository } from '../../domain/repositories/lobby.repository';
+import { LobbyCode } from '../../domain/value-objects/lobby-code.vo';
 import type { GetLobbyByCodeQuery } from '../queries/get-lobby-by-code.query';
 import { LobbyLifecycleService } from '../services/lobby-lifecycle.service';
 

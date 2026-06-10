@@ -12,10 +12,10 @@ Provide read-only access to supported football formations and their slot layouts
 
 ## Public API
 
-| Method | Endpoint | Use Case |
-|--------|----------|----------|
-| GET | `/api/v1/formations` | `ListFormationsUseCase` |
-| GET | `/api/v1/formations/:code` | `GetFormationUseCase` |
+| Method | Endpoint                   | Use Case                |
+| ------ | -------------------------- | ----------------------- |
+| GET    | `/api/v1/formations`       | `ListFormationsUseCase` |
+| GET    | `/api/v1/formations/:code` | `GetFormationUseCase`   |
 
 ## Dependencies
 

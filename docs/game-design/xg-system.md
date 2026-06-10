@@ -10,14 +10,14 @@ Expected goals (xG) quantify chance quality. Each shot-like event receives an xG
 
 ## Base values
 
-| Chance type   | Base xG |
-|---------------|---------|
-| Long shot     | 0.03    |
-| Free kick     | 0.08    |
-| Header        | 0.18    |
-| Box shot      | 0.25    |
-| One-on-one    | 0.55    |
-| Penalty       | 0.78    |
+| Chance type | Base xG |
+| ----------- | ------- |
+| Long shot   | 0.03    |
+| Free kick   | 0.08    |
+| Header      | 0.18    |
+| Box shot    | 0.25    |
+| One-on-one  | 0.55    |
+| Penalty     | 0.78    |
 
 ## Modifiers
 

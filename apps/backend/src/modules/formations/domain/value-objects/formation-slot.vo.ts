@@ -18,7 +18,9 @@ export class FormationSlot extends ValueObject<FormationSlotProps> {
 
   static create(props: FormationSlotProps): FormationSlot {
     if (props.index < 1 || props.index > 11) {
-      throw new Error(`Formation slot index must be between 1 and 11, received: ${String(props.index)}`);
+      throw new Error(
+        `Formation slot index must be between 1 and 11, received: ${String(props.index)}`,
+      );
     }
 
     if (props.allowedPositions.length === 0) {

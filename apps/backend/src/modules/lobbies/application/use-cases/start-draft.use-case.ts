@@ -1,13 +1,13 @@
-import { GetDraftSessionByLobbyUseCase } from '../../../draft/application/use-cases/get-draft-session-by-lobby.use-case';
-import { InitializeDraftSessionUseCase } from '../../../draft/application/use-cases/initialize-draft-session.use-case';
+import { type GetDraftSessionByLobbyUseCase } from '../../../draft/application/use-cases/get-draft-session-by-lobby.use-case';
+import { type InitializeDraftSessionUseCase } from '../../../draft/application/use-cases/initialize-draft-session.use-case';
 import { DraftSessionAlreadyExistsError } from '../../../draft/domain/errors/draft.errors';
-import type { StartLobbyCommand } from '../commands/lobby-ready.commands';
-import { RoomEventName, type RoomEventPayload } from '../../domain/events/room.events';
-import { RoomPhase } from '../../domain/enums/room-phase.enum';
 import type { Lobby } from '../../domain/entities/lobby.entity';
+import { RoomPhase } from '../../domain/enums/room-phase.enum';
+import { RoomEventName, type RoomEventPayload } from '../../domain/events/room.events';
 import type { LobbyRepository } from '../../domain/repositories/lobby.repository';
 import { LobbyCode } from '../../domain/value-objects/lobby-code.vo';
 import { SessionToken } from '../../domain/value-objects/session-token.vo';
+import type { StartLobbyCommand } from '../commands/lobby-ready.commands';
 import { LobbyLifecycleService } from '../services/lobby-lifecycle.service';
 import type { RoomEventsPublisher } from '../services/room-events.publisher';
 
@@ -45,7 +45,9 @@ export class StartDraftUseCase {
       draftSessionId = draftSession.id;
     } catch (error) {
       if (error instanceof DraftSessionAlreadyExistsError) {
-        const existing = await this.getDraftSessionByLobbyUseCase.execute({ lobbyId: lobby.id.value });
+        const existing = await this.getDraftSessionByLobbyUseCase.execute({
+          lobbyId: lobby.id.value,
+        });
         draftSessionId = existing?.id ?? lobby.id.value;
       } else {
         throw error;

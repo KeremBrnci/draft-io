@@ -1,6 +1,5 @@
-import { IsIn, IsNotEmpty, IsOptional, IsString, MaxLength } from 'class-validator';
-
 import { ALL_PLAYER_POSITIONS } from '@draft-io/shared-types';
+import { IsIn, IsNotEmpty, IsOptional, IsString, MaxLength } from 'class-validator';
 
 export class CreatePlayerDto {
   @IsString()

@@ -118,7 +118,9 @@ export default function LeaguePage(): React.ReactElement {
 
       <main className="play-main play-main--draft">
         {error !== null ? (
-          <p className="play-error" role="alert">{error}</p>
+          <p className="play-error" role="alert">
+            {error}
+          </p>
         ) : league === null ? (
           <div className="play-arena play-arena--loading">
             <div className="play-loader" />
@@ -181,31 +183,33 @@ export default function LeaguePage(): React.ReactElement {
                     .filter((event) => event.eventType !== 'GOAL_CHANCE')
                     .reverse()
                     .map((event: MatchEventDto) => {
-                    const ui = getMatchEventUi(event.eventType);
-                    const teamName =
-                      event.teamSide === 'HOME'
-                        ? match.homeDisplayName
-                        : event.teamSide === 'AWAY'
-                          ? match.awayDisplayName
-                          : null;
+                      const ui = getMatchEventUi(event.eventType);
+                      const teamName =
+                        event.teamSide === 'HOME'
+                          ? match.homeDisplayName
+                          : event.teamSide === 'AWAY'
+                            ? match.awayDisplayName
+                            : null;
 
-                    return (
-                      <div
-                        key={event.id}
-                        className={`league-commentary__item league-commentary__item--${ui.tone}${event.isGoal ? ' league-commentary__item--goal' : ''}`}
-                      >
-                        <div className="league-commentary__meta">
-                          <span className="league-commentary__icon" aria-hidden>{ui.icon}</span>
-                          <span className="league-commentary__minute">{event.minute}&apos;</span>
-                          <span className="league-commentary__tag">{ui.label}</span>
-                          {teamName !== null ? (
-                            <span className="league-commentary__team">{teamName}</span>
-                          ) : null}
+                      return (
+                        <div
+                          key={event.id}
+                          className={`league-commentary__item league-commentary__item--${ui.tone}${event.isGoal ? ' league-commentary__item--goal' : ''}`}
+                        >
+                          <div className="league-commentary__meta">
+                            <span className="league-commentary__icon" aria-hidden>
+                              {ui.icon}
+                            </span>
+                            <span className="league-commentary__minute">{event.minute}&apos;</span>
+                            <span className="league-commentary__tag">{ui.label}</span>
+                            {teamName !== null ? (
+                              <span className="league-commentary__team">{teamName}</span>
+                            ) : null}
+                          </div>
+                          <p className="league-commentary__text">{event.commentary}</p>
                         </div>
-                        <p className="league-commentary__text">{event.commentary}</p>
-                      </div>
-                    );
-                  })}
+                      );
+                    })}
                 </div>
               </section>
             ) : (
@@ -225,7 +229,8 @@ export default function LeaguePage(): React.ReactElement {
               </button>
             ) : null}
 
-            {match?.status === 'FULL_TIME' && league.completedMatchCount < league.totalMatchCount ? (
+            {match?.status === 'FULL_TIME' &&
+            league.completedMatchCount < league.totalMatchCount ? (
               <button
                 type="button"
                 className="play-btn play-btn--primary"
@@ -243,9 +248,7 @@ export default function LeaguePage(): React.ReactElement {
               <ul className="league-fixtures">
                 {league.fixtures.map((fixture) => {
                   const isCurrent =
-                    match !== null &&
-                    fixture.matchId === match.id &&
-                    match.status !== 'FULL_TIME';
+                    match !== null && fixture.matchId === match.id && match.status !== 'FULL_TIME';
                   const isDone = fixture.matchId !== null && !isCurrent;
                   return (
                     <li

@@ -1,5 +1,5 @@
-import type { PlayerPosition } from './player-position.js';
 import type { PlayerPositionAssignmentDto } from './player-position-assignment.js';
+import type { PlayerPosition } from './player-position.js';
 import type { PlayerStatus } from './player-status.js';
 
 /** Identity record — gameplay strength is on Card, not Player. */

@@ -1,13 +1,12 @@
-import type {
-  DraftBoardStateDto,
-  DraftPickOptionsDto,
-} from '@draft-io/shared-types';
+import type { DraftBoardStateDto, DraftPickOptionsDto } from '@draft-io/shared-types';
 
 import { apiGet, apiPost } from './client';
 
 export function getDraftBoard(code: string, sessionToken: string): Promise<DraftBoardStateDto> {
   const params = new URLSearchParams({ sessionToken });
-  return apiGet<DraftBoardStateDto>(`/lobbies/code/${encodeURIComponent(code.toUpperCase())}/draft?${params.toString()}`);
+  return apiGet<DraftBoardStateDto>(
+    `/lobbies/code/${encodeURIComponent(code.toUpperCase())}/draft?${params.toString()}`,
+  );
 }
 
 export function getDraftPickOptions(

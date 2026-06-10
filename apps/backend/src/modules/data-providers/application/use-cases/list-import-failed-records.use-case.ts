@@ -4,6 +4,7 @@ import type {
 } from '../../domain/repositories/import-failed-record.repository';
 import type { ImportJobRepository } from '../../domain/repositories/import-job.repository';
 import { ImportJobId } from '../../domain/value-objects/import-job-id.vo';
+
 import type { ReconcileImportFailedRecordsUseCase } from './reconcile-import-failed-records.use-case';
 
 export interface ListImportFailedRecordsQuery {

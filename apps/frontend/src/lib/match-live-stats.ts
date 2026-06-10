@@ -104,8 +104,7 @@ export function computeLiveMatchStats(events: readonly MatchEventDto[]): LiveMat
   }
 
   const totalWeight = homeWeight + awayWeight;
-  const homePossession =
-    totalWeight === 0 ? 0 : Math.round((homeWeight / totalWeight) * 100);
+  const homePossession = totalWeight === 0 ? 0 : Math.round((homeWeight / totalWeight) * 100);
   const awayPossession = totalWeight === 0 ? 0 : 100 - homePossession;
 
   return {
@@ -124,7 +123,10 @@ export function computeLiveMatchStats(events: readonly MatchEventDto[]): LiveMat
   };
 }
 
-export function duelSharePct(home: number, away: number): { readonly home: number; readonly away: number } {
+export function duelSharePct(
+  home: number,
+  away: number,
+): { readonly home: number; readonly away: number } {
   const total = home + away;
   if (total <= 0) {
     return { home: 0, away: 0 };

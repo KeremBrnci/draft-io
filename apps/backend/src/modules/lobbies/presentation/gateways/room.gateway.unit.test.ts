@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { RoomGateway } from '../../presentation/gateways/room.gateway';
 import { RoomEventName } from '../../domain/events/room.events';
+import { RoomGateway } from '../../presentation/gateways/room.gateway';
 
 describe('RoomGateway', () => {
   it('exposes join_room subscription handler', () => {

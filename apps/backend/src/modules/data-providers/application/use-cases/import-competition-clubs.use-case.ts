@@ -1,15 +1,16 @@
 import { parseExternalProvider } from '../../../../core/external-reference/external-provider';
 import type { TeamRepository } from '../../../teams/domain/repositories/team.repository';
-import { ProviderConfigurationError } from '../../domain/errors/data-provider.errors';
 import { findTargetCompetitionByExternalId } from '../../domain/catalog/target-competitions.catalog';
 import { ImportJobType } from '../../domain/enums/import-job-type';
+import { ProviderConfigurationError } from '../../domain/errors/data-provider.errors';
+import type { ProviderRegistryPort } from '../../domain/ports/provider-registry.port';
 import type { ImportFailedRecordRepository } from '../../domain/repositories/import-failed-record.repository';
 import type { ImportJobLogRepository } from '../../domain/repositories/import-job-log.repository';
 import type { ImportJobRepository } from '../../domain/repositories/import-job.repository';
-import type { ProviderRegistryPort } from '../../domain/ports/provider-registry.port';
 import { ImportJobId } from '../../domain/value-objects/import-job-id.vo';
 import { buildImportJobTrackerDeps } from '../services/import-job-tracker.factory';
 import { ImportJobTracker } from '../services/import-job-tracker.service';
+
 import type { ImportTeamUseCase } from './import-team.use-case';
 
 export interface ImportCompetitionClubsCommand {

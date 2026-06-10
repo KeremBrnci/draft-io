@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { ExternalProvider } from '../../../../core/external-reference/external-provider';
+
 import { LeagueExternalReference } from './external-reference.vo';
 
 describe('LeagueExternalReference', () => {

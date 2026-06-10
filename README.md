@@ -8,15 +8,15 @@ All AI agents (Cursor, Claude, Copilot, etc.) must read **[AGENTS.md](AGENTS.md)
 
 ## Tech Stack
 
-| Layer | Technology |
-|-------|------------|
-| Frontend | Next.js 15 (App Router), TypeScript |
-| Backend | NestJS, TypeScript |
-| Database | PostgreSQL |
-| Cache / PubSub | Redis |
-| ORM | Prisma |
-| Testing | Vitest, Playwright |
-| Package Manager | pnpm workspaces |
+| Layer           | Technology                          |
+| --------------- | ----------------------------------- |
+| Frontend        | Next.js 15 (App Router), TypeScript |
+| Backend         | NestJS, TypeScript                  |
+| Database        | PostgreSQL                          |
+| Cache / PubSub  | Redis                               |
+| ORM             | Prisma                              |
+| Testing         | Vitest, Playwright                  |
+| Package Manager | pnpm workspaces                     |
 
 ## Repository Structure
 
@@ -69,15 +69,15 @@ pnpm dev
 
 ## Scripts
 
-| Command | Description |
-|---------|-------------|
-| `pnpm dev` | Start all apps in parallel |
-| `pnpm build` | Build all packages and apps |
-| `pnpm lint` | Lint all packages |
-| `pnpm typecheck` | Type-check all packages |
-| `pnpm test` | Run all unit tests |
+| Command                 | Description                   |
+| ----------------------- | ----------------------------- |
+| `pnpm dev`              | Start all apps in parallel    |
+| `pnpm build`            | Build all packages and apps   |
+| `pnpm lint`             | Lint all packages             |
+| `pnpm typecheck`        | Type-check all packages       |
+| `pnpm test`             | Run all unit tests            |
 | `pnpm test:integration` | Run backend integration tests |
-| `pnpm test:e2e` | Run frontend Playwright tests |
+| `pnpm test:e2e`         | Run frontend Playwright tests |
 
 ## Architecture
 

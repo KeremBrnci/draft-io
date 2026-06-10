@@ -24,12 +24,12 @@
 
 ## Module boundaries
 
-| Module | Responsibility |
-|--------|----------------|
-| `overall-engine` | Formula, strategies, metrics, calculation history |
-| `players` | Identity inputs (market value, age, league, positions) |
-| `cards` | Gameplay `overall` + `overallSource` on base cards |
-| `leagues` | League tier resolution via `externalId` |
+| Module           | Responsibility                                         |
+| ---------------- | ------------------------------------------------------ |
+| `overall-engine` | Formula, strategies, metrics, calculation history      |
+| `players`        | Identity inputs (market value, age, league, positions) |
+| `cards`          | Gameplay `overall` + `overallSource` on base cards     |
+| `leagues`        | League tier resolution via `externalId`                |
 
 ## Contracts preserved
 
@@ -44,18 +44,18 @@ Existing ports remain backward compatible:
 `CardOverallIntegrationPort` defines how calculated overall values will propagate to **base cards**:
 
 ```typescript
-applyCalculatedOverallToBaseCards(playerId, overall)
+applyCalculatedOverallToBaseCards(playerId, overall);
 ```
 
 Implementation is deferred. `Card.applyCalculatedOverall()` already respects `MANUAL_OVERRIDE`.
 
 ## Data model
 
-| Table | Mutability | Purpose |
-|-------|------------|---------|
-| `overall_algorithm_versions` | Rarely | Version registry (V1, V2, …) |
-| `player_metrics` | Upsert | Latest component snapshot + manual inputs |
-| `overall_calculations` | Append-only | Immutable audit trail |
+| Table                        | Mutability  | Purpose                                   |
+| ---------------------------- | ----------- | ----------------------------------------- |
+| `overall_algorithm_versions` | Rarely      | Version registry (V1, V2, …)              |
+| `player_metrics`             | Upsert      | Latest component snapshot + manual inputs |
+| `overall_calculations`       | Append-only | Immutable audit trail                     |
 
 Never overwrite calculation history. Recalculation appends a new row and upserts metrics.
 

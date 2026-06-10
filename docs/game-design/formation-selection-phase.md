@@ -39,13 +39,13 @@ Player A and Player B may see overlapping codes (e.g. both see `4-3-3`) but the 
 
 ## Selection rules
 
-| Rule | Behavior |
-|------|----------|
-| Pick count | Exactly one formation per player |
-| Pool constraint | Must pick from assigned five |
-| After pick | `phaseStatus = FORMATION_SELECTED`, choice locked |
-| Change after lock | Not allowed |
-| Host start draft | Enabled only when all players selected |
+| Rule              | Behavior                                          |
+| ----------------- | ------------------------------------------------- |
+| Pick count        | Exactly one formation per player                  |
+| Pool constraint   | Must pick from assigned five                      |
+| After pick        | `phaseStatus = FORMATION_SELECTED`, choice locked |
+| Change after lock | Not allowed                                       |
+| Host start draft  | Enabled only when all players selected            |
 
 Persisted fields:
 
@@ -56,14 +56,14 @@ Persisted fields:
 
 Use `Lobby.phase` (`RoomPhase`) — not booleans.
 
-| Phase | Meaning |
-|-------|---------|
-| `LOBBY` | Waiting room, ready checks |
-| `FORMATION_SELECTION` | Personal pools assigned, picks in progress |
-| `DRAFT` | Draft session initialized (player picking not implemented yet) |
-| `TEAM_REVIEW` | Future |
-| `MATCHES` | Future |
-| `FINISHED` | Future |
+| Phase                 | Meaning                                                        |
+| --------------------- | -------------------------------------------------------------- |
+| `LOBBY`               | Waiting room, ready checks                                     |
+| `FORMATION_SELECTION` | Personal pools assigned, picks in progress                     |
+| `DRAFT`               | Draft session initialized (player picking not implemented yet) |
+| `TEAM_REVIEW`         | Future                                                         |
+| `MATCHES`             | Future                                                         |
+| `FINISHED`            | Future                                                         |
 
 Transitions implemented now:
 
@@ -77,10 +77,10 @@ LOBBY --(host start)--> FORMATION_SELECTION --(all selected + host)--> DRAFT
 
 Schema prepares optional timing without enforcing it yet:
 
-| Field | Purpose |
-|-------|---------|
-| `formation_selection_started_at` | Set when phase begins |
-| `formation_selection_deadline` | Nullable; reserved for auto-pick / force advance |
+| Field                            | Purpose                                          |
+| -------------------------------- | ------------------------------------------------ |
+| `formation_selection_started_at` | Set when phase begins                            |
+| `formation_selection_deadline`   | Nullable; reserved for auto-pick / force advance |
 
 No server-side countdown enforcement in this phase.
 
@@ -90,12 +90,12 @@ Namespace: `/rooms`
 
 Client joins with `join_room { code }`.
 
-| Event | When |
-|-------|------|
-| `FORMATION_SELECTION_STARTED` | Host starts formation phase |
-| `PLAYER_SELECTED_FORMATION` | A player locks a formation |
-| `ALL_FORMATIONS_SELECTED` | Last required pick completed |
-| `DRAFT_READY` | Host starts draft, phase → `DRAFT` |
+| Event                         | When                               |
+| ----------------------------- | ---------------------------------- |
+| `FORMATION_SELECTION_STARTED` | Host starts formation phase        |
+| `PLAYER_SELECTED_FORMATION`   | A player locks a formation         |
+| `ALL_FORMATIONS_SELECTED`     | Last required pick completed       |
+| `DRAFT_READY`                 | Host starts draft, phase → `DRAFT` |
 
 REST polling remains as fallback on the formation screen.
 
@@ -108,12 +108,12 @@ Not implemented in this phase. Design intent:
 
 ## API
 
-| Method | Path | Purpose |
-|--------|------|---------|
-| `POST` | `/lobbies/code/:code/start` | Begin formation selection |
-| `GET` | `/lobbies/code/:code/formation-selection?sessionToken=` | State + personal pool |
-| `POST` | `/lobbies/code/:code/formation-selection/select` | Lock formation |
-| `POST` | `/lobbies/code/:code/draft/start` | Host starts draft |
+| Method | Path                                                    | Purpose                   |
+| ------ | ------------------------------------------------------- | ------------------------- |
+| `POST` | `/lobbies/code/:code/start`                             | Begin formation selection |
+| `GET`  | `/lobbies/code/:code/formation-selection?sessionToken=` | State + personal pool     |
+| `POST` | `/lobbies/code/:code/formation-selection/select`        | Lock formation            |
+| `POST` | `/lobbies/code/:code/draft/start`                       | Host starts draft         |
 
 ## Reconnection
 

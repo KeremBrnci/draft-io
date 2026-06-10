@@ -22,7 +22,7 @@ function loadFixture<T>(name: string): T {
 
 describe('transfermarkt.mapper', () => {
   it('extractListItems reads countries wrapper', () => {
-    const response = loadFixture<{ countries: Array<{ id: string; name: string }> }>(
+    const response = loadFixture<{ countries: { id: string; name: string }[] }>(
       'countries-list.json',
     );
     const items = extractListItems(response);
@@ -39,9 +39,9 @@ describe('transfermarkt.mapper', () => {
   });
 
   it('maps competition dto with country context', () => {
-    const response = loadFixture<{ results: Array<{ id: string; name: string; slug: string; country: string }> }>(
-      'competition-search-germany.json',
-    );
+    const response = loadFixture<{
+      results: { id: string; name: string; slug: string; country: string }[];
+    }>('competition-search-germany.json');
     const dto = extractListItems(response)[0]!;
 
     const record = mapCompetitionDto(dto, '40');
@@ -52,7 +52,7 @@ describe('transfermarkt.mapper', () => {
   });
 
   it('maps club search result', () => {
-    const response = loadFixture<{ results: Array<{ id: string; name: string; country: string }> }>(
+    const response = loadFixture<{ results: { id: string; name: string; country: string }[] }>(
       'club-search-barcelona.json',
     );
     const dto = extractListItems(response)[0]!;
@@ -64,8 +64,14 @@ describe('transfermarkt.mapper', () => {
   });
 
   it('maps wide midfield labels to LM and RM instead of truncating', () => {
-    expect(mapClubPlayerDto({ id: '1', name: 'Left Mid', position: 'Left Midfield' }, '11', 'GB1').primaryPosition).toBe('LM');
-    expect(mapClubPlayerDto({ id: '2', name: 'Right Mid', position: 'Right Midfield' }, '11', 'GB1').primaryPosition).toBe('RM');
+    expect(
+      mapClubPlayerDto({ id: '1', name: 'Left Mid', position: 'Left Midfield' }, '11', 'GB1')
+        .primaryPosition,
+    ).toBe('LM');
+    expect(
+      mapClubPlayerDto({ id: '2', name: 'Right Mid', position: 'Right Midfield' }, '11', 'GB1')
+        .primaryPosition,
+    ).toBe('RM');
   });
 
   it('maps player profile with EUR market value and null overall hint', () => {

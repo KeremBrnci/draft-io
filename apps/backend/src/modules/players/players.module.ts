@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 
 import { provideUseCase } from '../../common/nest/provide-use-case';
-
 import { LEAGUE_REPOSITORY } from '../leagues/domain/repositories/league.repository';
 import { LeaguesModule } from '../leagues/leagues.module';
 import { TEAM_REPOSITORY } from '../teams/domain/repositories/team.repository';

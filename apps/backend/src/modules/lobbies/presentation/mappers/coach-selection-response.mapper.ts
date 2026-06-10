@@ -2,8 +2,9 @@ import type { CoachSelectionStateDto } from '@draft-io/shared-types';
 
 import type { CoachBrowserItem } from '../../../coaches/application/read-models/coach-browser-item';
 import { toCoachBrowserItemDto } from '../../../coaches/presentation/mappers/coach-browser-response.mapper';
-import type { Lobby } from '../../domain/entities/lobby.entity';
 import type { LobbyParticipant } from '../../domain/entities/lobby-participant.entity';
+import type { Lobby } from '../../domain/entities/lobby.entity';
+
 import { toLobbySummary } from './lobby-response.mapper';
 
 export function toCoachSelectionState(

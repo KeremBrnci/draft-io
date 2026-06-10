@@ -7,7 +7,10 @@ export interface CardOverallIntegrationPort {
    * Applies a calculated overall to active base cards for a player.
    * Must respect MANUAL_OVERRIDE — skipped cards are not updated.
    */
-  applyCalculatedOverallToBaseCards(playerId: string, overall: number): Promise<{
+  applyCalculatedOverallToBaseCards(
+    playerId: string,
+    overall: number,
+  ): Promise<{
     readonly updatedCardCount: number;
     readonly skippedManualOverrideCount: number;
   }>;

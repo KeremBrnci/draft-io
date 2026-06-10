@@ -14,7 +14,12 @@ import { DataTable, type DataTableColumn } from '@/components/admin/data-table';
 import { EntityImage } from '@/components/admin/entity-image';
 import { OverallBadge } from '@/components/admin/overall-badge';
 import { PlayerPositionsCell } from '@/components/admin/player-positions-cell';
-import { listLeagues, listTeams, type LeagueSummaryDto, type TeamSummaryDto } from '@/lib/api/catalog';
+import {
+  listLeagues,
+  listTeams,
+  type LeagueSummaryDto,
+  type TeamSummaryDto,
+} from '@/lib/api/catalog';
 import { browsePlayers } from '@/lib/api/players';
 import { formatMarketValue } from '@/lib/format';
 
@@ -211,7 +216,9 @@ export default function AdminPlayersPage(): React.ReactElement {
                 >
                   <option value="">Tüm ligler</option>
                   {leagues.map((league) => (
-                    <option key={league.id} value={league.id}>{league.name}</option>
+                    <option key={league.id} value={league.id}>
+                      {league.name}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -240,7 +247,9 @@ export default function AdminPlayersPage(): React.ReactElement {
                         : 'Tüm kulüpler'}
                   </option>
                   {teams.map((team) => (
-                    <option key={team.id} value={team.id}>{team.name}</option>
+                    <option key={team.id} value={team.id}>
+                      {team.name}
+                    </option>
                   ))}
                 </select>
               </div>

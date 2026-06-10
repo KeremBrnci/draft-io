@@ -1,9 +1,10 @@
 import type { DraftBoardStateDto } from '@draft-io/shared-types';
 
-import { toFormationSummaryDto } from './formation-selection-response.mapper';
 import { toTeamStrengthDto } from '../../../draft/presentation/mappers/draft-balance-response.mapper';
 import type { DraftBoardState } from '../../application/use-cases/draft-board.use-cases';
 import { buildDraftBoardSlots } from '../../application/use-cases/draft-board.use-cases';
+
+import { toFormationSummaryDto } from './formation-selection-response.mapper';
 
 export function toDraftBoardStateDto(state: DraftBoardState): DraftBoardStateDto {
   const strength = toTeamStrengthDto({

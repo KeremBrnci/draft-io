@@ -168,14 +168,14 @@ Phased delivery plan for the draft.io platform. Each phase builds on the previou
 
 ## Cross-Cutting Concerns (All Phases)
 
-| Concern | Approach |
-|---------|----------|
-| Authentication | JWT tokens, Phase 2 |
-| Real-time | Socket.IO + Redis adapter, Phase 2+ |
-| Events | In-process EventBus → Redis pub/sub, Phase 3+ |
-| API versioning | `/api/v1` prefix, maintained throughout |
-| Testing | Unit → Integration → E2E per phase |
-| Monitoring | Structured logging now; metrics Phase 2+ |
+| Concern        | Approach                                      |
+| -------------- | --------------------------------------------- |
+| Authentication | JWT tokens, Phase 2                           |
+| Real-time      | Socket.IO + Redis adapter, Phase 2+           |
+| Events         | In-process EventBus → Redis pub/sub, Phase 3+ |
+| API versioning | `/api/v1` prefix, maintained throughout       |
+| Testing        | Unit → Integration → E2E per phase            |
+| Monitoring     | Structured logging now; metrics Phase 2+      |
 
 ---
 

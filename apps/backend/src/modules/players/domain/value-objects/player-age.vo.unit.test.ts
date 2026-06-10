@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { InvalidPlayerAgeError } from '../errors/player.errors';
+
 import { PlayerAge } from './player-age.vo';
 
 describe('PlayerAge', () => {

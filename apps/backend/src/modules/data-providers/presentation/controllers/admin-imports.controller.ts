@@ -8,44 +8,38 @@ import type {
 } from '@draft-io/shared-types';
 import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post } from '@nestjs/common';
 
-import { ImportClubPlayersUseCase } from '../../application/use-cases/import-club-players.use-case';
 import { EnrichPlayersFromSquadUseCase } from '../../application/use-cases/enrich-players-from-squad.use-case';
-import { SyncMissingSquadPlayersUseCase } from '../../application/use-cases/sync-missing-squad-players.use-case';
+import { GetImportJobUseCase } from '../../application/use-cases/get-import-job.use-case';
+import { ImportAllTargetCompetitionsUseCase } from '../../application/use-cases/import-all-target-competitions.use-case';
+import { ImportClubPlayersUseCase } from '../../application/use-cases/import-club-players.use-case';
 import { ImportCompetitionClubsUseCase } from '../../application/use-cases/import-competition-clubs.use-case';
+import { ImportCompetitionPipelineUseCase } from '../../application/use-cases/import-competition-pipeline.use-case';
 import { ImportCompetitionPlayersUseCase } from '../../application/use-cases/import-competition-players.use-case';
 import { ImportCompetitionsByCountryUseCase } from '../../application/use-cases/import-competitions-by-country.use-case';
 import { ImportCountriesUseCase } from '../../application/use-cases/import-countries.use-case';
 import { ImportPlayerUseCase } from '../../application/use-cases/import-player.use-case';
 import { ImportTargetCompetitionUseCase } from '../../application/use-cases/import-target-competition.use-case';
 import { ImportTeamUseCase } from '../../application/use-cases/import-team.use-case';
-import { GetImportJobUseCase } from '../../application/use-cases/get-import-job.use-case';
-import { ImportAllTargetCompetitionsUseCase } from '../../application/use-cases/import-all-target-competitions.use-case';
-import { ImportCompetitionPipelineUseCase } from '../../application/use-cases/import-competition-pipeline.use-case';
 import { ListCompetitionsByCountryUseCase } from '../../application/use-cases/list-competitions-by-country.use-case';
 import { ListImportFailedRecordsUseCase } from '../../application/use-cases/list-import-failed-records.use-case';
 import { ListImportJobLogsUseCase } from '../../application/use-cases/list-import-job-logs.use-case';
 import { ListImportJobsUseCase } from '../../application/use-cases/list-import-jobs.use-case';
-import { RetryImportJobUseCase } from '../../application/use-cases/retry-import-job.use-case';
 import { ListProviderCountriesUseCase } from '../../application/use-cases/list-provider-countries.use-case';
 import { ListTargetCompetitionsUseCase } from '../../application/use-cases/list-target-competitions.use-case';
+import { RetryImportJobUseCase } from '../../application/use-cases/retry-import-job.use-case';
 import { SearchLeaguesUseCase } from '../../application/use-cases/search-leagues.use-case';
 import { SearchPlayersUseCase } from '../../application/use-cases/search-players.use-case';
 import { SearchTeamsUseCase } from '../../application/use-cases/search-teams.use-case';
+import { SyncMissingSquadPlayersUseCase } from '../../application/use-cases/sync-missing-squad-players.use-case';
 import { SyncPlayerProfileUseCase } from '../../application/use-cases/sync-player-profile.use-case';
 import { CountryExternalIdDto } from '../dto/country-external-id.dto';
 import { ImportClubPlayersDto } from '../dto/import-club-players.dto';
-import { SyncMissingSquadPlayersDto } from '../dto/sync-missing-squad-players.dto';
 import { ImportCompetitionDto } from '../dto/import-competition.dto';
 import { ImportPlayerDto } from '../dto/import-player.dto';
 import { ImportTeamDto } from '../dto/import-team.dto';
 import { ProviderOnlyDto } from '../dto/provider-only.dto';
 import { ProviderSearchQueryDto } from '../dto/provider-search-query.dto';
-import {
-  toImportFailedRecordDto,
-  toImportJobDto,
-  toImportJobLogDto,
-  toImportJobResult,
-} from '../mappers/import-job-response.mapper';
+import { SyncMissingSquadPlayersDto } from '../dto/sync-missing-squad-players.dto';
 import {
   type CountryDto,
   type ImportedPlayerDto,
@@ -60,6 +54,12 @@ import {
   toPlayerSearchResultDto,
   toTeamSearchResultDto,
 } from '../mappers/admin-import-response.mapper';
+import {
+  toImportFailedRecordDto,
+  toImportJobDto,
+  toImportJobLogDto,
+  toImportJobResult,
+} from '../mappers/import-job-response.mapper';
 
 @Controller('admin/imports')
 export class AdminImportsController {
@@ -207,7 +207,9 @@ export class AdminImportsController {
 
   @Post('countries/import')
   @HttpCode(HttpStatus.CREATED)
-  async importCountries(@Body() dto: ProviderOnlyDto): Promise<ApiResponse<{ readonly count: number }>> {
+  async importCountries(
+    @Body() dto: ProviderOnlyDto,
+  ): Promise<ApiResponse<{ readonly count: number }>> {
     const nations = await this.importCountriesUseCase.execute({ provider: dto.provider });
     return { data: { count: nations.length } };
   }
@@ -295,17 +297,22 @@ export class AdminImportsController {
 
   @Post('clubs/sync-missing-players')
   @HttpCode(HttpStatus.CREATED)
-  async syncMissingSquadPlayers(
-    @Body() dto: SyncMissingSquadPlayersDto,
-  ): Promise<
+  async syncMissingSquadPlayers(@Body() dto: SyncMissingSquadPlayersDto): Promise<
     ApiResponse<{
       readonly scannedTeams: number;
       readonly squadPlayers: number;
       readonly imported: number;
       readonly skippedExisting: number;
       readonly failed: number;
-      readonly importedPlayers: readonly { readonly externalId: string; readonly displayName: string }[];
-      readonly failures: readonly { readonly externalId: string; readonly displayName: string; readonly reason: string }[];
+      readonly importedPlayers: readonly {
+        readonly externalId: string;
+        readonly displayName: string;
+      }[];
+      readonly failures: readonly {
+        readonly externalId: string;
+        readonly displayName: string;
+        readonly reason: string;
+      }[];
     }>
   > {
     const result = await this.syncMissingSquadPlayersUseCase.execute({
@@ -318,9 +325,7 @@ export class AdminImportsController {
 
   @Post('clubs/enrich-player-metadata')
   @HttpCode(HttpStatus.OK)
-  async enrichPlayerMetadata(
-    @Body() dto: SyncMissingSquadPlayersDto,
-  ): Promise<
+  async enrichPlayerMetadata(@Body() dto: SyncMissingSquadPlayersDto): Promise<
     ApiResponse<{
       readonly incompletePlayers: number;
       readonly scannedTeams: number;
@@ -350,13 +355,14 @@ export class AdminImportsController {
 
   @Post('clubs/import-players')
   @HttpCode(HttpStatus.CREATED)
-  async importClubPlayers(
-    @Body() dto: ImportClubPlayersDto,
-  ): Promise<
+  async importClubPlayers(@Body() dto: ImportClubPlayersDto): Promise<
     ApiResponse<{
       readonly count: number;
       readonly failed: number;
-      readonly failedPlayers: readonly { readonly externalId: string; readonly displayName: string }[];
+      readonly failedPlayers: readonly {
+        readonly externalId: string;
+        readonly displayName: string;
+      }[];
     }>
   > {
     const result = await this.importClubPlayersUseCase.execute({

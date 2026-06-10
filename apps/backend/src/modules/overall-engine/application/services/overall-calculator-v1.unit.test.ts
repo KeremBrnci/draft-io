@@ -3,8 +3,8 @@ import { describe, expect, it } from 'vitest';
 import { OverallProfileTag } from '../../domain/enums/overall-profile-tag.enum';
 import type { OverallCalculationContext } from '../../domain/models/overall-calculation-context';
 
-import { OverallFloorCeilingService } from './overall-floor-ceiling.service';
 import { OverallCalculatorV1 } from './overall-calculator-v1.service';
+import { OverallFloorCeilingService } from './overall-floor-ceiling.service';
 
 function buildContext(overrides: Partial<OverallCalculationContext>): OverallCalculationContext {
   return {

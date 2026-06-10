@@ -6,26 +6,26 @@ Track football data imports (competition → clubs → players → enrichment) w
 
 ## Job Model
 
-| Field | Description |
-|-------|-------------|
-| `id` | UUID |
-| `provider` | e.g. `TRANSFERMARKT` |
-| `jobType` | `COMPETITION`, `CLUBS`, `PLAYERS`, `ENRICHMENT`, `PIPELINE` |
-| `targetCompetition` | Transfermarkt competition code (`GB1`, `L1`, …) |
-| `status` | See statuses below |
-| `totalRecords` / `processedRecords` / `failedRecords` | Progress counters |
-| `startedAt` / `finishedAt` | Timestamps |
-| `errorMessage` | Fatal error summary |
+| Field                                                 | Description                                                 |
+| ----------------------------------------------------- | ----------------------------------------------------------- |
+| `id`                                                  | UUID                                                        |
+| `provider`                                            | e.g. `TRANSFERMARKT`                                        |
+| `jobType`                                             | `COMPETITION`, `CLUBS`, `PLAYERS`, `ENRICHMENT`, `PIPELINE` |
+| `targetCompetition`                                   | Transfermarkt competition code (`GB1`, `L1`, …)             |
+| `status`                                              | See statuses below                                          |
+| `totalRecords` / `processedRecords` / `failedRecords` | Progress counters                                           |
+| `startedAt` / `finishedAt`                            | Timestamps                                                  |
+| `errorMessage`                                        | Fatal error summary                                         |
 
 ## Statuses
 
-| Status | Meaning |
-|--------|---------|
-| `PENDING` | Created, not started |
-| `RUNNING` | In progress |
-| `COMPLETED` | All records succeeded |
-| `PARTIAL` | Finished with some failures |
-| `FAILED` | Fatal error — job aborted |
+| Status      | Meaning                     |
+| ----------- | --------------------------- |
+| `PENDING`   | Created, not started        |
+| `RUNNING`   | In progress                 |
+| `COMPLETED` | All records succeeded       |
+| `PARTIAL`   | Finished with some failures |
+| `FAILED`    | Fatal error — job aborted   |
 
 ## Related Tables
 

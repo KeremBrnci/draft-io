@@ -4,13 +4,13 @@ import { ProviderResponseError } from '../../../domain/errors/data-provider.erro
 import type { ExternalPlayerRecord } from '../../../domain/models/external-player-record';
 import type { PlayerSearchResult } from '../../../domain/models/player-search-result';
 import type { PlayerProvider } from '../../../domain/ports/player-provider.port';
+import { TransfermarktConfigService } from '../config/transfermarkt.config';
 import type {
   TransfermarktClubPlayersDto,
   TransfermarktListResponse,
   TransfermarktPlayerProfileDto,
   TransfermarktPlayerSearchResultDto,
 } from '../dtos/transfermarkt.dto';
-import { TransfermarktConfigService } from '../config/transfermarkt.config';
 import { TransfermarktHttpClient } from '../http/transfermarkt-http.client';
 import {
   extractListItems,
@@ -18,7 +18,10 @@ import {
   mapPlayerProfileDto,
   mapPlayerSearchResult,
 } from '../mappers/transfermarkt.mapper';
-import { buildTransfermarktSeasonQuery, resolveTransfermarktSeasonId } from '../utils/transfermarkt-season';
+import {
+  buildTransfermarktSeasonQuery,
+  resolveTransfermarktSeasonId,
+} from '../utils/transfermarkt-season';
 
 @Injectable()
 export class TransfermarktPlayerProvider implements PlayerProvider {
@@ -58,8 +61,7 @@ export class TransfermarktPlayerProvider implements PlayerProvider {
     clubExternalId: string,
     leagueExternalId: string | null = null,
   ): Promise<readonly ExternalPlayerRecord[]> {
-    const seasonId =
-      this.configService.getConfig().seasonId ?? resolveTransfermarktSeasonId();
+    const seasonId = this.configService.getConfig().seasonId ?? resolveTransfermarktSeasonId();
     const dto = await this.httpClient.getJson<TransfermarktClubPlayersDto>(
       `clubs/${encodeURIComponent(clubExternalId)}/players?${buildTransfermarktSeasonQuery(seasonId)}`,
     );

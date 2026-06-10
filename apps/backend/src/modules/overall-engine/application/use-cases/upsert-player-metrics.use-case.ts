@@ -1,12 +1,9 @@
-import type { OverallProfileTag } from '../../domain/enums/overall-profile-tag.enum';
+import { DEFAULT_CAREER_SCORE, DEFAULT_LEGACY_SCORE } from '../../domain/config/overall-v1.config';
 import type { PlayerMetrics } from '../../domain/entities/player-metrics.entity';
+import { OVERALL_ALGORITHM_V1 } from '../../domain/enums/overall-algorithm-version.enum';
+import type { OverallProfileTag } from '../../domain/enums/overall-profile-tag.enum';
 import type { OverallAlgorithmVersionRepository } from '../../domain/repositories/overall-algorithm-version.repository';
 import type { PlayerMetricsRepository } from '../../domain/repositories/player-metrics.repository';
-import { OVERALL_ALGORITHM_V1 } from '../../domain/enums/overall-algorithm-version.enum';
-import {
-  DEFAULT_CAREER_SCORE,
-  DEFAULT_LEGACY_SCORE,
-} from '../../domain/config/overall-v1.config';
 
 export interface UpsertPlayerMetricsCommand {
   readonly playerId: string;

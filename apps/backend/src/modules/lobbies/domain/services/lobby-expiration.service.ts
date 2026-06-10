@@ -25,7 +25,10 @@ export class LobbyExpirationService {
     lobby.setExpiresAt(new Date(Math.min(maxExpiry, nextExpiry)));
   }
 
-  isExpired(lobby: { readonly expiresAt: Date; readonly phase: string }, now: Date = new Date()): boolean {
+  isExpired(
+    lobby: { readonly expiresAt: Date; readonly phase: string },
+    now: Date = new Date(),
+  ): boolean {
     if (lobby.phase !== 'LOBBY') {
       return false;
     }

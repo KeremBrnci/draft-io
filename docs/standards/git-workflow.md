@@ -13,15 +13,15 @@ main (protected)
 
 ### Branch Naming
 
-| Prefix | Use Case | Example |
-|--------|----------|---------|
-| `feature/` | New functionality | `feature/DRAFT-123-add-lobby-system` |
-| `fix/` | Bug fixes | `fix/DRAFT-456-draft-timer-sync` |
-| `chore/` | Maintenance, deps | `chore/update-prisma` |
-| `docs/` | Documentation only | `docs/testing-strategy` |
-| `refactor/` | Code restructuring | `refactor/extract-player-mapper` |
-| `test/` | Test additions | `test/player-use-case-coverage` |
-| `ci/` | CI/CD changes | `ci/add-integration-tests` |
+| Prefix      | Use Case           | Example                              |
+| ----------- | ------------------ | ------------------------------------ |
+| `feature/`  | New functionality  | `feature/DRAFT-123-add-lobby-system` |
+| `fix/`      | Bug fixes          | `fix/DRAFT-456-draft-timer-sync`     |
+| `chore/`    | Maintenance, deps  | `chore/update-prisma`                |
+| `docs/`     | Documentation only | `docs/testing-strategy`              |
+| `refactor/` | Code restructuring | `refactor/extract-player-mapper`     |
+| `test/`     | Test additions     | `test/player-use-case-coverage`      |
+| `ci/`       | CI/CD changes      | `ci/add-integration-tests`           |
 
 Format: `{prefix}/{ticket-id}-{short-description}` (ticket ID optional for small changes)
 
@@ -39,18 +39,18 @@ We follow [Conventional Commits](https://www.conventionalcommits.org/):
 
 ### Types
 
-| Type | Description |
-|------|-------------|
-| `feat` | New feature |
-| `fix` | Bug fix |
-| `docs` | Documentation changes |
-| `style` | Formatting, no logic change |
-| `refactor` | Code restructuring |
-| `test` | Adding or updating tests |
-| `chore` | Maintenance, dependencies |
-| `ci` | CI/CD configuration |
-| `perf` | Performance improvement |
-| `build` | Build system changes |
+| Type       | Description                 |
+| ---------- | --------------------------- |
+| `feat`     | New feature                 |
+| `fix`      | Bug fix                     |
+| `docs`     | Documentation changes       |
+| `style`    | Formatting, no logic change |
+| `refactor` | Code restructuring          |
+| `test`     | Adding or updating tests    |
+| `chore`    | Maintenance, dependencies   |
+| `ci`       | CI/CD configuration         |
+| `perf`     | Performance improvement     |
+| `build`    | Build system changes        |
 
 ### Scopes
 

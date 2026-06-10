@@ -24,7 +24,8 @@ export function EntityImage({
 }: EntityImageProps): React.ReactElement {
   const [failed, setFailed] = useState(false);
   const showImage = src !== null && src !== undefined && src.length > 0 && !failed;
-  const classes = className === undefined ? VARIANT_CLASS[variant] : `${VARIANT_CLASS[variant]} ${className}`;
+  const classes =
+    className === undefined ? VARIANT_CLASS[variant] : `${VARIANT_CLASS[variant]} ${className}`;
 
   if (!showImage) {
     return <span className={`${classes} admin-entity-image--placeholder`} aria-hidden="true" />;

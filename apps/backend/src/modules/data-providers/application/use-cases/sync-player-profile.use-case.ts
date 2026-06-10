@@ -2,6 +2,7 @@ import { parseExternalProvider } from '../../../../core/external-reference/exter
 import type { Player } from '../../../players/domain/entities/player.entity';
 import { ExternalPlayerNotFoundError } from '../../domain/errors/data-provider.errors';
 import type { ProviderRegistryPort } from '../../domain/ports/provider-registry.port';
+
 import type { ImportPlayerUseCase } from './import-player.use-case';
 
 export interface SyncPlayerProfileCommand {

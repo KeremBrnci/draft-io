@@ -1,4 +1,9 @@
-import type { PaginatedResponse, PlayerBrowserItemDto, PlayerSortFieldDto, SortDirectionDto } from '@draft-io/shared-types';
+import type {
+  PaginatedResponse,
+  PlayerBrowserItemDto,
+  PlayerSortFieldDto,
+  SortDirectionDto,
+} from '@draft-io/shared-types';
 
 import { apiGetPaginated } from './client';
 

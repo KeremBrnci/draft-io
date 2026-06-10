@@ -18,13 +18,13 @@ Chemistry rewards **cohesive squad building** — same club, nation, and league 
 
 ## Design principles
 
-| Principle | Detail |
-|-----------|--------|
-| Simple to explain | Three link types at launch |
-| Visible during draft | Chemistry options labeled in pick UI |
-| Capped per player | Avoid infinite stacking on one card |
-| Team total bounded | 0–33 scale matches starting eleven size |
-| Soft bonus | Overall still wins most comparisons |
+| Principle            | Detail                                  |
+| -------------------- | --------------------------------------- |
+| Simple to explain    | Three link types at launch              |
+| Visible during draft | Chemistry options labeled in pick UI    |
+| Capped per player    | Avoid infinite stacking on one card     |
+| Team total bounded   | 0–33 scale matches starting eleven size |
+| Soft bonus           | Overall still wins most comparisons     |
 
 ---
 
@@ -32,11 +32,11 @@ Chemistry rewards **cohesive squad building** — same club, nation, and league 
 
 Links are computed between a **candidate card** and **already-drafted cards** on the same team (or projected if shown in pick UI).
 
-| Connection | Bonus | Condition |
-|------------|-------|-----------|
-| Same club | **+2** | Same `teamId` on player identity |
-| Same nation | **+1** | Same nationality code |
-| Same league | **+1** | Same `leagueId` |
+| Connection  | Bonus  | Condition                        |
+| ----------- | ------ | -------------------------------- |
+| Same club   | **+2** | Same `teamId` on player identity |
+| Same nation | **+1** | Same nationality code            |
+| Same league | **+1** | Same `leagueId`                  |
 
 ### Per-player chemistry cap
 
@@ -66,10 +66,10 @@ Where each link type counts once per connected teammate (design tuning may use d
 
 Stored fields (planned):
 
-| Field | Description |
-|-------|-------------|
-| `teamChemistry` | Total 0–33 |
-| `playerChemistry[]` | Per starting card breakdown |
+| Field                | Description                              |
+| -------------------- | ---------------------------------------- |
+| `teamChemistry`      | Total 0–33                               |
+| `playerChemistry[]`  | Per starting card breakdown              |
 | `chemistryBreakdown` | `{ club, nation, league }` source totals |
 
 ### Breakdown example
@@ -82,9 +82,7 @@ Stored fields (planned):
     "nation": 8,
     "league": 4
   },
-  "players": [
-    { "cardId": "…", "chemistry": 3, "sources": ["club", "nation"] }
-  ]
+  "players": [{ "cardId": "…", "chemistry": 3, "sources": ["club", "nation"] }]
 }
 ```
 
@@ -112,10 +110,10 @@ See [Match Power](./match-power.md) for multiplier curve (5–10% swing at team 
 
 Example (illustrative):
 
-| Squad | Avg overall | Team chemistry | Match power |
-|-------|-------------|----------------|-------------|
-| A | 87 | 30 | Beats B sometimes |
-| B | 89 | 10 | Stronger on paper |
+| Squad | Avg overall | Team chemistry | Match power       |
+| ----- | ----------- | -------------- | ----------------- |
+| A     | 87          | 30             | Beats B sometimes |
+| B     | 89          | 10             | Stronger on paper |
 
 Overall 89 still wins **most** matchups; chemistry creates variance and comeback stories.
 
@@ -138,11 +136,11 @@ See [Position System](./position-system.md).
 
 ```typescript
 interface ChemistryConfig {
-  readonly sameClubBonus: number;      // default 2
-  readonly sameNationBonus: number;    // default 1
-  readonly sameLeagueBonus: number;    // default 1
+  readonly sameClubBonus: number; // default 2
+  readonly sameNationBonus: number; // default 1
+  readonly sameLeagueBonus: number; // default 1
   readonly maxChemistryPerPlayer: number; // default 3
-  readonly maxTeamChemistry: number;   // default 33
+  readonly maxTeamChemistry: number; // default 33
 }
 ```
 

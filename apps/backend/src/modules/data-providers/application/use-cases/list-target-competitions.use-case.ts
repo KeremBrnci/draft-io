@@ -66,11 +66,8 @@ function collectRunningCompetitionIds(jobs: readonly ImportJob[]): ReadonlySet<s
 
   return new Set(
     jobs
-      .filter(
-        (job) =>
-          job.targetExternalId !== null && runningStatuses.has(job.status),
-      )
-      .map((job) => job.targetExternalId as string),
+      .filter((job) => job.targetExternalId !== null && runningStatuses.has(job.status))
+      .map((job) => job.targetExternalId!),
   );
 }
 

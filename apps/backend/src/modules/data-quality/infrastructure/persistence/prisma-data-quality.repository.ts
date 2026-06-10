@@ -91,10 +91,7 @@ export class PrismaDataQualityRepository implements DataQualityRepository {
           })
         : [];
     const leagueNames = new Map(
-      leagues.map((league) => [
-        league.id,
-        translateLeagueName(league.name, league.externalId),
-      ]),
+      leagues.map((league) => [league.id, translateLeagueName(league.name, league.externalId)]),
     );
 
     return {
@@ -193,8 +190,7 @@ export class PrismaDataQualityRepository implements DataQualityRepository {
     duplicateKeys: ReadonlySet<string>,
   ): DataQualityIssueCodeType[] {
     const codes: DataQualityIssueCodeType[] = [];
-    const marketValue =
-      player.marketValue === null ? null : Number(player.marketValue.toString());
+    const marketValue = player.marketValue === null ? null : Number(player.marketValue.toString());
 
     if (player.marketValue === null) {
       codes.push(DataQualityIssueCode.MISSING_MARKET_VALUE);
@@ -236,9 +232,7 @@ export class PrismaDataQualityRepository implements DataQualityRepository {
   }
 
   private async findDuplicateProviderKeys(): Promise<ReadonlySet<string>> {
-    const rows = await this.prisma.$queryRaw<
-      readonly { provider: string; external_id: string }[]
-    >`
+    const rows = await this.prisma.$queryRaw<readonly { provider: string; external_id: string }[]>`
       SELECT provider, external_id
       FROM players
       WHERE provider IS NOT NULL AND external_id IS NOT NULL
@@ -249,9 +243,7 @@ export class PrismaDataQualityRepository implements DataQualityRepository {
     return new Set(rows.map((row) => `${row.provider}:${row.external_id}`));
   }
 
-  private async marketValueDistribution(): Promise<
-    readonly { bucket: string; count: number }[]
-  > {
+  private async marketValueDistribution(): Promise<readonly { bucket: string; count: number }[]> {
     const buckets = [
       { label: '0', min: 0, max: 0 },
       { label: '1-1M', min: 1, max: 1_000_000 },

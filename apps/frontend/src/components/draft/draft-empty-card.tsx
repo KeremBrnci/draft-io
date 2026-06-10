@@ -24,7 +24,12 @@ export function DraftEmptyCard({
 
   if (onClick !== undefined) {
     return (
-      <button type="button" className={className} onClick={onClick} aria-label={`${label} mevkisi — oyuncu seç`}>
+      <button
+        type="button"
+        className={className}
+        onClick={onClick}
+        aria-label={`${label} mevkisi — oyuncu seç`}
+      >
         <span className="draft-empty-card__label">{label}</span>
         <span className="draft-empty-card__hint">Seç</span>
       </button>

@@ -1,16 +1,16 @@
 import { Module, forwardRef } from '@nestjs/common';
 
 import { provideUseCase } from '../../common/nest/provide-use-case';
+import { CoachesModule } from '../coaches/coaches.module';
+import { COACH_REPOSITORY } from '../coaches/domain/repositories/coach.repository';
 import { CalculateTeamStrengthUseCase } from '../draft/application/use-cases/calculate-team-strength.use-case';
 import { GetDraftSessionByLobbyUseCase } from '../draft/application/use-cases/get-draft-session-by-lobby.use-case';
 import { DRAFT_POOL_REPOSITORY } from '../draft/domain/repositories/draft-pool.repository';
-import { CoachesModule } from '../coaches/coaches.module';
-import { COACH_REPOSITORY } from '../coaches/domain/repositories/coach.repository';
 import { DraftModule } from '../draft/draft.module';
 import { FORMATION_REPOSITORY } from '../formations/domain/repositories/formation.repository';
 import { FormationsModule } from '../formations/formations.module';
-import { LOBBY_REPOSITORY } from '../lobbies/domain/repositories/lobby.repository';
 import { ROOM_EVENTS_PUBLISHER } from '../lobbies/application/services/room-events.publisher';
+import { LOBBY_REPOSITORY } from '../lobbies/domain/repositories/lobby.repository';
 import { LobbiesModule } from '../lobbies/lobbies.module';
 import { RoomEventsModule } from '../lobbies/room-events.module';
 import { MatchSimulationEngine } from '../simulation/domain/services/match-simulation-engine.service';
@@ -50,7 +50,11 @@ import { PrismaRoomLeagueRepository } from './infrastructure/persistence/prisma-
       GetDraftSessionByLobbyUseCase,
       CalculateTeamStrengthUseCase,
     ]),
-    provideUseCase(StartLeagueUseCase, [LOBBY_REPOSITORY, ROOM_LEAGUE_REPOSITORY, ROOM_EVENTS_PUBLISHER]),
+    provideUseCase(StartLeagueUseCase, [
+      LOBBY_REPOSITORY,
+      ROOM_LEAGUE_REPOSITORY,
+      ROOM_EVENTS_PUBLISHER,
+    ]),
     provideUseCase(GetLeagueStateUseCase, [LOBBY_REPOSITORY, ROOM_LEAGUE_REPOSITORY]),
     provideUseCase(StartNextMatchUseCase, [
       LOBBY_REPOSITORY,

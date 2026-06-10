@@ -1,8 +1,8 @@
 import type { PaginationParams } from '@draft-io/shared-types';
 import { Injectable } from '@nestjs/common';
 
-import { PrismaService } from '../../../../infrastructure/database/prisma.service';
 import type { ExternalProvider } from '../../../../core/external-reference/external-provider';
+import { PrismaService } from '../../../../infrastructure/database/prisma.service';
 import type { Coach } from '../../domain/entities/coach.entity';
 import type {
   CoachListFilter,
@@ -11,6 +11,7 @@ import type {
 } from '../../domain/repositories/coach.repository';
 import type { CoachId } from '../../domain/value-objects/coach-id.vo';
 import { toCoachDomain, toCoachPersistence } from '../mappers/coach.mapper';
+
 import { toPrismaCoachOrderBy, toPrismaCoachWhere } from './coach-list-filter.prisma';
 
 @Injectable()

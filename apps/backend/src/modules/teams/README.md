@@ -12,9 +12,9 @@ Model user-managed squads with formation, manager, and starting eleven assignmen
 
 ## Public API
 
-| Method | Endpoint | Use Case |
-|--------|----------|----------|
-| GET | `/api/v1/teams` | `ListTeamsUseCase` |
+| Method | Endpoint        | Use Case           |
+| ------ | --------------- | ------------------ |
+| GET    | `/api/v1/teams` | `ListTeamsUseCase` |
 
 ## Dependencies
 

@@ -6,11 +6,11 @@ Integrate external football data sources (starting with **sportdb.dev**) as **re
 
 ## Responsibilities
 
-| Component | Responsibility |
-|-----------|----------------|
-| `data-providers` module | Provider ports, adapters, import use cases |
-| `players` / `teams` / `leagues` | Domain aggregates and persistence |
-| `overall-engine` | Game-owned overall generation |
+| Component                       | Responsibility                             |
+| ------------------------------- | ------------------------------------------ |
+| `data-providers` module         | Provider ports, adapters, import use cases |
+| `players` / `teams` / `leagues` | Domain aggregates and persistence          |
+| `overall-engine`                | Game-owned overall generation              |
 
 ## Module Structure
 
@@ -54,11 +54,11 @@ New providers add an adapter under `infrastructure/{provider}/` and register in 
 
 Internal UUID is the primary key. Provider identity is stored separately:
 
-| Field | Example |
-|-------|---------|
-| `id` | `550e8400-e29b-41d4-a716-446655440000` |
-| `provider` | `SPORTDB` |
-| `externalId` | `vgOOdZbd` |
+| Field        | Example                                |
+| ------------ | -------------------------------------- |
+| `id`         | `550e8400-e29b-41d4-a716-446655440000` |
+| `provider`   | `SPORTDB`                              |
+| `externalId` | `vgOOdZbd`                             |
 
 Database: `@@unique([provider, externalId])` on players, teams, leagues.
 
@@ -98,16 +98,16 @@ SportDb DTO → sportdb mapper → ExternalPlayerRecord
 
 ## Risks
 
-| Risk | Mitigation |
-|------|------------|
-| Provider API shape changes | DTO + mapper isolation per provider |
-| Duplicate imports | `findByExternalReference` + conflict errors |
-| Provider outage | Batch import retry policy (future) |
+| Risk                       | Mitigation                                  |
+| -------------------------- | ------------------------------------------- |
+| Provider API shape changes | DTO + mapper isolation per provider         |
+| Duplicate imports          | `findByExternalReference` + conflict errors |
+| Provider outage            | Batch import retry policy (future)          |
 
 ## Alternatives
 
-| Alternative | Why rejected |
-|-------------|--------------|
-| Prisma as integration point | Violates clean architecture |
-| Single god ImportService | No bounded context boundaries |
-| External ID as primary key | Breaks multi-provider and internal references |
+| Alternative                 | Why rejected                                  |
+| --------------------------- | --------------------------------------------- |
+| Prisma as integration point | Violates clean architecture                   |
+| Single god ImportService    | No bounded context boundaries                 |
+| External ID as primary key  | Breaks multi-provider and internal references |

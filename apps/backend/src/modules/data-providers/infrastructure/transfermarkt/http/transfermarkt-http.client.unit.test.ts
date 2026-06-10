@@ -4,7 +4,7 @@ import {
   ProviderConfigurationError,
   ProviderResponseError,
 } from '../../../domain/errors/data-provider.errors';
-import { TransfermarktConfigService } from '../config/transfermarkt.config';
+import { type TransfermarktConfigService } from '../config/transfermarkt.config';
 
 import { TransfermarktHttpClient, type FetchFn } from './transfermarkt-http.client';
 
@@ -41,9 +41,9 @@ describe('TransfermarktHttpClient', () => {
   });
 
   it('works without API key', async () => {
-    const fetchFn = vi.fn<FetchFn>().mockResolvedValue(
-      new Response(JSON.stringify({ results: [] }), { status: 200 }),
-    );
+    const fetchFn = vi
+      .fn<FetchFn>()
+      .mockResolvedValue(new Response(JSON.stringify({ results: [] }), { status: 200 }));
     const client = new TransfermarktHttpClient(createConfigService()).withFetchFn(fetchFn);
 
     const promise = client.getJson<{ results: readonly unknown[] }>('players/search/messi');
@@ -51,14 +51,14 @@ describe('TransfermarktHttpClient', () => {
     await promise;
 
     const [, init] = fetchFn.mock.calls[0] ?? [];
-    const headers = (init as RequestInit | undefined)?.headers as Record<string, string>;
+    const headers = init?.headers as Record<string, string>;
     expect(headers['X-API-Key']).toBeUndefined();
   });
 
   it('sends X-API-Key when configured', async () => {
-    const fetchFn = vi.fn<FetchFn>().mockResolvedValue(
-      new Response(JSON.stringify({ results: [] }), { status: 200 }),
-    );
+    const fetchFn = vi
+      .fn<FetchFn>()
+      .mockResolvedValue(new Response(JSON.stringify({ results: [] }), { status: 200 }));
     const client = new TransfermarktHttpClient(
       createConfigService({ TRANSFERMARKT_API_KEY: 'secret' }),
     ).withFetchFn(fetchFn);
@@ -68,15 +68,19 @@ describe('TransfermarktHttpClient', () => {
     await promise;
 
     const [, init] = fetchFn.mock.calls[0] ?? [];
-    const headers = (init as RequestInit | undefined)?.headers as Record<string, string>;
+    const headers = init?.headers as Record<string, string>;
     expect(headers['X-API-Key']).toBe('secret');
   });
 
   it('maps 401 to ProviderConfigurationError', async () => {
-    const fetchFn = vi.fn<FetchFn>().mockResolvedValue(new Response('unauthorized', { status: 401 }));
+    const fetchFn = vi
+      .fn<FetchFn>()
+      .mockResolvedValue(new Response('unauthorized', { status: 401 }));
     const client = new TransfermarktHttpClient(createConfigService()).withFetchFn(fetchFn);
 
-    await expect(client.getJson('players/search/messi')).rejects.toThrow(ProviderConfigurationError);
+    await expect(client.getJson('players/search/messi')).rejects.toThrow(
+      ProviderConfigurationError,
+    );
   });
 
   it('maps 404 to ProviderResponseError', async () => {

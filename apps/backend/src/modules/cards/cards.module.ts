@@ -14,9 +14,9 @@ import { PrismaCardRarityRepository } from './infrastructure/persistence/prisma-
 import { PrismaCardTemplateRepository } from './infrastructure/persistence/prisma-card-template.repository';
 import { PrismaCardTypeRepository } from './infrastructure/persistence/prisma-card-type.repository';
 import { PrismaCardRepository } from './infrastructure/persistence/prisma-card.repository';
+import { PlayerCardSeedService } from './infrastructure/seed/player-card-seed.service';
 import { CardsController } from './presentation/controllers/cards.controller';
 import { PlayerCardsController } from './presentation/controllers/player-cards.controller';
-import { PlayerCardSeedService } from './infrastructure/seed/player-card-seed.service';
 
 @Module({
   controllers: [CardsController, PlayerCardsController],
@@ -32,13 +32,19 @@ import { PlayerCardSeedService } from './infrastructure/seed/player-card-seed.se
         cardTypeRepository: PrismaCardTypeRepository,
         cardRarityRepository: PrismaCardRarityRepository,
         cardTemplateRepository: PrismaCardTemplateRepository,
-      ) => new CardEnrichmentService(cardTypeRepository, cardRarityRepository, cardTemplateRepository),
+      ) =>
+        new CardEnrichmentService(cardTypeRepository, cardRarityRepository, cardTemplateRepository),
       inject: [CARD_TYPE_REPOSITORY, CARD_RARITY_REPOSITORY, CARD_TEMPLATE_REPOSITORY],
     },
     provideUseCase(ListCardsUseCase, [CARD_REPOSITORY, CardEnrichmentService]),
     provideUseCase(GetCardByIdUseCase, [CARD_REPOSITORY, CardEnrichmentService]),
     provideUseCase(ListCardsByPlayerUseCase, [CARD_REPOSITORY, CardEnrichmentService]),
   ],
-  exports: [CARD_REPOSITORY, CARD_TYPE_REPOSITORY, CARD_RARITY_REPOSITORY, CARD_TEMPLATE_REPOSITORY],
+  exports: [
+    CARD_REPOSITORY,
+    CARD_TYPE_REPOSITORY,
+    CARD_RARITY_REPOSITORY,
+    CARD_TEMPLATE_REPOSITORY,
+  ],
 })
 export class CardsModule {}

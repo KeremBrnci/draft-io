@@ -12,12 +12,12 @@ Manage player cards — the core collectible units used in drafts, teams, and ma
 
 ## Public API
 
-| Method | Endpoint | Use Case |
-|--------|----------|----------|
-| POST | `/api/v1/players` | `CreatePlayerUseCase` |
-| GET | `/api/v1/players` | `ListPlayersUseCase` |
-| GET | `/api/v1/players/:id` | `GetPlayerByIdUseCase` |
-| PATCH | `/api/v1/players/:id` | `UpdatePlayerUseCase` |
+| Method | Endpoint              | Use Case               |
+| ------ | --------------------- | ---------------------- |
+| POST   | `/api/v1/players`     | `CreatePlayerUseCase`  |
+| GET    | `/api/v1/players`     | `ListPlayersUseCase`   |
+| GET    | `/api/v1/players/:id` | `GetPlayerByIdUseCase` |
+| PATCH  | `/api/v1/players/:id` | `UpdatePlayerUseCase`  |
 
 ## Dependencies
 

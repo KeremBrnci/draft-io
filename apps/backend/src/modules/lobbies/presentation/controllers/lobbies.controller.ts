@@ -2,34 +2,6 @@ import type { ApiResponse } from '@draft-io/shared-types';
 import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 
 import {
-  ApplyLobbyDraftPickUseCase,
-  GetDraftBoardUseCase,
-  GetDraftPickOptionsForSlotUseCase,
-} from '../../application/use-cases/draft-board.use-cases';
-import {
-  GetCoachSelectionUseCase,
-  SelectCoachUseCase,
-} from '../../application/use-cases/coach-selection.use-cases';
-import { GetFormationSelectionUseCase, SelectFormationUseCase } from '../../application/use-cases/formation-selection.use-cases';
-import { StartDraftUseCase } from '../../application/use-cases/start-draft.use-case';
-import { CreateLobbyUseCase } from '../../application/use-cases/create-lobby.use-case';
-import { GetLobbyByCodeUseCase } from '../../application/use-cases/get-lobby-by-code.use-case';
-import { JoinLobbyUseCase } from '../../application/use-cases/join-lobby.use-case';
-import { SetParticipantReadyUseCase } from '../../application/use-cases/set-participant-ready.use-case';
-import { StartLobbyUseCase } from '../../application/use-cases/start-lobby.use-case';
-import { CreateLobbyDto } from '../dto/create-lobby.dto';
-import { ApplyLobbyDraftPickDto, DraftBoardQueryDto, DraftPickOptionsQueryDto } from '../dto/draft-board.dto';
-import { JoinLobbyDto } from '../dto/join-lobby.dto';
-import { SetParticipantReadyDto, StartLobbyDto } from '../dto/lobby-ready.dto';
-import { CoachSelectionQueryDto, SelectCoachDto } from '../dto/coach-selection.dto';
-import { FormationSelectionQueryDto, SelectFormationDto } from '../dto/formation-selection.dto';
-import { toCoachSelectionState } from '../mappers/coach-selection-response.mapper';
-import { toDraftBoardStateDto } from '../mappers/draft-board-response.mapper';
-import { toFormationSelectionState } from '../mappers/formation-selection-response.mapper';
-import { toLobbySessionDto, toLobbySummary } from '../mappers/lobby-response.mapper';
-import { toStartDraftResultDto } from '../mappers/start-draft-response.mapper';
-import { toStartLobbyResultDto } from '../mappers/start-lobby-response.mapper';
-import {
   GetLeagueStateUseCase,
   GetMatchStateUseCase,
   GetTeamReviewUseCase,
@@ -37,6 +9,41 @@ import {
   StartNextMatchUseCase,
 } from '../../../matches/application/use-cases/room-league.use-cases';
 import { toMatchStateDto } from '../../../matches/presentation/mappers/room-league-response.mapper';
+import {
+  GetCoachSelectionUseCase,
+  SelectCoachUseCase,
+} from '../../application/use-cases/coach-selection.use-cases';
+import { CreateLobbyUseCase } from '../../application/use-cases/create-lobby.use-case';
+import {
+  ApplyLobbyDraftPickUseCase,
+  GetDraftBoardUseCase,
+  GetDraftPickOptionsForSlotUseCase,
+} from '../../application/use-cases/draft-board.use-cases';
+import {
+  GetFormationSelectionUseCase,
+  SelectFormationUseCase,
+} from '../../application/use-cases/formation-selection.use-cases';
+import { GetLobbyByCodeUseCase } from '../../application/use-cases/get-lobby-by-code.use-case';
+import { JoinLobbyUseCase } from '../../application/use-cases/join-lobby.use-case';
+import { SetParticipantReadyUseCase } from '../../application/use-cases/set-participant-ready.use-case';
+import { StartDraftUseCase } from '../../application/use-cases/start-draft.use-case';
+import { StartLobbyUseCase } from '../../application/use-cases/start-lobby.use-case';
+import { CoachSelectionQueryDto, SelectCoachDto } from '../dto/coach-selection.dto';
+import { CreateLobbyDto } from '../dto/create-lobby.dto';
+import {
+  ApplyLobbyDraftPickDto,
+  DraftBoardQueryDto,
+  DraftPickOptionsQueryDto,
+} from '../dto/draft-board.dto';
+import { FormationSelectionQueryDto, SelectFormationDto } from '../dto/formation-selection.dto';
+import { JoinLobbyDto } from '../dto/join-lobby.dto';
+import { SetParticipantReadyDto, StartLobbyDto } from '../dto/lobby-ready.dto';
+import { toCoachSelectionState } from '../mappers/coach-selection-response.mapper';
+import { toDraftBoardStateDto } from '../mappers/draft-board-response.mapper';
+import { toFormationSelectionState } from '../mappers/formation-selection-response.mapper';
+import { toLobbySessionDto, toLobbySummary } from '../mappers/lobby-response.mapper';
+import { toStartDraftResultDto } from '../mappers/start-draft-response.mapper';
+import { toStartLobbyResultDto } from '../mappers/start-lobby-response.mapper';
 
 @Controller('lobbies')
 export class LobbiesController {
@@ -62,7 +69,9 @@ export class LobbiesController {
   ) {}
 
   @Post()
-  async create(@Body() dto: CreateLobbyDto): Promise<ApiResponse<ReturnType<typeof toLobbySessionDto>>> {
+  async create(
+    @Body() dto: CreateLobbyDto,
+  ): Promise<ApiResponse<ReturnType<typeof toLobbySessionDto>>> {
     const session = await this.createLobbyUseCase.execute({
       name: dto.name,
       displayName: dto.displayName,
@@ -73,7 +82,9 @@ export class LobbiesController {
   }
 
   @Post('join')
-  async join(@Body() dto: JoinLobbyDto): Promise<ApiResponse<ReturnType<typeof toLobbySessionDto>>> {
+  async join(
+    @Body() dto: JoinLobbyDto,
+  ): Promise<ApiResponse<ReturnType<typeof toLobbySessionDto>>> {
     const session = await this.joinLobbyUseCase.execute({
       code: dto.code.toUpperCase(),
       displayName: dto.displayName,
@@ -134,7 +145,12 @@ export class LobbiesController {
       state.lobby.phase === 'FORMATION_SELECTION';
 
     return {
-      data: toFormationSelectionState(state.lobby, participant, state.myFormationOptions, canStartDraft),
+      data: toFormationSelectionState(
+        state.lobby,
+        participant,
+        state.myFormationOptions,
+        canStartDraft,
+      ),
     };
   }
 
@@ -160,7 +176,12 @@ export class LobbiesController {
       lobby.phase === 'FORMATION_SELECTION';
 
     return {
-      data: toFormationSelectionState(lobby, state.participant, state.myFormationOptions, canStartDraft),
+      data: toFormationSelectionState(
+        lobby,
+        state.participant,
+        state.myFormationOptions,
+        canStartDraft,
+      ),
     };
   }
 
@@ -225,10 +246,7 @@ export class LobbiesController {
   }
 
   @Get('code/:code/coach-selection')
-  async getCoachSelection(
-    @Param('code') code: string,
-    @Query() query: CoachSelectionQueryDto,
-  ) {
+  async getCoachSelection(@Param('code') code: string, @Query() query: CoachSelectionQueryDto) {
     const state = await this.getCoachSelectionUseCase.execute({
       code: code.toUpperCase(),
       ...(query.sessionToken !== undefined ? { sessionToken: query.sessionToken } : {}),
@@ -254,10 +272,7 @@ export class LobbiesController {
   }
 
   @Get('code/:code/team-review')
-  async getTeamReview(
-    @Param('code') code: string,
-    @Query() query: DraftBoardQueryDto,
-  ) {
+  async getTeamReview(@Param('code') code: string, @Query() query: DraftBoardQueryDto) {
     const data = await this.getTeamReviewUseCase.execute({
       code: code.toUpperCase(),
       sessionToken: query.sessionToken,

@@ -9,7 +9,7 @@ import {
   ProviderResponseError,
   ProviderTransportError,
 } from '../../../domain/errors/data-provider.errors';
-import { SportDbConfigService } from '../config/sportdb.config';
+import { type SportDbConfigService } from '../config/sportdb.config';
 
 import { SportDbHttpClient, type FetchFn } from './sportdb-http.client';
 
@@ -59,9 +59,11 @@ describe('SportDbHttpClient', () => {
   });
 
   it('sends X-API-Key header and parses JSON', async () => {
-    const fetchFn = vi.fn<FetchFn>().mockResolvedValue(
-      new Response(JSON.stringify(loadFixture('player-search-messi.json')), { status: 200 }),
-    );
+    const fetchFn = vi
+      .fn<FetchFn>()
+      .mockResolvedValue(
+        new Response(JSON.stringify(loadFixture('player-search-messi.json')), { status: 200 }),
+      );
 
     const client = new SportDbHttpClient(createConfigService()).withFetchFn(fetchFn);
     const result = await client.getJson<{ results: unknown[] }>('search', {
@@ -99,9 +101,9 @@ describe('SportDbHttpClient', () => {
   it('maps 429 to ProviderRateLimitError without retrying past limit', async () => {
     const fetchFn = vi.fn<FetchFn>().mockResolvedValue(new Response('slow down', { status: 429 }));
 
-    const client = new SportDbHttpClient(createConfigService({ SPORTDB_RETRY_ATTEMPTS: 0 })).withFetchFn(
-      fetchFn,
-    );
+    const client = new SportDbHttpClient(
+      createConfigService({ SPORTDB_RETRY_ATTEMPTS: 0 }),
+    ).withFetchFn(fetchFn);
 
     await expect(client.getJson('search')).rejects.toThrow(ProviderRateLimitError);
   });
@@ -118,9 +120,9 @@ describe('SportDbHttpClient', () => {
   it('maps network failures to ProviderTransportError', async () => {
     const fetchFn = vi.fn<FetchFn>().mockRejectedValue(new Error('network down'));
 
-    const client = new SportDbHttpClient(createConfigService({ SPORTDB_RETRY_ATTEMPTS: 0 })).withFetchFn(
-      fetchFn,
-    );
+    const client = new SportDbHttpClient(
+      createConfigService({ SPORTDB_RETRY_ATTEMPTS: 0 }),
+    ).withFetchFn(fetchFn);
 
     await expect(client.getJson('search')).rejects.toThrow(ProviderTransportError);
   });

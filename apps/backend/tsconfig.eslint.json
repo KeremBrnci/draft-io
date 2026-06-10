@@ -3,5 +3,6 @@
   "compilerOptions": {
     "rootDir": "."
   },
-  "include": ["src/**/*", "test/**/*", "vitest.*.ts"]
+  "include": ["src/**/*", "test/**/*", "vitest.*.ts"],
+  "exclude": ["dist", "node_modules"]
 }

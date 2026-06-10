@@ -103,10 +103,8 @@ async function ensureCardCatalog(prisma: PrismaClient): Promise<CardCatalogIds> 
   };
 }
 
-async function loadLatestOverallByPlayerId(
-  prisma: PrismaClient,
-): Promise<Map<string, number>> {
-  const rows = await prisma.$queryRaw<Array<{ player_id: string; final_overall: number }>>`
+async function loadLatestOverallByPlayerId(prisma: PrismaClient): Promise<Map<string, number>> {
+  const rows = await prisma.$queryRaw<{ player_id: string; final_overall: number }[]>`
     SELECT DISTINCT ON (player_id)
       player_id,
       final_overall

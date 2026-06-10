@@ -15,11 +15,7 @@ import { AdminCoachesController } from './presentation/controllers/admin-coaches
   imports: [TeamsModule, LeaguesModule],
   controllers: [AdminCoachesController],
   providers: [
-    provideUseCase(BrowseCoachesUseCase, [
-      COACH_REPOSITORY,
-      TEAM_REPOSITORY,
-      LEAGUE_REPOSITORY,
-    ]),
+    provideUseCase(BrowseCoachesUseCase, [COACH_REPOSITORY, TEAM_REPOSITORY, LEAGUE_REPOSITORY]),
     {
       provide: COACH_REPOSITORY,
       useClass: PrismaCoachRepository,

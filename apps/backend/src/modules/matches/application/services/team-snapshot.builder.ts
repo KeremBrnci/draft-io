@@ -1,8 +1,8 @@
+import { type CalculateTeamStrengthUseCase } from '../../../draft/application/use-cases/calculate-team-strength.use-case';
 import type { DraftPoolRepository } from '../../../draft/domain/repositories/draft-pool.repository';
 import type { DraftSession } from '../../../draft/domain/repositories/draft-session.repository';
 import type { Formation } from '../../../formations/domain/entities/formation.entity';
 import type { LobbyParticipant } from '../../../lobbies/domain/entities/lobby-participant.entity';
-import { CalculateTeamStrengthUseCase } from '../../../draft/application/use-cases/calculate-team-strength.use-case';
 import type { MatchTeamSnapshot } from '../../../simulation/domain/models/match-simulation.types';
 
 export async function buildParticipantTeamSnapshot(input: {

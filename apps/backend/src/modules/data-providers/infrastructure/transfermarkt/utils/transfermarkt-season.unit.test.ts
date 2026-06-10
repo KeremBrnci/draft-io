@@ -19,9 +19,8 @@ describe('resolveTransfermarktSeasonId', () => {
 
 describe('resolveTransfermarktCompetitionSeasonCandidates', () => {
   it('returns current and previous season years', () => {
-    expect(resolveTransfermarktCompetitionSeasonCandidates(undefined, new Date('2026-06-09T12:00:00Z'))).toEqual([
-      '2025',
-      '2024',
-    ]);
+    expect(
+      resolveTransfermarktCompetitionSeasonCandidates(undefined, new Date('2026-06-09T12:00:00Z')),
+    ).toEqual(['2025', '2024']);
   });
 });

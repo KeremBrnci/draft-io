@@ -1,8 +1,8 @@
 import { CardNotFoundError } from '../../domain/errors/card.errors';
 import type { CardRepository } from '../../domain/repositories/card.repository';
 import { CardId } from '../../domain/value-objects/card-id.vo';
-import type { CardDetail } from '../read-models/card-detail';
 import type { GetCardByIdQuery } from '../queries/get-card-by-id.query';
+import type { CardDetail } from '../read-models/card-detail';
 import type { CardEnrichmentService } from '../services/card-enrichment.service';
 
 export class GetCardByIdUseCase {

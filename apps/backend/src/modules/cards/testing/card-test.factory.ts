@@ -1,12 +1,12 @@
-import { CardOverallSource } from '../domain/enums/card-overall-source.enum';
-import { Card } from '../domain/entities/card.entity';
-import type { CreateCardProps } from '../domain/entities/card.entity';
 import { CardRarity } from '../domain/entities/card-rarity.entity';
 import type { CreateCardRarityProps } from '../domain/entities/card-rarity.entity';
 import { CardTemplate } from '../domain/entities/card-template.entity';
 import type { CreateCardTemplateProps } from '../domain/entities/card-template.entity';
 import { CardType } from '../domain/entities/card-type.entity';
 import type { CreateCardTypeProps } from '../domain/entities/card-type.entity';
+import type { CreateCardProps } from '../domain/entities/card.entity';
+import { Card } from '../domain/entities/card.entity';
+import { CardOverallSource } from '../domain/enums/card-overall-source.enum';
 import { CardId } from '../domain/value-objects/card-id.vo';
 import { CardOverall } from '../domain/value-objects/card-overall.vo';
 import { CardVersion } from '../domain/value-objects/card-version.vo';
@@ -43,7 +43,9 @@ export function buildTestCardRarity(overrides: Partial<CreateCardRarityProps> = 
   });
 }
 
-export function buildTestCardTemplate(overrides: Partial<CreateCardTemplateProps> = {}): CardTemplate {
+export function buildTestCardTemplate(
+  overrides: Partial<CreateCardTemplateProps> = {},
+): CardTemplate {
   return CardTemplate.create({
     id: ReferenceId.create(TEST_CARD_TEMPLATE_ID),
     cardTypeId: ReferenceId.create(TEST_CARD_TYPE_ID),

@@ -4,25 +4,25 @@
 
 SportDB requests use the `X-API-Key` header.
 
-| Variable | Required | Default |
-|----------|----------|---------|
-| `SPORTDB_API_KEY` | Yes (for live calls) | — |
-| `SPORTDB_BASE_URL` | No | `https://api.sportdb.dev/api/flashscore` |
-| `SPORTDB_RPS_LIMIT` | No | `2` (conservative vs free-tier 3 RPS) |
-| `SPORTDB_TIMEOUT_MS` | No | `10000` |
-| `SPORTDB_RETRY_ATTEMPTS` | No | `2` |
+| Variable                 | Required             | Default                                  |
+| ------------------------ | -------------------- | ---------------------------------------- |
+| `SPORTDB_API_KEY`        | Yes (for live calls) | —                                        |
+| `SPORTDB_BASE_URL`       | No                   | `https://api.sportdb.dev/api/flashscore` |
+| `SPORTDB_RPS_LIMIT`      | No                   | `2` (conservative vs free-tier 3 RPS)    |
+| `SPORTDB_TIMEOUT_MS`     | No                   | `10000`                                  |
+| `SPORTDB_RETRY_ATTEMPTS` | No                   | `2`                                      |
 
 If `SPORTDB_API_KEY` is missing, the application still boots in development/test. SportDB calls fail with `ProviderConfigurationError`.
 
 ## Supported Routes
 
-| Operation | Route |
-|-----------|-------|
-| Player search | `GET /search?q={query}&type=player` |
-| Team search | `GET /search?q={query}&type=team` |
+| Operation          | Route                                    |
+| ------------------ | ---------------------------------------- |
+| Player search      | `GET /search?q={query}&type=player`      |
+| Team search        | `GET /search?q={query}&type=team`        |
 | Competition search | `GET /search?q={query}&type=competition` |
-| Player detail | `GET /player/{playerSlug}/{playerId}` |
-| Team detail | `GET /team/{teamSlug}/{teamId}` |
+| Player detail      | `GET /player/{playerSlug}/{playerId}`    |
+| Team detail        | `GET /team/{teamSlug}/{teamId}`          |
 
 Competition detail routes are path-dependent (country/competition segments). League import currently maps **search results only**.
 

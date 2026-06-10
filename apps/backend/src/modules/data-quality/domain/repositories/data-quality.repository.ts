@@ -16,7 +16,10 @@ export interface DataQualitySummary {
   readonly playersWithoutAge: number;
   readonly playersByCompetition: readonly { readonly leagueName: string; readonly count: number }[];
   readonly playersByPosition: readonly { readonly position: string; readonly count: number }[];
-  readonly playersByNationality: readonly { readonly nationality: string; readonly count: number }[];
+  readonly playersByNationality: readonly {
+    readonly nationality: string;
+    readonly count: number;
+  }[];
   readonly marketValueDistribution: readonly { readonly bucket: string; readonly count: number }[];
   readonly ageDistribution: readonly { readonly bucket: string; readonly count: number }[];
 }
