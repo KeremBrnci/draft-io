@@ -33,6 +33,7 @@
     "db:sync-player-positions": "nest build && node dist/cli/sync-player-positions.js",
     "db:normalize-player-positions": "nest build && node dist/cli/normalize-player-positions.js",
     "db:studio": "prisma studio",
+    "postinstall": "prisma generate",
     "db:audit-nationalities": "tsx scripts/audit-nationality-translations.ts",
     "sportdb:smoke": "tsx scripts/sportdb-smoke.ts",
     "transfermarkt:smoke": "tsx scripts/transfermarkt-smoke.ts"
@@ -69,5 +70,8 @@
     "tsx": "^4.20.6",
     "unplugin-swc": "^1.5.5",
     "vitest": "^3.2.1"
+  },
+  "prisma": {
+    "schema": "prisma/schema.prisma"
   }
 }

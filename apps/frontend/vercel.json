@@ -1,0 +1,6 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "installCommand": "cd ../.. && PRISMA_SKIP_POSTINSTALL_GENERATE=true pnpm install:vercel",
+  "buildCommand": "cd ../.. && pnpm build:vercel",
+  "framework": "nextjs"
+}

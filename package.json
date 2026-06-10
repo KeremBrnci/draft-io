@@ -19,7 +19,9 @@
     "test:e2e": "pnpm --filter @draft-io/backend test:e2e && pnpm --filter @draft-io/frontend test:e2e",
     "test:coverage": "pnpm --filter @draft-io/backend test:coverage",
     "architecture:check": "depcruise apps/backend/src --config .dependency-cruiser.cjs",
-    "clean": "pnpm -r exec rm -rf dist build .next coverage"
+    "clean": "pnpm -r exec rm -rf dist build .next coverage",
+    "install:vercel": "pnpm install --frozen-lockfile --filter @draft-io/frontend...",
+    "build:vercel": "pnpm --filter @draft-io/shared-types build && pnpm --filter @draft-io/shared-utils build && pnpm --filter @draft-io/frontend build"
   },
   "devDependencies": {
     "dependency-cruiser": "^16.10.1",
@@ -37,5 +39,8 @@
     "node": ">=20.0.0",
     "pnpm": ">=9.0.0"
   },
-  "packageManager": "pnpm@9.15.9"
+  "packageManager": "pnpm@9.15.9",
+  "pnpm": {
+    "neverBuiltDependencies": ["@prisma/client"]
+  }
 }
