@@ -1,17 +1,16 @@
 'use client';
 
+import type { FormationSelectionStateDto } from '@draft-io/shared-types';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { FormationCard } from '@/components/formations/formation-card';
-import { getFormationSelection, selectFormation, startDraft } from '@/lib/api/formation-selection';
+import { PlayGameBackdrop } from '@/components/play/play-game-backdrop';
 import { ApiClientError } from '@/lib/api/client';
+import { getFormationSelection, selectFormation, startDraft } from '@/lib/api/formation-selection';
 import { clearLobbySession, readLobbySession } from '@/lib/lobby-session';
 import { useRoomSocket } from '@/lib/room-socket';
-import type { FormationSelectionStateDto } from '@draft-io/shared-types';
-
-import { PlayGameBackdrop } from '@/components/play/play-game-backdrop';
 
 import '../../../play.css';
 
@@ -197,8 +196,8 @@ export default function FormationSelectionPage(): React.ReactElement {
                     key={formation.id}
                     formation={formation}
                     selected={isSelected}
-                    locked={hasLockedSelection === true && isSelected}
-                    disabled={hasLockedSelection === true || selectingId !== null}
+                    locked={hasLockedSelection && isSelected}
+                    disabled={hasLockedSelection || selectingId !== null}
                     onSelect={() => void handleSelectFormation(formation.id)}
                   />
                 );

@@ -4,9 +4,10 @@ import type { DraftPickOptionDto } from '@draft-io/shared-types';
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 
+import { mapCardTypeToVariant } from './map-card-type-to-variant';
+
 import { FootballCard } from '@/components/cards/football-card';
 
-import { mapCardTypeToVariant } from './map-card-type-to-variant';
 
 interface DraftPickDrawerProps {
   readonly slotLabel: string;
@@ -104,7 +105,7 @@ export function DraftPickDrawer({
                   className={`draft-pick-drawer__option${isPicking ? ' draft-pick-drawer__option--picking' : ''}${isDisabled ? ' draft-pick-drawer__option--dimmed' : ''}`}
                   style={{ animationDelay: `${index * 70}ms` }}
                   disabled={pickingCardId !== null}
-                  onClick={() => onPick(option.cardId)}
+                  onClick={() => { onPick(option.cardId); }}
                 >
                   <span className="draft-pick-drawer__option-ring" aria-hidden />
                   <span className="draft-pick-drawer__option-shine" aria-hidden />

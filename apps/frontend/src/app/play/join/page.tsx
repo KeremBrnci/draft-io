@@ -4,10 +4,10 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
+import { PlayGameBackdrop } from '@/components/play/play-game-backdrop';
 import { joinLobby } from '@/lib/api/lobbies';
 import { readLobbySession, readSavedDisplayName, saveLobbySession } from '@/lib/lobby-session';
 
-import { PlayGameBackdrop } from '@/components/play/play-game-backdrop';
 
 import '../play.css';
 
@@ -30,7 +30,7 @@ export default function JoinLobbyPage(): React.ReactElement {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>): Promise<void> {
+  async function handleSubmit(event: React.SubmitEvent<HTMLFormElement>): Promise<void> {
     event.preventDefault();
     setLoading(true);
     setError(null);
@@ -82,7 +82,7 @@ export default function JoinLobbyPage(): React.ReactElement {
             <input
               id="lobby-code"
               value={code}
-              onChange={(event) => setCode(event.target.value.toUpperCase())}
+              onChange={(event) => { setCode(event.target.value.toUpperCase()); }}
               placeholder="ABC123"
               minLength={6}
               maxLength={6}
@@ -95,7 +95,7 @@ export default function JoinLobbyPage(): React.ReactElement {
             <input
               id="display-name"
               value={displayName}
-              onChange={(event) => setDisplayName(event.target.value)}
+              onChange={(event) => { setDisplayName(event.target.value); }}
               placeholder="Misafir"
               minLength={2}
               maxLength={40}

@@ -31,7 +31,6 @@ export function EntityImage({
   }
 
   return (
-    // eslint-disable-next-line @next/next/no-img-element -- external CDN avatars; no Next image optimizer config required
     <img
       className={classes}
       src={src}

@@ -63,6 +63,13 @@ export default tseslint.config(
             'sibling',
             'index',
           ],
+          pathGroups: [
+            {
+              pattern: '@draft-io/**',
+              group: 'external',
+              position: 'before',
+            },
+          ],
           'newlines-between': 'always',
           alphabetize: { order: 'asc', caseInsensitive: true },
         },
@@ -76,6 +83,12 @@ export default tseslint.config(
       globals: {
         ...globals.browser,
       },
+    },
+    rules: {
+      '@typescript-eslint/restrict-template-expressions': [
+        'error',
+        { allowNumber: true },
+      ],
     },
   },
   {

@@ -1,9 +1,9 @@
 'use client';
 
+import type { RoomEventNameDto } from '@draft-io/shared-types';
 import { useEffect, useRef } from 'react';
 import { io, type Socket } from 'socket.io-client';
 
-import type { RoomEventNameDto } from '@draft-io/shared-types';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
 

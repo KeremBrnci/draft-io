@@ -4,12 +4,12 @@ import type { CoachBrowserItemDto, CoachSortFieldDto } from '@draft-io/shared-ty
 import { translateCoachRole, translateNationality } from '@draft-io/shared-utils';
 import { useCallback, useEffect, useState } from 'react';
 
-import { FilterRowSkeleton } from '@/components/admin/admin-skeletons';
 import { AdminPageHeader } from '@/components/admin/admin-page-header';
+import { FilterRowSkeleton } from '@/components/admin/admin-skeletons';
 import { DataTable, type DataTableColumn } from '@/components/admin/data-table';
 import { EntityImage } from '@/components/admin/entity-image';
-import { browseCoaches } from '@/lib/api/coaches';
 import { listLeagues, listTeams, type LeagueSummaryDto, type TeamSummaryDto } from '@/lib/api/catalog';
+import { browseCoaches } from '@/lib/api/coaches';
 
 const SORTABLE_COLUMNS = new Set<string>(['name', 'age', 'appointedDate', 'createdAt', 'updatedAt']);
 

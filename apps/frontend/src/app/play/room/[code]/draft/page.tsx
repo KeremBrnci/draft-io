@@ -1,5 +1,10 @@
 'use client';
 
+import type {
+  DraftBoardStateDto,
+  DraftPickOptionDto,
+  DraftPickOptionsDto,
+} from '@draft-io/shared-types';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -9,16 +14,11 @@ import { DraftPitchBoard } from '@/components/draft/draft-pitch-board';
 import { DraftStatsPanel } from '@/components/draft/draft-stats-panel';
 import '@/components/draft/draft.css';
 import { PlayGameBackdrop } from '@/components/play/play-game-backdrop';
-import { applyDraftPick, getDraftBoard, getDraftPickOptions } from '@/lib/api/draft';
 import { ApiClientError } from '@/lib/api/client';
+import { applyDraftPick, getDraftBoard, getDraftPickOptions } from '@/lib/api/draft';
 import { setParticipantReady } from '@/lib/api/lobbies';
 import { clearLobbySession, readLobbySession } from '@/lib/lobby-session';
 import { useRoomSocket } from '@/lib/room-socket';
-import type {
-  DraftBoardStateDto,
-  DraftPickOptionDto,
-  DraftPickOptionsDto,
-} from '@draft-io/shared-types';
 
 import '../../../play.css';
 

@@ -208,8 +208,12 @@ export function extractTransfermarktPortraitUrlsFromHtml(html: string): Readonly
   for (const match of html.matchAll(pattern)) {
     const externalId = match[1];
     const version = match[2];
-    const extension = match[3] as 'jpg' | 'png';
-    const headerUrl = buildTransfermarktPlayerPortraitUrl(externalId, version, extension);
+    const extension = match[3];
+    if (externalId === undefined || version === undefined || extension === undefined) {
+      continue;
+    }
+
+    const headerUrl = buildTransfermarktPlayerPortraitUrl(externalId, version, extension as 'jpg' | 'png');
 
     if (headerUrl !== null) {
       portraits.set(externalId, headerUrl);

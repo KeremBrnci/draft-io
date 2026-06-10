@@ -3,9 +3,9 @@
 import type { CardEntityKind, CardFaceData, CardVariant } from '@draft-io/shared-types';
 import { useState } from 'react';
 
-import { CARD_VARIANT_THEMES } from './card-variant-themes';
 import { CardFootballIcon } from './card-football-icon';
 import { FC_CARD_CLIP_ID, FootballCardSilhouetteDefs } from './card-silhouette';
+import { CARD_VARIANT_THEMES } from './card-variant-themes';
 import { formatCardNameForDisplay } from './format-card-name';
 import { formatLeagueIndicator } from './format-league-indicator';
 

@@ -29,7 +29,8 @@ export function formatLeagueIndicator(leagueName: string | null): string | null 
   const words = trimmed.split(/\s+/).filter((word) => word.length > 0);
 
   if (words.length === 1) {
-    return words[0]!.slice(0, 3).toUpperCase();
+    const single = words[0];
+    return single === undefined ? null : single.slice(0, 3).toUpperCase();
   }
 
   return words

@@ -1,18 +1,17 @@
 'use client';
 
+import type { CoachSelectionStateDto } from '@draft-io/shared-types';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import '@/components/league/league.css';
 import { CoachCard } from '@/components/cards';
-import { getCoachSelection, selectCoach } from '@/lib/api/coach-selection';
+import { PlayGameBackdrop } from '@/components/play/play-game-backdrop';
 import { ApiClientError } from '@/lib/api/client';
+import { getCoachSelection, selectCoach } from '@/lib/api/coach-selection';
 import { clearLobbySession, readLobbySession } from '@/lib/lobby-session';
 import { useRoomSocket } from '@/lib/room-socket';
-import type { CoachSelectionStateDto } from '@draft-io/shared-types';
-
-import { PlayGameBackdrop } from '@/components/play/play-game-backdrop';
 
 import '../../../play.css';
 

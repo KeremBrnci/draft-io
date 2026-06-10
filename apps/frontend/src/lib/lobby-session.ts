@@ -50,7 +50,8 @@ function migrateLegacySession(): void {
   }
 
   try {
-    const session = JSON.parse(legacy) as StoredLobbySession;
+    const session = JSON.parse(legacy) as Partial<StoredLobbySession> &
+      Pick<StoredLobbySession, 'lobbyCode' | 'participantId' | 'sessionToken' | 'displayName'>;
     const code = normalizeCode(session.lobbyCode);
     const store = JSON.parse(window.localStorage.getItem(SESSIONS_KEY) ?? '{}') as SessionStore;
     store[code] = { ...session, lobbyCode: code, savedAt: session.savedAt ?? new Date().toISOString() };
@@ -93,8 +94,8 @@ export function clearLobbySession(lobbyCode: string): void {
 
   const code = normalizeCode(lobbyCode);
   const store = readStore();
-  delete store[code];
-  writeStore(store);
+  const { [code]: _removed, ...rest } = store;
+  writeStore(rest);
 }
 
 export function saveDisplayName(displayName: string): void {

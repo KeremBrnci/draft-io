@@ -4,8 +4,8 @@ import type { AdminDashboardMetricsDto } from '@draft-io/shared-types';
 import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
 
-import { StatCardsSkeleton } from '@/components/admin/admin-skeletons';
 import { AdminPageHeader } from '@/components/admin/admin-page-header';
+import { StatCardsSkeleton } from '@/components/admin/admin-skeletons';
 import { getDashboardMetrics } from '@/lib/api/dashboard';
 
 const QUICK_LINKS = [

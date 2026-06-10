@@ -16,10 +16,14 @@ export function listDataQualityIssues(params: {
   pageSize?: number;
 } = {}): Promise<PaginatedResponse<DataQualityIssueDto>> {
   const search = new URLSearchParams();
-  for (const [key, value] of Object.entries(params)) {
-    if (value !== undefined) {
-      search.set(key, String(value));
-    }
+  if (params.issueCode !== undefined) {
+    search.set('issueCode', params.issueCode);
+  }
+  if (params.page !== undefined) {
+    search.set('page', String(params.page));
+  }
+  if (params.pageSize !== undefined) {
+    search.set('pageSize', String(params.pageSize));
   }
   const query = search.toString();
   const path = query.length > 0 ? `/admin/data-quality/issues?${query}` : '/admin/data-quality/issues';

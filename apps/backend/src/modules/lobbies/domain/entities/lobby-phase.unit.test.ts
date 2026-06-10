@@ -8,7 +8,6 @@ import { LobbyCode } from '../../domain/value-objects/lobby-code.vo';
 import { LobbyId } from '../../domain/value-objects/lobby-id.vo';
 import { LobbyName } from '../../domain/value-objects/lobby-name.vo';
 import { ParticipantDisplayName } from '../../domain/value-objects/participant-display-name.vo';
-import { LobbyCode } from '../../domain/value-objects/lobby-code.vo';
 import { FormationPoolService } from '../../domain/services/formation-pool.service';
 import { getAllFormations } from '../../../formations/domain/constants/formation-templates';
 

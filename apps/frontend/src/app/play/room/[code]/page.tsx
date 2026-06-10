@@ -1,15 +1,14 @@
 'use client';
 
+import type { LobbySummaryDto } from '@draft-io/shared-types';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { getLobbyByCode, setParticipantReady, startLobby } from '@/lib/api/lobbies';
-import { ApiClientError } from '@/lib/api/client';
-import { clearLobbySession, readLobbySession, type StoredLobbySession } from '@/lib/lobby-session';
-import type { LobbySummaryDto } from '@draft-io/shared-types';
-
 import { PlayGameBackdrop } from '@/components/play/play-game-backdrop';
+import { ApiClientError } from '@/lib/api/client';
+import { getLobbyByCode, setParticipantReady, startLobby } from '@/lib/api/lobbies';
+import { clearLobbySession, readLobbySession, type StoredLobbySession } from '@/lib/lobby-session';
 
 import '../../play.css';
 
@@ -20,10 +19,18 @@ function playerInitials(name: string): string {
   if (parts.length === 0) {
     return '?';
   }
+
+  const first = parts[0];
   if (parts.length === 1) {
-    return parts[0]!.slice(0, 2).toUpperCase();
+    return first === undefined ? '?' : first.slice(0, 2).toUpperCase();
   }
-  return `${parts[0]![0] ?? ''}${parts[1]![0] ?? ''}`.toUpperCase();
+
+  const second = parts[1];
+  if (first === undefined || second === undefined) {
+    return '?';
+  }
+
+  return `${first[0] ?? ''}${second[0] ?? ''}`.toUpperCase();
 }
 
 function statusLabel(status: LobbySummaryDto['status']): string {
@@ -146,7 +153,7 @@ export default function LobbyRoomPage(): React.ReactElement {
   }, [code, loadLobby]);
 
   const currentParticipant = useMemo(() => {
-    if (lobby === null || session === null || session.lobbyCode !== code) {
+    if (lobby === null || session?.lobbyCode !== code) {
       return null;
     }
     return lobby.participants.find((participant) => participant.id === session.participantId) ?? null;
@@ -224,7 +231,7 @@ export default function LobbyRoomPage(): React.ReactElement {
     try {
       await navigator.clipboard.writeText(code);
       setCopied(true);
-      window.setTimeout(() => setCopied(false), 2000);
+      window.setTimeout(() => { setCopied(false); }, 2000);
     } catch {
       setActionError('Kod kopyalanamadı.');
     }

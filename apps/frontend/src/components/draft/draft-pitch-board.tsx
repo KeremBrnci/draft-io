@@ -1,9 +1,10 @@
 import type { DraftBoardStateDto, DraftSlotStateDto } from '@draft-io/shared-types';
 
-import { FootballCard } from '@/components/cards/football-card';
 
 import { DraftEmptyCard } from './draft-empty-card';
 import { mapCardTypeToVariant } from './map-card-type-to-variant';
+
+import { FootballCard } from '@/components/cards/football-card';
 
 interface DraftPitchBoardProps {
   readonly board: DraftBoardStateDto;

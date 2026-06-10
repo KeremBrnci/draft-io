@@ -8,14 +8,16 @@ export interface LiveMatchAlert {
   readonly label: string;
 }
 
-const ALERT_EVENT_TYPES = new Set<MatchEventDto['eventType']>(['GOAL_CHANCE', 'PENALTY']);
-
 export function getActiveLiveMatchAlert(events: readonly MatchEventDto[]): LiveMatchAlert | null {
   if (events.length === 0) {
     return null;
   }
 
   const latest = events[events.length - 1];
+  if (latest === undefined) {
+    return null;
+  }
+
   if (latest.eventType !== 'GOAL_CHANCE' && latest.eventType !== 'PENALTY') {
     return null;
   }

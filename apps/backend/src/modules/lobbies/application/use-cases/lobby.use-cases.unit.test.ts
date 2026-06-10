@@ -1,6 +1,8 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 
 import { getAllFormations } from '../../../formations/domain/constants/formation-templates';
+import type { GetDraftSessionByLobbyUseCase } from '../../../draft/application/use-cases/get-draft-session-by-lobby.use-case';
+import type { CheckDraftCompletionUseCase } from '../../../matches/application/use-cases/room-league.use-cases';
 import { InMemoryFormationRepository } from '../../../formations/infrastructure/persistence/in-memory-formation.repository';
 import { Lobby } from '../../domain/entities/lobby.entity';
 import { RoomPhase } from '../../domain/enums/room-phase.enum';
@@ -137,8 +139,8 @@ class FakeCheckDraftCompletionUseCase {
 function createReadyUseCase(repository: InMemoryLobbyRepository): SetParticipantReadyUseCase {
   return new SetParticipantReadyUseCase(
     repository,
-    new FakeGetDraftSessionByLobbyUseCase(),
-    new FakeCheckDraftCompletionUseCase(),
+    new FakeGetDraftSessionByLobbyUseCase() as unknown as GetDraftSessionByLobbyUseCase,
+    new FakeCheckDraftCompletionUseCase() as unknown as CheckDraftCompletionUseCase,
     new FakeRoomEventsPublisher(),
   );
 }

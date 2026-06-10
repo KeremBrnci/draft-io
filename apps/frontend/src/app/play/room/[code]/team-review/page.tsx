@@ -1,17 +1,16 @@
 'use client';
 
+import type { TeamReviewStateDto } from '@draft-io/shared-types';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import '@/components/league/league.css';
-import { getTeamReview, startLeague } from '@/lib/api/league';
+import { PlayGameBackdrop } from '@/components/play/play-game-backdrop';
 import { ApiClientError } from '@/lib/api/client';
+import { getTeamReview, startLeague } from '@/lib/api/league';
 import { clearLobbySession, readLobbySession } from '@/lib/lobby-session';
 import { useRoomSocket } from '@/lib/room-socket';
-import type { TeamReviewStateDto } from '@draft-io/shared-types';
-
-import { PlayGameBackdrop } from '@/components/play/play-game-backdrop';
 
 import '../../../play.css';
 
