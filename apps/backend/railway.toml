@@ -1,6 +1,6 @@
 [build]
 builder = "nixpacks"
-buildCommand = "cd ../.. && corepack enable && pnpm install --frozen-lockfile --filter @draft-io/backend... && pnpm build:railway"
+buildCommand = "cd ../.. && pnpm build:railway"
 watchPatterns = [
   "/apps/backend/**",
   "/packages/shared-types/**",
