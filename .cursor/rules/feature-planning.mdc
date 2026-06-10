@@ -1,0 +1,228 @@
+---
+description: Feature planning workflow for new draft.io capabilities
+alwaysApply: false
+---
+
+# Feature Planning
+
+## Governance
+
+Implements lifecycle Steps 1–5 in `docs/architecture/ai-constitution.md`. Required before major feature implementation.
+
+| Document | Path |
+|----------|------|
+| AI Constitution | `docs/architecture/ai-constitution.md` |
+| Workflow | `.cursor/rules/workflow.mdc` |
+| Universal agent instructions | `AGENTS.md` |
+| Project context skill (load first) | `.claude/skills/project-context/SKILL.md` |
+| Feature lifecycle | `docs/architecture/feature-lifecycle.md` |
+
+Use `feature-planning` skill. Never skip planning for lobby, draft, simulation, chemistry, or leagues.
+
+## Purpose
+
+Guide how new features are scoped, designed, and implemented in draft.io. Every feature — from a new aggregate to match simulation — follows a predictable path from game design doc to bounded context module, minimizing rework and architecture drift.
+
+## Required Behavior
+
+### Planning Phases
+
+```
+1. Game Design    → docs/game-design/{feature}.md
+2. Architecture   → Identify bounded context, module, cross-module deps
+3. Domain Model   → Entities, value objects, invariants, errors
+4. API Contract   → shared-types, DTOs, endpoints
+5. Implementation → Domain → Application → Infrastructure → Presentation
+6. Tests          → Unit → Integration → E2E
+7. Documentation  → Update status from "Not implemented" to "Implemented"
+```
+
+### Step 1: Game Design Document
+
+Before writing code, create or update `docs/game-design/{feature}.md` with:
+
+- **Purpose** — What player problem does this solve?
+- **Rules** — Concrete game mechanics and constraints.
+- **Current State** — Honest implementation status.
+- **Inputs/Outputs** — Tables mapping fields to domain sources.
+- **Open Questions** — Explicitly list undecided items.
+
+Reference existing docs: `players.md`, `formations.md`, `draft-system.md`, `match-simulation.md`, `chemistry-system.md`.
+
+### Step 2: Architecture Decision
+
+Answer these before coding:
+
+| Question | Guidance |
+|----------|----------|
+| Which bounded context? | One module per aggregate/service (`players`, `draft`, `simulation`) |
+| New module or extend existing? | New aggregate → new module; shared vocabulary → extend `positions` |
+| Cross-module deps? | List modules referenced by ID; plan application-layer validation |
+| Persistence needed? | Prisma model + migration, or in-memory (like `formations`) |
+| Events needed? | Plan domain events for cross-module notifications |
+| API surface? | REST endpoints, WebSocket channels, or internal-only service |
+
+Check `docs/architecture/game-domain-overview.md` for module interaction map.
+Run `pnpm architecture:check` after adding module imports.
+
+### Step 3: Domain Model Design
+
+Define before implementation:
+
+- **Aggregate roots** and their invariants.
+- **Value objects** with validation rules and error types.
+- **Repository ports** (methods needed, not ORM details).
+- **Domain errors** with `code` following naming conventions.
+- **Factory methods**: `create` (new) and `reconstitute` (from persistence).
+
+Copy structure from `players/` module as template.
+
+### Step 4: API Contract
+
+- Add response/request types to `packages/shared-types`.
+- Define DTOs with class-validator decorators.
+- Plan response mappers (domain entity → API type).
+- Document endpoints: method, path, request body, response shape, error codes.
+
+### Step 5: Implementation Order
+
+Always implement inside-out:
+
+1. `domain/` — entities, value objects, errors, repository interfaces
+2. `domain/*.unit.test.ts` — test all invariants
+3. `application/` — commands, queries, use cases
+4. `application/*.unit.test.ts` — test with mocked repos
+5. `infrastructure/` — mappers, Prisma repositories (+ migration if needed)
+6. `infrastructure/*.integration.test.ts` — test persistence round-trip
+7. `presentation/` — DTOs, controllers, response mappers
+8. `test/e2e/` — HTTP contract tests
+9. `{module}.module.ts` — wire everything
+10. Register in `app.module.ts`
+
+### Step 6: Frontend (if applicable)
+
+- Add API client methods in `lib/api/`.
+- Build Server Components first; add client components only for interactivity.
+- Handle loading, error, and empty states.
+
+### Module Status Tracking
+
+Update `docs/architecture/overview.md` planned modules table:
+
+| Status | Meaning |
+|--------|---------|
+| Placeholder | Module file exists, no domain logic |
+| Example | Reference implementation (`players`) |
+| Implemented | Full CRUD/lifecycle with tests |
+| Future | Documented but no module yet |
+
+### Sizing Guidelines
+
+| Size | Scope | Example |
+|------|-------|---------|
+| Small | Single value object or use case | Add `PlayerNickname` VO |
+| Medium | Full CRUD aggregate | `nations` module |
+| Large | Cross-module workflow | Draft system (lobbies + draft + teams) |
+| XL | Split into multiple PRs | Match simulation + chemistry + matches |
+
+Large features must be split using the PR split plan before implementation begins.
+
+## Forbidden Patterns
+
+- Coding before game design doc exists (even for "simple" features).
+- Creating a "shared" or "common" module for business logic.
+- Implementing presentation layer before domain is tested.
+- Adding Prisma models without domain entities first.
+- Building frontend before API contract is in shared-types.
+- Implementing cross-module joins to "save time".
+- Scope creep — adding unrelated improvements in the same PR.
+- Skipping integration tests for new repositories.
+
+## Good Examples
+
+```markdown
+# Feature: Nations Module
+
+## Architecture
+- Bounded context: `nations` (new module)
+- Cross-deps: referenced by `leagues` (nationId), future chemistry
+- Persistence: Prisma model `Nation`, UUID PK
+
+## Domain Model
+- Entity: `Nation` (id, name)
+- Value objects: `NationId`, `NationName`
+- Errors: `NationNotFoundError`, `InvalidNationNameError`
+- Port: `NationRepository` (findById, findAll, save)
+
+## API
+- GET /api/v1/nations → ApiResponse<NationSummary[]>
+- GET /api/v1/nations/:id → ApiResponse<NationSummary>
+
+## Implementation Order
+1. domain/ + unit tests
+2. application/ + unit tests
+3. infrastructure/ + integration tests
+4. presentation/ + e2e tests
+5. Update docs/architecture/overview.md status
+```
+
+```typescript
+// Good: domain first, tested, then application
+// Step 1: NationName value object + unit test
+// Step 2: Nation entity + unit test
+// Step 3: CreateNationUseCase + unit test with mock repo
+// Step 4: PrismaNationRepository + integration test
+// Step 5: NationsController + e2e test
+```
+
+## Bad Examples
+
+```markdown
+# Feature: Draft System
+
+Let's build the UI first so we can see how it looks.
+We'll figure out the pick order algorithm later.
+```
+
+```typescript
+// BAD: starting from controller without domain
+@Controller('draft')
+export class DraftController {
+  constructor(private readonly prisma: PrismaService) {}
+
+  @Post('pick')
+  async pick(@Body() body: { playerId: string }) {
+    // pick logic directly here
+  }
+}
+```
+
+```markdown
+# BAD: no current state section
+# Match Simulation
+The engine uses tick-based physics with 90-minute resolution.
+(Fully aspirational — nothing implemented)
+```
+
+## Checklist
+
+### Before Coding
+- [ ] Game design doc created/updated in `docs/game-design/`
+- [ ] Bounded context and module identified
+- [ ] Cross-module dependencies mapped (IDs only)
+- [ ] Domain model sketched (entities, VOs, errors, ports)
+- [ ] API contract defined in shared-types
+- [ ] Feature sized; large features split into PRs
+
+### During Implementation
+- [ ] Following inside-out order: domain → application → infrastructure → presentation
+- [ ] Unit tests written alongside domain and application code
+- [ ] Repository integration tests for persistence
+- [ ] `pnpm architecture:check` passes
+
+### After Implementation
+- [ ] E2E tests for HTTP endpoints
+- [ ] Docs updated: game design status, architecture overview table
+- [ ] Frontend integrated (if applicable) via `lib/api/`
+- [ ] No placeholder TODOs for core business logic
+- [ ] PR follows code-review checklist

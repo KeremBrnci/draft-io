@@ -1,0 +1,173 @@
+---
+description: NestJS backend conventions for Clean Architecture modules
+globs: apps/backend/**
+alwaysApply: false
+---
+
+# Backend
+
+## Governance
+
+Subordinate to `docs/architecture/ai-constitution.md` (priority 5). Mandatory workflow: `.cursor/rules/workflow.mdc`.
+
+| Document | Path |
+|----------|------|
+| AI Constitution | `docs/architecture/ai-constitution.md` |
+| Workflow | `.cursor/rules/workflow.mdc` |
+| Universal agent instructions | `AGENTS.md` |
+| Project context skill | `.claude/skills/project-context/SKILL.md` |
+
+Load `project-context` before backend work. Use `backend` and `nest-module` skills during implementation.
+
+## Purpose
+
+Guide implementation of the NestJS backend (`@draft-io/backend`): HTTP APIs, use cases, domain logic, and persistence. Controllers are thin adapters; all business rules live in domain entities and use cases.
+
+## Required Behavior
+
+### API Conventions
+
+- Global prefix: `api/v1` (set in `main.ts`).
+- All successful responses wrap data in `{ data: T }` using `ApiResponse<T>` from `@draft-io/shared-types`.
+- Use appropriate HTTP verbs: `POST` create (201), `GET` read, `PATCH` partial update, `DELETE` remove.
+- DTOs use `class-validator` decorators; global `ValidationPipe` enforces `whitelist`, `forbidNonWhitelisted`, `transform`.
+
+### Controllers
+
+- One controller per aggregate, named `{Aggregate}Controller` in `presentation/controllers/`.
+- Inject **use cases only** — never repositories or Prisma directly.
+- Map domain entities to API types via `presentation/mappers/`, not inline in controllers.
+- Let `HttpExceptionFilter` + `mapDomainErrorToHttpStatus` translate domain errors to HTTP.
+
+### Use Cases
+
+- One class per operation: `CreatePlayerUseCase`, `ListPlayersUseCase`.
+- Single public method: `execute(command | query)`.
+- Accept plain command/query objects from `application/commands/` or `application/queries/`.
+- Throw domain errors (`PlayerNotFoundError`), never `HttpException`.
+
+### Domain Errors
+
+- Extend `DomainError` with a `readonly code` string.
+- Follow naming conventions for HTTP mapping:
+  - `*_NOT_FOUND` → 404
+  - `INVALID_*` → 400
+  - `CONFLICT_*` → 409
+  - default → 422
+
+### Repository Ports
+
+- Define interface + injection token in `domain/repositories/`.
+- Token pattern: `export const PLAYER_REPOSITORY = Symbol('PLAYER_REPOSITORY');`
+- Implement in `infrastructure/persistence/prisma-{entity}.repository.ts`.
+
+### Module Wiring
+
+- `{module}.module.ts` is the **only** file that binds infrastructure to domain ports.
+- Export use cases and repository tokens if other modules need them.
+- Register module in `app.module.ts`.
+
+### Logging & Config
+
+- Use `LoggerService` from `common/logging/` — not `console.log`.
+- Environment variables via `@nestjs/config`; never hardcode secrets or connection strings.
+
+## Forbidden Patterns
+
+- `@Injectable()` on use case classes.
+- Injecting `PrismaService` into controllers or use cases.
+- Returning Prisma models from use cases or controllers.
+- Catching domain errors in controllers and re-mapping manually.
+- `any` types in domain or application layers.
+- Skipping DTO validation with raw `@Body() body: Record<string, unknown>`.
+- Global state or singletons for request-scoped data.
+
+## Good Examples
+
+```typescript
+// presentation/controllers/players.controller.ts
+@Controller('players')
+export class PlayersController {
+  constructor(private readonly createPlayerUseCase: CreatePlayerUseCase) {}
+
+  @Post()
+  @HttpCode(HttpStatus.CREATED)
+  async create(@Body() dto: CreatePlayerDto): Promise<ApiResponse<PlayerSummary>> {
+    const player = await this.createPlayerUseCase.execute({
+      name: dto.name,
+      position: dto.position,
+      overallRating: dto.overallRating,
+    });
+    return { data: toPlayerSummary(player) };
+  }
+}
+```
+
+```typescript
+// domain/repositories/player.repository.ts
+export interface PlayerRepository {
+  findById(id: PlayerId): Promise<Player | null>;
+  findAll(): Promise<readonly Player[]>;
+  save(player: Player): Promise<void>;
+}
+
+export const PLAYER_REPOSITORY = Symbol('PLAYER_REPOSITORY');
+```
+
+```typescript
+// application/use-cases/get-player-by-id.use-case.ts
+export class GetPlayerByIdUseCase {
+  constructor(private readonly playerRepository: PlayerRepository) {}
+
+  async execute(query: GetPlayerByIdQuery): Promise<Player> {
+    const id = PlayerId.create(query.playerId);
+    const player = await this.playerRepository.findById(id);
+    if (player === null) {
+      throw new PlayerNotFoundError(query.playerId);
+    }
+    return player;
+  }
+}
+```
+
+## Bad Examples
+
+```typescript
+// BAD: controller talks to Prisma
+@Controller('players')
+export class PlayersController {
+  constructor(private readonly prisma: PrismaService) {}
+
+  @Get(':id')
+  async findOne(@Param('id') id: string) {
+    return this.prisma.player.findUnique({ where: { id } });
+  }
+}
+```
+
+```typescript
+// BAD: use case with NestJS decorator
+@Injectable()
+export class CreatePlayerUseCase {
+  constructor(@Inject(PLAYER_REPOSITORY) private repo: PlayerRepository) {}
+}
+```
+
+```typescript
+// BAD: HTTP exception in use case
+async execute(query: GetPlayerByIdQuery): Promise<Player> {
+  const player = await this.playerRepository.findById(id);
+  if (!player) throw new NotFoundException('Player not found');
+  return player;
+}
+```
+
+## Checklist
+
+- [ ] Controller delegates to use cases only
+- [ ] DTOs validated with class-validator decorators
+- [ ] Response wrapped in `{ data }` with shared-types shapes
+- [ ] Domain errors used instead of HTTP exceptions in use cases
+- [ ] Repository port defined in domain, implemented in infrastructure
+- [ ] Use case wired with `provideUseCase()` and symbol token
+- [ ] No Prisma or NestJS imports in domain/application layers

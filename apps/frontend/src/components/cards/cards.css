@@ -1,0 +1,679 @@
+/* Premium digital collectible card — modern minimal silhouette, 5:7 ratio */
+
+.fc-card {
+  --fc-ratio: 5 / 7;
+  --fc-radius: 8px;
+  --fc-primary: #f0d27a;
+  --fc-secondary: #f8e7a7;
+  --fc-accent: #ddb95a;
+  --fc-ink: #2a2210;
+  --fc-ink-soft: rgba(42, 34, 16, 0.68);
+  --fc-ink-muted: rgba(42, 34, 16, 0.48);
+  --fc-shadow-deep: rgba(18, 14, 6, 0.42);
+  --fc-shadow-mid: rgba(32, 26, 10, 0.28);
+  --fc-width: 100%;
+  --fc-max-width: 280px;
+
+  width: var(--fc-width);
+  max-width: var(--fc-max-width);
+  aspect-ratio: var(--fc-ratio);
+  position: relative;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.fc-card--sm {
+  --fc-max-width: 168px;
+}
+
+.fc-card--lg {
+  --fc-max-width: 320px;
+}
+
+/* Pitch slots — typography scales with card width, not viewport */
+.fc-card--pitch {
+  container-type: inline-size;
+  --fc-max-width: none;
+  max-width: none;
+}
+
+.fc-card--pitch .fc-card__rating-block {
+  top: 4.5cqw;
+  left: 5.5cqw;
+  z-index: 10;
+}
+
+.fc-card--pitch .fc-card__rating {
+  font-size: 24cqw;
+  line-height: 1;
+}
+
+.fc-card--pitch.fc-card--coach .fc-card__rating {
+  font-size: 20cqw;
+}
+
+.fc-card--pitch .fc-card__edition {
+  top: 4.5cqw;
+  right: 5cqw;
+  font-size: 5cqw;
+}
+
+.fc-card--pitch .fc-card__portrait-wrap {
+  top: 21%;
+  left: 9%;
+  right: 9%;
+  height: 42%;
+  z-index: 3;
+}
+
+.fc-card--pitch .fc-card__portrait-burst {
+  inset: 2% -12% 8%;
+  opacity: 0.45;
+}
+
+.fc-card--pitch .fc-card__portrait {
+  border-radius: 5cqw;
+}
+
+.fc-card--pitch .fc-card__portrait--placeholder {
+  border-radius: 5cqw;
+}
+
+.fc-card--pitch .fc-card__name,
+.fc-card--pitch .fc-card__name-last {
+  font-size: 10.5cqw;
+}
+
+.fc-card--pitch .fc-card__name--single {
+  font-size: 10cqw;
+}
+
+.fc-card--pitch .fc-card__name-first {
+  font-size: 6.5cqw;
+}
+
+.fc-card--pitch .fc-card__position {
+  font-size: 7.5cqw;
+}
+
+.fc-card--pitch .fc-card__brand {
+  width: 18cqw;
+  height: 18cqw;
+}
+
+.fc-card--pitch .fc-card__flag,
+.fc-card--pitch .fc-card__league {
+  width: 17cqw;
+  height: 17cqw;
+}
+
+.fc-card--pitch .fc-card__league-text {
+  font-size: 6.5cqw;
+}
+
+.fc-card__clip-svg {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+.fc-card__shell {
+  width: 100%;
+  height: 100%;
+  filter:
+    drop-shadow(0 2px 4px rgba(0, 0, 0, 0.08))
+    drop-shadow(0 8px 18px var(--fc-shadow-mid))
+    drop-shadow(0 16px 32px var(--fc-shadow-deep));
+}
+
+.fc-card__frame {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  background:
+    linear-gradient(
+      175deg,
+      color-mix(in srgb, var(--fc-secondary) 94%, white) 0%,
+      color-mix(in srgb, var(--fc-primary) 90%, white) 46%,
+      color-mix(in srgb, var(--fc-accent) 86%, var(--fc-primary)) 100%
+    );
+}
+
+/* Outer bevel — material depth without complex shape */
+.fc-card__bevel {
+  position: absolute;
+  inset: 0;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.62),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.05);
+  pointer-events: none;
+}
+
+/* Champagne satin base */
+.fc-card__satin {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 85% 45% at 50% 0%, rgba(255, 255, 255, 0.48), transparent 52%),
+    radial-gradient(ellipse 80% 30% at 50% 100%, rgba(0, 0, 0, 0.04), transparent 50%),
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.22) 0%,
+      transparent 24%,
+      transparent 76%,
+      rgba(0, 0, 0, 0.04) 100%
+    );
+  pointer-events: none;
+}
+
+/* Fine diagonal grain — subtle metallic reflection */
+.fc-card__pattern {
+  position: absolute;
+  inset: 0;
+  opacity: 0.08;
+  background-image: repeating-linear-gradient(
+    132deg,
+    transparent,
+    transparent 16px,
+    rgba(255, 255, 255, 0.18) 16px,
+    rgba(255, 255, 255, 0.18) 17px
+  );
+  pointer-events: none;
+}
+
+.fc-card__highlight {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 22% 10%, rgba(255, 255, 255, 0.32), transparent 34%),
+    radial-gradient(circle at 78% 18%, rgba(255, 255, 255, 0.12), transparent 28%);
+  pointer-events: none;
+}
+
+.fc-card__shine {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    112deg,
+    transparent 34%,
+    rgba(255, 255, 255, 0.14) 48%,
+    rgba(255, 255, 255, 0.03) 53%,
+    transparent 64%
+  );
+  pointer-events: none;
+  animation: fc-shimmer 7s ease-in-out infinite;
+}
+
+@keyframes fc-shimmer {
+  0%,
+  100% {
+    opacity: 0.28;
+    transform: translateX(-6%);
+  }
+  50% {
+    opacity: 0.72;
+    transform: translateX(6%);
+  }
+}
+
+.fc-card__inner-rim {
+  position: absolute;
+  inset: 5px 5px 6px;
+  border: 1px solid rgba(255, 255, 255, 0.38);
+  border-radius: 6px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.28),
+    inset 0 0 0 0.5px rgba(0, 0, 0, 0.04);
+  pointer-events: none;
+}
+
+/* Overall — pinned top-left */
+.fc-card__rating-block {
+  position: absolute;
+  top: clamp(7px, 5.8%, 11px);
+  left: clamp(8px, 7%, 13px);
+  z-index: 6;
+  line-height: 1;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.45);
+}
+
+.fc-card__rating {
+  font-size: clamp(1.1rem, 5.6vw, 1.68rem);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  color: var(--fc-ink);
+  font-variant-numeric: tabular-nums;
+  line-height: 0.95;
+}
+
+.fc-card--coach .fc-card__rating {
+  font-size: clamp(0.88rem, 4.4vw, 1.22rem);
+  letter-spacing: 0.04em;
+}
+
+.fc-card__edition {
+  position: absolute;
+  top: clamp(7px, 5.8%, 11px);
+  right: clamp(8px, 7%, 13px);
+  z-index: 6;
+  font-size: clamp(0.35rem, 1.65vw, 0.43rem);
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  color: var(--fc-ink-muted);
+  white-space: nowrap;
+}
+
+/* Portrait — cutout blend on card material */
+.fc-card__portrait-wrap {
+  position: absolute;
+  top: 13%;
+  left: 8%;
+  right: 8%;
+  height: 48%;
+  z-index: 2;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  isolation: isolate;
+}
+
+/* Radial burst behind player — reference-style depth */
+.fc-card__portrait-burst {
+  position: absolute;
+  inset: -8% -15% 5%;
+  z-index: 0;
+  opacity: 0.55;
+  background: repeating-conic-gradient(
+    from 215deg at 38% 88%,
+    rgba(255, 255, 255, 0.16) 0deg 3deg,
+    transparent 3deg 7deg
+  );
+  mask-image: radial-gradient(ellipse 72% 68% at 50% 72%, black 20%, transparent 72%);
+  pointer-events: none;
+}
+
+.fc-card__portrait {
+  position: relative;
+  z-index: 1;
+  max-width: 86%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  object-position: bottom center;
+  border-radius: clamp(10px, 4.2vw, 14px);
+}
+
+/* Removes TM studio gray/white background on light card materials */
+.fc-card__portrait--cutout {
+  mix-blend-mode: multiply;
+  filter: contrast(1.14) saturate(1.06) brightness(1.03);
+}
+
+.fc-card--icon .fc-card__portrait--cutout,
+.fc-card--toty .fc-card__portrait--cutout,
+.fc-card--event .fc-card__portrait--cutout {
+  mix-blend-mode: darken;
+  filter: contrast(1.18) saturate(1.04) brightness(1.08);
+}
+
+.fc-card--hero .fc-card__portrait--cutout {
+  filter: contrast(1.16) saturate(1.08) brightness(1.02);
+}
+
+.fc-card__portrait--placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 54%;
+  aspect-ratio: 1;
+  border-radius: clamp(10px, 4.2vw, 14px);
+  background: rgba(0, 0, 0, 0.05);
+  border: 1.5px dashed rgba(255, 255, 255, 0.35);
+}
+
+.fc-card__portrait-icon {
+  width: 38%;
+  height: 38%;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.28);
+}
+
+.fc-card__portrait-vignette {
+  position: absolute;
+  z-index: 2;
+  left: -6%;
+  right: -6%;
+  bottom: -2%;
+  height: 32%;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.12), transparent 78%);
+  pointer-events: none;
+}
+
+/* Footer — absolute zones; inset accounts for bottom card taper */
+.fc-card__footer {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.fc-card__identity {
+  position: absolute;
+  left: 11%;
+  right: 11%;
+  bottom: 22%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  text-align: center;
+}
+
+.fc-card__nameplate {
+  width: 100%;
+  min-width: 0;
+  color: var(--fc-ink);
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.35);
+}
+
+.fc-card__name,
+.fc-card__name-last {
+  display: block;
+  font-size: clamp(0.72rem, 3.6vw, 0.92rem);
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  line-height: 1.05;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.fc-card__name--single {
+  font-size: clamp(0.68rem, 3.3vw, 0.88rem);
+}
+
+.fc-card__name-first {
+  display: block;
+  font-size: clamp(0.42rem, 2vw, 0.52rem);
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  opacity: 0.82;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.fc-card__position {
+  font-size: clamp(0.52rem, 2.55vw, 0.66rem);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--fc-ink-soft);
+  line-height: 1;
+}
+
+.fc-card__meta {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 11.5%;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  column-gap: 0.35rem;
+}
+
+.fc-card__meta-side {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.fc-card__meta-side--left {
+  justify-content: flex-start;
+  padding-left: 32%;
+}
+
+.fc-card__meta-side--right {
+  justify-content: flex-end;
+  padding-right: 26%;
+}
+
+.fc-card__brand {
+  justify-self: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: clamp(1.15rem, 5.4vw, 1.4rem);
+  height: clamp(1.15rem, 5.4vw, 1.4rem);
+  color: var(--fc-ink-muted);
+  opacity: 0.72;
+}
+
+.fc-card__football-icon {
+  width: 100%;
+  height: 100%;
+}
+
+.fc-card__flag,
+.fc-card__league {
+  width: clamp(1.1rem, 5.2vw, 1.35rem);
+  height: clamp(1.1rem, 5.2vw, 1.35rem);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.fc-card__flag img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.18));
+}
+
+.fc-card__flag-placeholder {
+  width: 100%;
+  height: 100%;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.35);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.fc-card__league-text {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.65rem;
+  height: 1.1rem;
+  padding: 0 0.28rem;
+  border-radius: 3px;
+  font-size: clamp(0.42rem, 2vw, 0.5rem);
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: var(--fc-ink-soft);
+  background: rgba(255, 255, 255, 0.38);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+.fc-card__league-placeholder {
+  width: 100%;
+  height: 100%;
+  color: var(--fc-ink-muted);
+  padding: 1px;
+}
+
+.fc-card__league-placeholder svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* Variant palettes — same silhouette & layout, different color families */
+.fc-card--base .fc-card__frame {
+  background: linear-gradient(
+    175deg,
+    #faf0c8 0%,
+    #f8e7a7 28%,
+    #f0d27a 62%,
+    #ddb95a 100%
+  );
+}
+
+.fc-card--hero .fc-card__frame {
+  background: linear-gradient(
+    168deg,
+    color-mix(in srgb, var(--fc-secondary) 92%, white) 0%,
+    color-mix(in srgb, var(--fc-primary) 85%, #c44a20) 48%,
+    color-mix(in srgb, var(--fc-accent) 88%, #6a2808) 100%
+  );
+}
+
+.fc-card--icon .fc-card__frame {
+  background: linear-gradient(
+    168deg,
+    #f4f7fa 0%,
+    color-mix(in srgb, var(--fc-secondary) 88%, white) 42%,
+    color-mix(in srgb, var(--fc-primary) 78%, #3a4652) 100%
+  );
+}
+
+.fc-card--toty .fc-card__frame {
+  background: linear-gradient(
+    168deg,
+    #dff8ff 0%,
+    color-mix(in srgb, var(--fc-secondary) 86%, white) 42%,
+    color-mix(in srgb, var(--fc-primary) 78%, #063540) 100%
+  );
+}
+
+.fc-card--event .fc-card__frame {
+  background: linear-gradient(
+    168deg,
+    color-mix(in srgb, var(--fc-secondary) 90%, white) 0%,
+    color-mix(in srgb, var(--fc-primary) 82%, #5a2890) 46%,
+    color-mix(in srgb, var(--fc-accent) 88%, #2a1048) 100%
+  );
+}
+
+/* Preview gallery layout */
+.card-preview-section {
+  margin-bottom: 2rem;
+}
+
+.card-preview-section__title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 1rem;
+}
+
+.card-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 1.25rem;
+  align-items: start;
+}
+
+.card-preview-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.card-preview-item__label {
+  font-size: 0.75rem;
+  color: var(--muted);
+  text-align: center;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.card-variant-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.card-variant-tab {
+  padding: 0.45rem 0.85rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface-elevated);
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.card-variant-tab:hover {
+  background: var(--surface-hover);
+  color: var(--foreground);
+}
+
+.card-variant-tab--active {
+  border-color: color-mix(in srgb, var(--fc-primary, var(--accent)) 55%, var(--border));
+  background: color-mix(in srgb, var(--fc-primary, var(--accent)) 12%, var(--surface-elevated));
+  color: var(--foreground);
+}
+
+.card-showcase-hero {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--surface-elevated);
+}
+
+.card-showcase-hero__copy {
+  flex: 1;
+  min-width: 220px;
+}
+
+.card-showcase-hero__copy h2 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin-bottom: 0.35rem;
+}
+
+.card-showcase-hero__copy p {
+  font-size: 0.875rem;
+  color: var(--muted);
+  line-height: 1.55;
+  max-width: 36rem;
+}
+
+.card-showcase-hero__card {
+  flex-shrink: 0;
+}
+
+@media (min-width: 640px) {
+  .card-preview-grid {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 1.5rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fc-card__shine {
+    animation: none;
+    opacity: 0.45;
+  }
+}

@@ -1,0 +1,161 @@
+---
+description: Next.js frontend conventions for draft.io web app
+globs: apps/frontend/**
+alwaysApply: false
+---
+
+# Frontend
+
+## Governance
+
+Subordinate to `docs/architecture/ai-constitution.md` (priority 6). Mandatory workflow: `.cursor/rules/workflow.mdc`.
+
+| Document | Path |
+|----------|------|
+| AI Constitution | `docs/architecture/ai-constitution.md` |
+| Workflow | `.cursor/rules/workflow.mdc` |
+| Universal agent instructions | `AGENTS.md` |
+| Project context skill | `.claude/skills/project-context/SKILL.md` |
+
+No game rules in UI components. Plan API coupling changes per `workflow.mdc`.
+
+## Purpose
+
+Guide the Next.js 15 App Router frontend (`@draft-io/frontend`): server/client components, API integration, and UI patterns. The frontend is a **thin presentation layer** — it displays data and captures user intent; game rules and validation live on the backend.
+
+## Required Behavior
+
+### Project Structure
+
+```
+apps/frontend/src/
+├── app/              # App Router pages, layouts, global styles
+├── components/       # Reusable UI components (when added)
+├── features/         # Feature-specific UI + hooks (when added)
+└── lib/
+    └── api/          # HTTP client, API helpers
+```
+
+### API Client
+
+- All backend calls go through `lib/api/` — never scatter `fetch` across components.
+- Base URL from `NEXT_PUBLIC_API_URL`, defaulting to `http://localhost:3001/api/v1`.
+- Expect `ApiResponse<T>` envelope: access data via `response.data`.
+- Throw typed errors (`ApiClientError`) with `statusCode` for error boundaries and toasts.
+
+### Server vs Client Components
+
+- Default to **Server Components** for data fetching and static layout.
+- Add `'use client'` only when needed: interactivity, hooks, browser APIs, realtime.
+- Fetch on the server when possible; pass serializable props to client children.
+
+### Shared Types
+
+- Import API types from `@draft-io/shared-types` — never redefine `PlayerSummary`, `ApiResponse`, etc.
+- If a new API shape is needed, add it to `packages/shared-types` first, then consume in frontend.
+
+### Styling
+
+- Use Tailwind CSS utility classes and CSS variables from `app/globals.css`.
+- Keep design tokens centralized; avoid hardcoded hex colors when tokens exist.
+- Prefer composition over deeply nested custom CSS.
+
+### Environment Variables
+
+- Only `NEXT_PUBLIC_*` vars are exposed to the browser.
+- Never embed backend secrets, database URLs, or API keys in frontend code.
+
+### Error & Loading States
+
+- Every data-fetching page/component must handle loading, empty, and error states.
+- Map `ApiClientError.statusCode` to user-friendly messages; don't expose raw stack traces.
+
+## Forbidden Patterns
+
+- Business logic duplication (rating validation, position rules, chemistry calculations).
+- Direct database or Prisma access from frontend.
+- Importing from `apps/backend/src/` — frontend and backend communicate via HTTP only.
+- Inline `fetch` with magic URL strings in page components.
+- Storing sensitive tokens in `localStorage` without encryption (when auth is added).
+- Using `any` for API response types.
+- Client-side-only data fetching when SSR/RSC would work.
+
+## Good Examples
+
+```typescript
+// lib/api/client.ts
+import type { ApiResponse } from '@draft-io/shared-types';
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001/api/v1';
+
+export class ApiClientError extends Error {
+  constructor(
+    message: string,
+    readonly statusCode: number,
+  ) {
+    super(message);
+    this.name = 'ApiClientError';
+  }
+}
+
+export async function apiGet<T>(path: string): Promise<ApiResponse<T>> {
+  const response = await fetch(`${API_BASE_URL}${path}`, {
+    headers: { Accept: 'application/json' },
+    next: { revalidate: 0 },
+  });
+  if (!response.ok) {
+    throw new ApiClientError(`Request failed: ${response.statusText}`, response.status);
+  }
+  return response.json() as Promise<ApiResponse<T>>;
+}
+```
+
+```tsx
+// app/players/page.tsx — Server Component
+import type { PlayerSummary } from '@draft-io/shared-types';
+import { apiGet } from '@/lib/api/client';
+
+export default async function PlayersPage() {
+  const { data: players } = await apiGet<readonly PlayerSummary[]>('/players');
+  return (
+    <ul>
+      {players.map((player) => (
+        <li key={player.id}>{player.displayName}</li>
+      ))}
+    </ul>
+  );
+}
+```
+
+## Bad Examples
+
+```tsx
+// BAD: inline fetch with duplicated types
+export default async function PlayersPage() {
+  const res = await fetch('http://localhost:3001/api/v1/players');
+  const players: { id: string; name: string }[] = await res.json();
+  return <div>{players[0].name}</div>;
+}
+```
+
+```tsx
+// BAD: game rules in frontend
+function isValidOverall(rating: number): boolean {
+  return Number.isInteger(rating) && rating >= 1 && rating <= 99;
+}
+```
+
+```tsx
+// BAD: importing backend domain
+import { Player } from '../../../backend/src/modules/players/domain/entities/player.entity';
+```
+
+## Checklist
+
+- [ ] API calls routed through `lib/api/` helpers
+- [ ] Types imported from `@draft-io/shared-types`
+- [ ] Server Components used unless client interactivity is required
+- [ ] Loading, error, and empty states handled
+- [ ] No backend source imports or duplicated domain logic
+- [ ] Environment variables use `NEXT_PUBLIC_` prefix for client exposure
+- [ ] New API shapes added to shared-types before frontend usage

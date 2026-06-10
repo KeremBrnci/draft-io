@@ -1,0 +1,189 @@
+---
+description: Mandatory AI agent workflow — plan before implement, never skip governance
+alwaysApply: true
+---
+
+# Workflow
+
+## Purpose
+
+Force every AI agent working on draft.io to follow a consistent, auditable development process. This rule prevents architecture drift, inconsistent implementations, and direct coding without planning — especially for game-domain features that will be maintained for years.
+
+## Governance
+
+This rule is **priority 4** in the rule hierarchy. Higher-priority documents override this rule when they conflict.
+
+| Document | Path |
+|----------|------|
+| AI Constitution (highest authority) | `docs/architecture/ai-constitution.md` |
+| Universal agent instructions | `AGENTS.md` |
+| Project context skill | `.claude/skills/project-context/SKILL.md` |
+| AI review checklist | `docs/architecture/ai-review-checklist.md` |
+
+Load `project-context` skill at the start of every session. Follow `ai-constitution.md` for skill precedence and lifecycle gates.
+
+## Required Process
+
+For **every feature request**, execute these steps in order:
+
+### Step 1: Analyze domain impact
+
+- Which aggregates, value objects, and invariants are affected?
+- Do game rules change? If yes, update `docs/game-design/` first.
+- Load `domain-modeling` skill and `game-domain.mdc`.
+
+### Step 2: Analyze architecture impact
+
+- Which bounded context modules are touched?
+- Are new layer dependencies introduced?
+- Run mental check against `architecture.mdc` and `dependency-rules.md`.
+- Load `architecture` skill.
+
+### Step 3: Analyze database impact
+
+- Prisma schema changes? New tables, relations, migrations?
+- Repository ports and mappers required?
+- Follow `prisma.mdc` — Prisma only in infrastructure.
+
+### Step 4: Analyze API impact
+
+- New or changed endpoints?
+- DTOs and `shared-types` contract updates?
+- Presentation mappers — never return domain entities.
+
+### Step 5: Create implementation plan
+
+Produce a written plan (in chat or issue) covering:
+
+1. Domain changes
+2. Application use cases
+3. Infrastructure/persistence
+4. Presentation/API
+5. Frontend impact (if any)
+6. Test plan
+7. Documentation updates
+8. Risks and alternatives
+
+Use `feature-planning` skill. Reference `docs/architecture/feature-lifecycle.md`.
+
+### Step 6: Wait for approval (major features)
+
+**Do not write implementation code** until the user explicitly approves the plan for major features.
+
+Major features include: Lobby, Draft, Match Simulation, Chemistry Engine, Rating Engine, League System, Seasons, Mobile App, WebSocket real-time systems.
+
+### Step 7: Implement
+
+- Follow `backend.mdc` or `frontend.mdc`
+- Use cases as plain classes; wire in `*.module.ts`
+- One bounded context at a time; minimal diff
+
+### Step 8: Generate tests
+
+- Unit tests for domain rules and use cases
+- Integration tests for repositories (when DB involved)
+- E2E for API endpoints
+- Follow `testing.mdc` coverage gates
+
+### Step 9: Run code review
+
+- Apply `code-review` skill
+- Complete `docs/architecture/ai-review-checklist.md`
+- Run: `pnpm lint`, `pnpm typecheck`, `pnpm architecture:check`, `pnpm test:unit`, `pnpm test:coverage`
+
+### Step 10: Update documentation
+
+- Module README if module changed
+- Game-design doc status updated
+- ADR if architectural decision made
+- `architecture-hardening-report.md` only when fixing audit items
+
+## Major Features
+
+These **always** require Steps 1–6 before implementation:
+
+| Feature | Module(s) | Risk if skipped |
+|---------|-----------|-----------------|
+| Lobby | `lobbies`, `auth`, `users` | Real-time state, Redis, WebSocket coupling |
+| Draft | `draft`, `lobbies`, `teams` | Turn order, concurrency, game integrity |
+| Match Simulation | `simulation`, `matches` | Hidden randomness, non-reproducible results |
+| Chemistry Engine | `teams`, domain services | Rules in wrong layer |
+| Rating Engine | `players` | Business logic in infrastructure |
+| League System | `leagues`, `teams` | Cross-aggregate consistency |
+| Seasons | `leagues` | Temporal state, progression rules |
+| Mobile App | separate client | API contract drift |
+
+## Small Changes (abbreviated workflow)
+
+Trivial fixes (typo, lint, single-line bug) may skip written planning but **must still**:
+
+- Respect architecture boundaries
+- Include tests if business logic changes
+- Pass CI checks
+
+When in doubt, treat as a major feature.
+
+## Forbidden Patterns
+
+- Jumping from user request to editing 10+ files without a plan
+- Implementing lobby, draft, or simulation because "it's the next logical step"
+- Skipping `architecture:check` before declaring done
+- Merging without `code-review` skill pass
+- Updating only code without documentation for new public behavior
+- Asking the user to approve after already implementing a major feature
+
+## Good Examples
+
+```
+User: "Add draft pick timer"
+
+Agent:
+1. Loads project-context → confirms draft not implemented
+2. Runs feature-planning → domain impact, Redis timer, WebSocket events
+3. Proposes plan with modules, use cases, tests
+4. Waits for approval
+5. Implements after explicit "go ahead"
+6. Runs full verification suite
+7. Updates docs/game-design/draft-system.md
+```
+
+```
+User: "Fix PlayerName validation message"
+
+Agent:
+1. Identifies single VO change, no architecture impact
+2. Updates player-name.vo.ts and unit test
+3. Runs pnpm test:unit
+4. Done — no full planning doc required
+```
+
+## Bad Examples
+
+```
+User: "Let's build the lobby"
+
+Agent: Creates 15 files across lobbies/, WebSocket gateway, Redis service
+→ No plan, no approval, violates phase boundaries
+```
+
+```
+User: "Add chemistry calculation"
+
+Agent: Puts formula in PrismaTeamRepository.findAll()
+→ Business logic in infrastructure, non-testable
+```
+
+## Checklist
+
+- [ ] `project-context` skill loaded at session start
+- [ ] `ai-constitution.md` lifecycle followed
+- [ ] Domain impact analyzed (Step 1)
+- [ ] Architecture impact analyzed (Step 2)
+- [ ] Database impact analyzed (Step 3)
+- [ ] API impact analyzed (Step 4)
+- [ ] Written plan for medium/large features (Step 5)
+- [ ] User approval obtained for major features (Step 6)
+- [ ] Implementation follows layer rules (Step 7)
+- [ ] Tests generated and passing (Step 8)
+- [ ] Code review checklist completed (Step 9)
+- [ ] Documentation updated (Step 10)

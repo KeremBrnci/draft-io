@@ -1,0 +1,415 @@
+.league-layout {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.play--game .league-live {
+  border: 2px solid rgb(74 222 128 / 22%);
+  background: linear-gradient(180deg, rgb(16 38 26 / 92%), rgb(10 28 19 / 88%));
+  box-shadow: 0 12px 32px rgb(0 0 0 / 28%);
+}
+
+.play--game .league-live__team h2 {
+  color: #e2e8f0;
+}
+
+.play--game .league-live__score {
+  color: #facc15;
+  text-shadow: 0 0 24px rgb(250 204 21 / 22%);
+}
+
+.play--game .league-section-title {
+  color: #86efac;
+}
+
+.play--game .league-fixture {
+  border-color: rgb(74 222 128 / 15%);
+  background: rgb(10 28 19 / 65%);
+}
+
+.play--game .league-fixture--live {
+  border-color: rgb(250 204 21 / 45%);
+  box-shadow: 0 0 18px rgb(250 204 21 / 12%);
+}
+
+.play--game .league-table {
+  border-color: rgb(74 222 128 / 18%);
+}
+
+.play--game .league-table th {
+  color: #86efac;
+  background: rgb(8 22 15 / 80%);
+}
+
+.play--game .league-table td {
+  color: #e2e8f0;
+  border-color: rgb(74 222 128 / 10%);
+}
+
+.play--game .coach-selection-grid .coach-card,
+.play--game .team-review-grid .team-review-card {
+  border-color: rgb(74 222 128 / 18%);
+}
+
+.league-live {
+  display: grid;
+  gap: 1rem;
+  padding: 1.25rem;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: var(--surface-elevated);
+}
+
+.league-live__scoreboard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.league-live__team {
+  flex: 1;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.league-live__alert {
+  display: inline-block;
+  padding: 0.3rem 0.7rem;
+  border-radius: 6px;
+  background: #dc2626;
+  color: #fff;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  animation: league-live-alert-blink 0.5s ease-in-out 6;
+}
+
+@keyframes league-live-alert-blink {
+  0%,
+  100% {
+    opacity: 1;
+    background-color: #dc2626;
+  }
+
+  50% {
+    opacity: 0.45;
+    background-color: #991b1b;
+  }
+}
+
+.league-live__team h2 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.league-live__score {
+  font-size: 2.4rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.league-live__minute {
+  min-width: 4.5rem;
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.league-duel-stats {
+  display: grid;
+  gap: 0.95rem;
+  padding: 1.1rem 1.15rem;
+  border-radius: 14px;
+  background: linear-gradient(180deg, #1a2234 0%, #121a28 100%);
+  border: 1px solid #334155;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 6%);
+}
+
+.league-duel-stats__header {
+  text-align: center;
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #f1f5f9;
+}
+
+.league-duel-stats__teams {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: #94a3b8;
+  padding-top: 0.2rem;
+}
+
+.league-duel-stat {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.league-duel-stat__values {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.league-duel-stat__home {
+  font-size: 1.05rem;
+  font-weight: 700;
+  text-align: left;
+  color: #e2e8f0;
+}
+
+.league-duel-stat__away {
+  font-size: 1.05rem;
+  font-weight: 700;
+  text-align: right;
+  color: #e2e8f0;
+}
+
+.league-duel-stat__value--leading {
+  color: #fff;
+}
+
+.league-duel-stat__label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #cbd5e1;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.league-duel-stat__bar {
+  display: flex;
+  height: 7px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: #0f172a;
+  gap: 2px;
+}
+
+.league-duel-stat__bar-home {
+  height: 100%;
+  flex-shrink: 0;
+  border-radius: 999px 0 0 999px;
+  background: linear-gradient(90deg, #dc2626, #ef4444);
+  transition: width 0.4s ease;
+}
+
+.league-duel-stat__bar-away {
+  height: 100%;
+  flex-shrink: 0;
+  border-radius: 0 999px 999px 0;
+  background: #cbd5e1;
+  transition: width 0.4s ease;
+}
+
+.league-section-title {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.league-motm {
+  margin: 0;
+  padding: 0.75rem 0.9rem;
+  border-radius: 10px;
+  background: color-mix(in srgb, #f59e0b 12%, var(--surface-hover));
+  border: 1px solid color-mix(in srgb, #f59e0b 35%, var(--border));
+  font-size: 0.9rem;
+}
+
+.league-fixtures {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.45rem;
+  max-height: 14rem;
+  overflow: auto;
+}
+
+.league-fixture {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.55rem 0.7rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  font-size: 0.85rem;
+}
+
+.league-fixture--live {
+  border-color: color-mix(in srgb, #22c55e 45%, var(--border));
+  background: color-mix(in srgb, #22c55e 8%, var(--surface-hover));
+}
+
+.league-fixture--done {
+  opacity: 0.65;
+}
+
+.league-fixture__round {
+  min-width: 2rem;
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+
+.league-commentary {
+  max-height: 22rem;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  padding-right: 0.25rem;
+}
+
+.league-commentary__item {
+  padding: 0.65rem 0.8rem;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface-hover);
+  font-size: 0.9rem;
+}
+
+.league-commentary__item--attack {
+  border-color: color-mix(in srgb, #3b82f6 30%, var(--border));
+}
+
+.league-commentary__item--shot {
+  border-color: color-mix(in srgb, #f59e0b 30%, var(--border));
+}
+
+.league-commentary__item--card {
+  border-color: color-mix(in srgb, #eab308 35%, var(--border));
+}
+
+.league-commentary__item--whistle {
+  border-color: color-mix(in srgb, #94a3b8 35%, var(--border));
+}
+
+.league-commentary__item--goal {
+  border-color: color-mix(in srgb, #22c55e 45%, var(--border));
+  background: color-mix(in srgb, #22c55e 10%, var(--surface-hover));
+}
+
+.league-commentary__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+  margin-bottom: 0.35rem;
+}
+
+.league-commentary__icon {
+  font-size: 1rem;
+}
+
+.league-commentary__minute {
+  font-size: 0.72rem;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.league-commentary__tag {
+  font-size: 0.68rem;
+  padding: 0.1rem 0.4rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--border) 55%, transparent);
+  color: var(--muted);
+}
+
+.league-commentary__team {
+  font-size: 0.68rem;
+  padding: 0.1rem 0.4rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, #3b82f6 12%, var(--surface-hover));
+  color: var(--foreground);
+}
+
+.league-commentary__text {
+  margin: 0;
+  line-height: 1.45;
+}
+
+.league-commentary__assist {
+  margin: 0.35rem 0 0;
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.league-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+}
+
+.league-table th,
+.league-table td {
+  padding: 0.55rem 0.45rem;
+  border-bottom: 1px solid var(--border);
+  text-align: center;
+}
+
+.league-table th:first-child,
+.league-table td:first-child {
+  text-align: left;
+}
+
+.team-review-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  gap: 0.85rem;
+}
+
+.team-review-card {
+  padding: 1rem;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--surface-elevated);
+}
+
+.team-review-card h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+}
+
+.coach-selection-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+  gap: 0.85rem;
+}
+
+.coach-selection-card {
+  display: grid;
+  gap: 0.35rem;
+  padding: 0.65rem;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--surface-elevated);
+  cursor: pointer;
+  text-align: left;
+}
+
+.coach-selection-card--selected {
+  border-color: color-mix(in srgb, #22c55e 45%, var(--border));
+  box-shadow: 0 0 0 1px color-mix(in srgb, #22c55e 25%, transparent);
+}
+
+.coach-selection-card:disabled {
+  cursor: default;
+  opacity: 0.85;
+}
+
+.team-review-card__meta {
+  display: grid;
+  gap: 0.25rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+}

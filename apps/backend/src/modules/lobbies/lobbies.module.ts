@@ -1,0 +1,125 @@
+import { Module, forwardRef } from '@nestjs/common';
+
+import { provideUseCase } from '../../common/nest/provide-use-case';
+import { ApplyDraftPickUseCase } from '../draft/application/use-cases/apply-draft-pick.use-case';
+import { CalculateTeamStrengthUseCase } from '../draft/application/use-cases/calculate-team-strength.use-case';
+import { GeneratePickOptionsUseCase } from '../draft/application/use-cases/generate-pick-options.use-case';
+import { GetDraftSessionByLobbyUseCase } from '../draft/application/use-cases/get-draft-session-by-lobby.use-case';
+import { InitializeDraftSessionUseCase } from '../draft/application/use-cases/initialize-draft-session.use-case';
+import { CoachesModule } from '../coaches/coaches.module';
+import { COACH_REPOSITORY } from '../coaches/domain/repositories/coach.repository';
+import { LEAGUE_REPOSITORY } from '../leagues/domain/repositories/league.repository';
+import { LeaguesModule } from '../leagues/leagues.module';
+import { DraftModule } from '../draft/draft.module';
+import { MatchesModule } from '../matches/matches.module';
+import { ROOM_LEAGUE_REPOSITORY } from '../matches/domain/repositories/room-league.repository';
+import { TEAM_REPOSITORY } from '../teams/domain/repositories/team.repository';
+import { TeamsModule } from '../teams/teams.module';
+import { DRAFT_POOL_REPOSITORY } from '../draft/domain/repositories/draft-pool.repository';
+import { FORMATION_REPOSITORY } from '../formations/domain/repositories/formation.repository';
+import { FormationsModule } from '../formations/formations.module';
+
+import {
+  ApplyLobbyDraftPickUseCase,
+  GetDraftBoardUseCase,
+  GetDraftPickOptionsForSlotUseCase,
+} from './application/use-cases/draft-board.use-cases';
+import { CreateLobbyUseCase } from './application/use-cases/create-lobby.use-case';
+import { GetLobbyByCodeUseCase } from './application/use-cases/get-lobby-by-code.use-case';
+import { JoinLobbyUseCase } from './application/use-cases/join-lobby.use-case';
+import {
+  GetFormationSelectionUseCase,
+  SelectFormationUseCase,
+} from './application/use-cases/formation-selection.use-cases';
+import { SetParticipantReadyUseCase } from './application/use-cases/set-participant-ready.use-case';
+import { StartDraftUseCase } from './application/use-cases/start-draft.use-case';
+import { StartLobbyUseCase } from './application/use-cases/start-lobby.use-case';
+import { CheckDraftCompletionUseCase, StartNextMatchUseCase } from '../matches/application/use-cases/room-league.use-cases';
+import { ROOM_EVENTS_PUBLISHER } from './application/services/room-events.publisher';
+import { LOBBY_REPOSITORY } from './domain/repositories/lobby.repository';
+import { PrismaLobbyRepository } from './infrastructure/persistence/prisma-lobby.repository';
+import { LobbiesController } from './presentation/controllers/lobbies.controller';
+import {
+  CheckCoachCompletionUseCase,
+  GetCoachSelectionUseCase,
+  SelectCoachUseCase,
+} from './application/use-cases/coach-selection.use-cases';
+import { RoomEventsModule } from './room-events.module';
+
+@Module({
+  imports: [
+    CoachesModule,
+    DraftModule,
+    FormationsModule,
+    LeaguesModule,
+    TeamsModule,
+    RoomEventsModule,
+    forwardRef(() => MatchesModule),
+  ],
+  controllers: [LobbiesController],
+  providers: [
+    provideUseCase(CreateLobbyUseCase, [LOBBY_REPOSITORY]),
+    provideUseCase(JoinLobbyUseCase, [LOBBY_REPOSITORY]),
+    provideUseCase(GetLobbyByCodeUseCase, [LOBBY_REPOSITORY]),
+    provideUseCase(SetParticipantReadyUseCase, [
+      LOBBY_REPOSITORY,
+      GetDraftSessionByLobbyUseCase,
+      CheckDraftCompletionUseCase,
+      ROOM_EVENTS_PUBLISHER,
+    ]),
+    provideUseCase(StartLobbyUseCase, [LOBBY_REPOSITORY, FORMATION_REPOSITORY, ROOM_EVENTS_PUBLISHER]),
+    provideUseCase(GetFormationSelectionUseCase, [LOBBY_REPOSITORY, FORMATION_REPOSITORY]),
+    provideUseCase(SelectFormationUseCase, [LOBBY_REPOSITORY, FORMATION_REPOSITORY, ROOM_EVENTS_PUBLISHER]),
+    provideUseCase(StartDraftUseCase, [
+      LOBBY_REPOSITORY,
+      InitializeDraftSessionUseCase,
+      GetDraftSessionByLobbyUseCase,
+      ROOM_EVENTS_PUBLISHER,
+    ]),
+    provideUseCase(GetDraftBoardUseCase, [
+      LOBBY_REPOSITORY,
+      FORMATION_REPOSITORY,
+      DRAFT_POOL_REPOSITORY,
+      GetDraftSessionByLobbyUseCase,
+      CalculateTeamStrengthUseCase,
+    ]),
+    provideUseCase(GetDraftPickOptionsForSlotUseCase, [
+      LOBBY_REPOSITORY,
+      FORMATION_REPOSITORY,
+      DRAFT_POOL_REPOSITORY,
+      GeneratePickOptionsUseCase,
+      GetDraftSessionByLobbyUseCase,
+      CalculateTeamStrengthUseCase,
+    ]),
+    provideUseCase(ApplyLobbyDraftPickUseCase, [
+      LOBBY_REPOSITORY,
+      FORMATION_REPOSITORY,
+      ApplyDraftPickUseCase,
+      GetDraftSessionByLobbyUseCase,
+      CheckDraftCompletionUseCase,
+    ]),
+    provideUseCase(GetCoachSelectionUseCase, [
+      LOBBY_REPOSITORY,
+      COACH_REPOSITORY,
+      TEAM_REPOSITORY,
+      LEAGUE_REPOSITORY,
+    ]),
+    provideUseCase(SelectCoachUseCase, [
+      LOBBY_REPOSITORY,
+      ROOM_EVENTS_PUBLISHER,
+      CheckCoachCompletionUseCase,
+    ]),
+    provideUseCase(CheckCoachCompletionUseCase, [
+      LOBBY_REPOSITORY,
+      ROOM_LEAGUE_REPOSITORY,
+      ROOM_EVENTS_PUBLISHER,
+      StartNextMatchUseCase,
+    ]),
+    {
+      provide: LOBBY_REPOSITORY,
+      useClass: PrismaLobbyRepository,
+    },
+  ],
+  exports: [CreateLobbyUseCase, JoinLobbyUseCase, GetLobbyByCodeUseCase, LOBBY_REPOSITORY],
+})
+export class LobbiesModule {}

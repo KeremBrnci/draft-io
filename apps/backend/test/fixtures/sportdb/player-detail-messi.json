@@ -1,0 +1,17 @@
+{
+  "id": "vgOOdZbd",
+  "slug": "messi-lionel",
+  "firstName": "Lionel",
+  "lastName": "Messi",
+  "displayName": "Lionel Messi",
+  "nationality": "AR",
+  "teamId": "SKbpVP6K",
+  "leagueId": "MLs1e2e3",
+  "primaryPosition": "RW",
+  "secondaryPositions": ["ST", "CAM"],
+  "age": 37,
+  "overall": 94,
+  "marketValue": 50000000,
+  "imageUrl": "https://cdn.example.com/messi.png",
+  "status": "active"
+}

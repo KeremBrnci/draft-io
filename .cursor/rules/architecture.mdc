@@ -1,0 +1,163 @@
+---
+description: Core Clean Architecture and modular monolith boundaries for draft.io
+alwaysApply: true
+---
+
+# Architecture
+
+## Governance
+
+This rule is **priority 2** in the rule hierarchy. Supreme authority: `docs/architecture/ai-constitution.md`.
+
+| Document | Path |
+|----------|------|
+| AI Constitution | `docs/architecture/ai-constitution.md` |
+| Workflow (mandatory process) | `.cursor/rules/workflow.mdc` |
+| Universal agent instructions | `AGENTS.md` |
+| Project context skill (load first) | `.claude/skills/project-context/SKILL.md` |
+
+Load `project-context` at session start. Never implement features without following `workflow.mdc`.
+
+## Purpose
+
+Enforce draft.io's **modular monolith** structure: a pnpm monorepo with a NestJS backend (`apps/backend`), Next.js frontend (`apps/frontend`), and shared packages (`packages/shared-types`). Each backend feature is a **bounded context** with strict layer boundaries. Dependency direction flows inward — domain at the center, infrastructure and presentation at the edges.
+
+## Required Behavior
+
+### Monorepo Layout
+
+- **Apps** own runtime entry points; **packages** hold cross-cutting types and utilities only.
+- Shared API contracts live in `@draft-io/shared-types` — never duplicate DTO shapes in frontend and backend.
+- Run `pnpm architecture:check` after structural changes; dependency-cruiser rules in `.dependency-cruiser.cjs` are authoritative.
+
+### Backend Module Structure
+
+Every feature module under `apps/backend/src/modules/{name}/` follows four layers:
+
+```
+{module}/
+├── application/     # use-cases, commands, queries
+├── domain/          # entities, value-objects, errors, repository ports
+├── infrastructure/  # Prisma repos, mappers, external adapters
+├── presentation/    # controllers, DTOs, response mappers
+└── {module}.module.ts
+```
+
+Reference implementation: `players/`. Copy this structure for new modules.
+
+### Layer Dependency Rules
+
+| Layer | May depend on | Must NOT depend on |
+|-------|---------------|-------------------|
+| Domain | `common/domain`, other modules' **value objects** only | infrastructure, application, presentation, NestJS, Prisma |
+| Application | domain, commands/queries | infrastructure, presentation, NestJS, Prisma |
+| Infrastructure | domain ports, Prisma, mappers | presentation |
+| Presentation | application use cases, DTOs | infrastructure (except `*.module.ts` wiring) |
+
+### Cross-Module Communication
+
+- Reference other aggregates **by ID** (`playerIds: string[]`), never embed foreign entities in domain.
+- Validate cross-module references in the **application layer** (e.g., verify player exists before assigning to team).
+- Use domain events via `EventBus` for cross-module notifications (when implemented).
+
+### Use Case Wiring
+
+- Use cases are **plain TypeScript classes** — no `@Injectable`.
+- Wire them with `provideUseCase()` in the module file.
+- Repository ports use **injection tokens** (e.g., `PLAYER_REPOSITORY`).
+
+## Forbidden Patterns
+
+- Business logic in controllers, DTOs, or Prisma repositories.
+- Importing another module's **entity** into your domain layer.
+- Direct database joins across module boundaries.
+- NestJS decorators (`@Injectable`, `@Controller`) in domain or application layers.
+- Prisma client usage outside `infrastructure/`.
+- Circular dependencies between modules.
+- Leaking HTTP status codes or NestJS exceptions from domain errors.
+- Creating microservices or shared "utils" modules that bypass bounded contexts.
+- Importing `data-providers` from `players`/`teams`/`leagues` **domain** — use `core/external-reference/ExternalProvider` instead.
+- Mapping API DTOs directly to domain entities — always go through `External*Record` and application mappers.
+
+## Good Examples
+
+```typescript
+// application/use-cases/create-player.use-case.ts
+export class CreatePlayerUseCase {
+  constructor(private readonly playerRepository: PlayerRepository) {}
+
+  async execute(command: CreatePlayerCommand): Promise<Player> {
+    const player = Player.create({
+      id: PlayerId.generate(uuidv4()),
+      name: PlayerName.create(command.name),
+      position: Position.create(command.position),
+      overallRating: OverallRating.create(command.overallRating),
+    });
+    await this.playerRepository.save(player);
+    return player;
+  }
+}
+```
+
+```typescript
+// players.module.ts — infrastructure wired only here
+@Module({
+  controllers: [PlayersController],
+  providers: [
+    provideUseCase(CreatePlayerUseCase, [PLAYER_REPOSITORY]),
+    { provide: PLAYER_REPOSITORY, useClass: PrismaPlayerRepository },
+  ],
+})
+export class PlayersModule {}
+```
+
+```typescript
+// Cross-module reference by ID only
+export class Team extends Entity<TeamId> {
+  private readonly _playerIds: readonly string[];
+  private readonly _formationCode: string;
+}
+```
+
+## Bad Examples
+
+```typescript
+// BAD: domain importing infrastructure
+import { PrismaService } from '../../infrastructure/database/prisma.service';
+
+export class Player extends Entity<PlayerId> {
+  async save(prisma: PrismaService): Promise<void> {
+    await prisma.player.create({ data: { ... } });
+  }
+}
+```
+
+```typescript
+// BAD: controller with business logic
+@Post()
+async create(@Body() dto: CreatePlayerDto) {
+  if (dto.overallRating > 99) throw new BadRequestException();
+  return this.prisma.player.create({ data: dto });
+}
+```
+
+```typescript
+// BAD: embedding foreign aggregate in domain
+import { Team } from '../../teams/domain/entities/team.entity';
+
+export class League extends Entity<LeagueId> {
+  private readonly _teams: Team[];
+}
+```
+
+## Checklist
+
+- [ ] `project-context` skill and `ai-constitution.md` consulted for this change
+- [ ] `workflow.mdc` followed (plan before implement for major features)
+- [ ] New code lives in the correct layer folder within its bounded context
+- [ ] Domain and application layers have zero NestJS/Prisma imports
+- [ ] Use cases are wired via `provideUseCase()` with repository tokens
+- [ ] Cross-module references use IDs, validated in application layer
+- [ ] API response shapes come from `@draft-io/shared-types`
+- [ ] `pnpm architecture:check` passes with no violations
+- [ ] Module follows `players/` as the reference template

@@ -1,0 +1,18 @@
+{
+  "id": "28003",
+  "name": "Messi",
+  "fullName": "Lionel Messi",
+  "age": 37,
+  "citizenship": ["Argentina", "Spain"],
+  "position": {
+    "main": "Right Winger",
+    "other": ["Centre-Forward"]
+  },
+  "club": {
+    "id": "69261",
+    "name": "Inter Miami CF"
+  },
+  "marketValue": 20000000,
+  "imageUrl": "https://example.com/messi.png",
+  "isRetired": false
+}

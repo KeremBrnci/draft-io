@@ -1,0 +1,178 @@
+---
+description: Code review checklist for draft.io pull requests
+alwaysApply: false
+---
+
+# Code Review
+
+## Governance
+
+Implements lifecycle Step 7 in `docs/architecture/ai-constitution.md`. Use with `ai-review-checklist.md`.
+
+| Document | Path |
+|----------|------|
+| AI Constitution | `docs/architecture/ai-constitution.md` |
+| Workflow | `.cursor/rules/workflow.mdc` |
+| Universal agent instructions | `AGENTS.md` |
+| Project context skill | `.claude/skills/project-context/SKILL.md` |
+| AI review checklist | `docs/architecture/ai-review-checklist.md` |
+
+Load `code-review` skill before merge. Critical findings block merge.
+
+## Purpose
+
+Provide a structured review checklist for draft.io changes. Use this when reviewing PRs or self-reviewing before submission. Focus on architecture boundaries, domain correctness, test coverage, and security — not style bikeshedding (Prettier/ESLint handle formatting).
+
+## Required Behavior
+
+### Review Priority Order
+
+1. **Correctness** — Does the change do what it claims? Are edge cases handled?
+2. **Architecture** — Layer boundaries respected? Dependency direction inward?
+3. **Domain** — Business rules in domain layer? Invariants enforced?
+4. **Tests** — Adequate coverage for changed domain/application code?
+5. **Security** — No secrets, injection vectors, or auth bypasses?
+6. **API contract** — Response shapes match `@draft-io/shared-types`?
+7. **Performance** — N+1 queries, unbounded lists, blocking operations?
+8. **Documentation** — Docs updated if behavior or status changed?
+
+### Architecture Checks
+
+- Domain layer has zero imports from infrastructure, application, presentation, NestJS, or Prisma.
+- Application layer has zero imports from infrastructure, presentation, NestJS, or Prisma.
+- Controllers inject use cases only — no direct repository or Prisma access.
+- Use cases are plain classes wired via `provideUseCase()`.
+- Cross-module references use IDs, validated in application layer.
+- Run `pnpm architecture:check` — zero violations required.
+
+### Domain Checks
+
+- New entities use `create` and `reconstitute` factories with private constructors.
+- Value objects validate in `static create()` and throw typed domain errors.
+- Domain errors extend `DomainError` with `readonly code` following naming conventions.
+- No business logic in DTOs, controllers, mappers, or repositories.
+- Mutable state changed only through entity methods that update `_updatedAt`.
+
+### Test Checks
+
+- Domain changes have `*.unit.test.ts` with explicit assertions.
+- Use case changes mock repository ports, test success and error paths.
+- Error cases test specific error class (`toThrow(PlayerNotFoundError)`).
+- Coverage thresholds met: domain 90%, application 85%.
+- No committed `test.only`, `describe.only`, or skipped tests without reason.
+
+### API & Frontend Checks
+
+- Responses wrapped in `{ data: T }`.
+- DTOs use class-validator decorators.
+- New shared types added to `packages/shared-types` before frontend use.
+- Frontend uses `lib/api/` client, not scattered fetch calls.
+- No duplicated game rules in frontend.
+
+### Security Checks
+
+- No secrets, API keys, or credentials in source code.
+- `.env` files not committed.
+- User input validated at DTO boundary and domain boundary.
+- SQL via Prisma only — no string-concatenated raw queries.
+- Auth guards applied to protected endpoints (when auth module exists).
+
+### PR Hygiene
+
+- Single concern per PR — no unrelated refactors mixed in.
+- Commit messages describe **why**, not just what.
+- No debug logging (`console.log`) left in code.
+- No commented-out code blocks.
+- Migration files included for schema changes.
+
+## Forbidden Patterns (Reject in Review)
+
+- Prisma client in use cases or controllers.
+- `@Injectable()` on use case classes.
+- HTTP exceptions thrown from domain or application layers.
+- Foreign entities imported across module domain boundaries.
+- `any` types in domain/application without documented justification.
+- Tests that pass without meaningful assertions.
+- Breaking API changes without shared-types update.
+- Large PRs (>500 lines) without justification or split plan.
+
+## Good Examples
+
+```typescript
+// APPROVE: clean layer separation
+// Controller → UseCase → Repository port → Prisma implementation
+@Controller('players')
+export class PlayersController {
+  constructor(private readonly getPlayerByIdUseCase: GetPlayerByIdUseCase) {}
+
+  @Get(':id')
+  async findOne(@Param('id') id: string): Promise<ApiResponse<PlayerSummary>> {
+    const player = await this.getPlayerByIdUseCase.execute({ playerId: id });
+    return { data: toPlayerSummary(player) };
+  }
+}
+```
+
+```typescript
+// APPROVE: domain error with convention-based code
+export class PlayerNotFoundError extends DomainError {
+  readonly code = 'PLAYER_NOT_FOUND';
+  constructor(playerId: string) {
+    super(`Player with id "${playerId}" was not found`);
+  }
+}
+```
+
+## Bad Examples
+
+```typescript
+// REJECT: business logic in controller
+@Patch(':id')
+async update(@Param('id') id: string, @Body() dto: UpdatePlayerDto) {
+  if (dto.overallRating && (dto.overallRating < 1 || dto.overallRating > 99)) {
+    throw new BadRequestException('Invalid rating');
+  }
+  return this.prisma.player.update({ where: { id }, data: dto });
+}
+```
+
+```typescript
+// REJECT: missing test for new domain invariant
+export class OverallRating extends ValueObject<{ value: number }> {
+  static create(value: number): OverallRating {
+    if (value < 1 || value > 99) throw new InvalidOverallRatingError(value);
+    return new OverallRating({ value });
+  }
+}
+// No overall-rating.vo.unit.test.ts added
+```
+
+## Checklist
+
+### Architecture
+- [ ] Layer boundaries respected (domain → application → infrastructure/presentation)
+- [ ] `pnpm architecture:check` passes
+- [ ] Cross-module references use IDs only
+- [ ] Use cases wired with `provideUseCase()`
+
+### Domain & API
+- [ ] Business rules in domain entities/value objects
+- [ ] Domain errors with proper `code` values
+- [ ] API responses use `{ data }` envelope and shared-types
+- [ ] DTOs validated with class-validator
+
+### Tests & Quality
+- [ ] Unit tests for new/changed domain and application code
+- [ ] Error paths tested with specific error classes
+- [ ] Coverage thresholds met
+- [ ] No debug code or commented-out blocks
+
+### Security & Ops
+- [ ] No secrets in source
+- [ ] Schema changes include migrations
+- [ ] Docs updated if behavior changed
+
+### PR Scope
+- [ ] Change is focused and reviewable
+- [ ] Commit message explains motivation
+- [ ] No unrelated refactoring

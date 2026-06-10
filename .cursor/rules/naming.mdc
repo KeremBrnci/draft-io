@@ -1,0 +1,169 @@
+---
+description: Naming conventions for files, types, symbols, and APIs across draft.io
+alwaysApply: true
+---
+
+# Naming Conventions
+
+## Governance
+
+Subordinate to `docs/architecture/ai-constitution.md` (priority 8). Consult `AGENTS.md` and `project-context` skill for project-wide conventions.
+
+| Document | Path |
+|----------|------|
+| AI Constitution | `docs/architecture/ai-constitution.md` |
+| Workflow | `.cursor/rules/workflow.mdc` |
+| Universal agent instructions | `AGENTS.md` |
+| Project context skill | `.claude/skills/project-context/SKILL.md` |
+
+## Purpose
+
+Provide consistent naming across the draft.io monorepo so code is predictable, searchable, and aligned with Clean Architecture layer semantics. Names communicate **role** (entity vs value object vs use case) and **scope** (module vs shared).
+
+## Required Behavior
+
+### Files & Directories
+
+| Artifact | Pattern | Example |
+|----------|---------|---------|
+| Module folder | kebab-case singular | `players/`, `simulation/` |
+| Entity | `{name}.entity.ts` | `player.entity.ts` |
+| Value object | `{name}.vo.ts` | `player-id.vo.ts` |
+| Domain error | `{module}.errors.ts` | `player.errors.ts` |
+| Repository port | `{entity}.repository.ts` | `player.repository.ts` |
+| Prisma repository | `prisma-{entity}.repository.ts` | `prisma-player.repository.ts` |
+| Mapper (infra) | `{entity}.mapper.ts` | `player.mapper.ts` |
+| Mapper (presentation) | `{entity}-response.mapper.ts` | `player-response.mapper.ts` |
+| Use case | `{verb}-{entity}.use-case.ts` | `create-player.use-case.ts` |
+| Command | `{verb}-{entity}.command.ts` | `create-player.command.ts` |
+| Query | `{verb}-{entity}.query.ts` | `get-player-by-id.query.ts` |
+| Controller | `{entities}.controller.ts` | `players.controller.ts` |
+| DTO | `{action}-{entity}.dto.ts` | `create-player.dto.ts` |
+| NestJS module | `{module}.module.ts` | `players.module.ts` |
+| Unit test | `{source}.unit.test.ts` | `player.entity.unit.test.ts` |
+| Integration test | `{scope}.integration.test.ts` | `players.repository.integration.test.ts` |
+| E2E test | `{feature}.e2e.test.ts` | `players.e2e.test.ts` |
+
+### TypeScript Classes & Interfaces
+
+| Kind | Convention | Example |
+|------|------------|---------|
+| Entity | PascalCase singular | `Player`, `Team` |
+| Value object | PascalCase descriptive | `PlayerId`, `OverallRating` |
+| Use case | PascalCase verb-noun | `CreatePlayerUseCase` |
+| Domain error | PascalCase ends with Error | `PlayerNotFoundError` |
+| Repository port | PascalCase + Repository | `PlayerRepository` |
+| DTO | PascalCase + Dto | `CreatePlayerDto` |
+| Controller | PascalCase + Controller | `PlayersController` |
+| Command/Query | PascalCase verb-noun | `CreatePlayerCommand` |
+
+### Variables & Properties
+
+- Private fields: `_camelCase` prefix (`_name`, `_overallRating`).
+- Getters: no prefix (`get name()`).
+- Booleans: `is`, `has`, `can` prefix (`isValid`, `hasStarted`).
+- Collections: plural nouns (`playerIds`, `slots`).
+- Constants: `SCREAMING_SNAKE_CASE` (`ALL_PLAYER_POSITIONS`, `PLAYER_REPOSITORY`).
+
+### Domain Error Codes
+
+- Format: `SCREAMING_SNAKE_CASE` string on `readonly code`.
+- Patterns: `INVALID_*`, `*_NOT_FOUND`, `CONFLICT_*`, `UNAUTHORIZED_*`, `FORBIDDEN_*`.
+- Examples: `INVALID_PLAYER_ID`, `PLAYER_NOT_FOUND`, `TEAM_NOT_FOUND`.
+
+### API & Database
+
+| Layer | Convention | Example |
+|-------|------------|---------|
+| REST path | kebab-case plural | `/api/v1/players` |
+| JSON field | camelCase | `displayName`, `overallRating` |
+| DB column | snake_case | `display_name`, `overall_rating` |
+| DB table | snake_case plural | `players`, `teams` |
+| Prisma model | PascalCase singular | `Player` |
+| Env vars | SCREAMING_SNAKE_CASE | `DATABASE_URL`, `NEXT_PUBLIC_API_URL` |
+
+### Packages
+
+- Scoped: `@draft-io/{name}` (`@draft-io/backend`, `@draft-io/shared-types`).
+- Workspace references in `package.json`: `"@draft-io/shared-types": "workspace:*"`.
+
+### Injection Tokens
+
+- Symbol with descriptive string: `Symbol('PLAYER_REPOSITORY')`.
+- Export as `SCREAMING_SNAKE_CASE` constant: `PLAYER_REPOSITORY`.
+
+## Forbidden Patterns
+
+- Abbreviations without domain meaning (`mgr`, `plr`, `tmp`).
+- Hungarian notation (`strName`, `intRating`).
+- Generic names (`data`, `info`, `manager`, `handler`, `util`) without context.
+- Mixing singular/plural in REST paths (`/player` vs `/players` — always plural).
+- camelCase database columns in Prisma schema (use `@map`).
+- File names without layer suffix (`.entity.ts`, `.vo.ts`, `.use-case.ts`).
+- `I` prefix on interfaces (`IPlayerRepository` — use `PlayerRepository`).
+- Test files named `*.spec.ts` (use `*.unit.test.ts` / `*.e2e.test.ts`).
+
+## Good Examples
+
+```typescript
+// File: domain/errors/player.errors.ts
+export class PlayerNotFoundError extends DomainError {
+  readonly code = 'PLAYER_NOT_FOUND';
+}
+
+// File: domain/repositories/player.repository.ts
+export const PLAYER_REPOSITORY = Symbol('PLAYER_REPOSITORY');
+
+// File: application/use-cases/create-player.use-case.ts
+export class CreatePlayerUseCase {
+  async execute(command: CreatePlayerCommand): Promise<Player> { ... }
+}
+```
+
+```typescript
+// API response field names (camelCase)
+interface PlayerSummary {
+  readonly id: string;
+  readonly displayName: string;
+  readonly overallRating: number;
+}
+```
+
+```prisma
+displayName String @map("display_name")
+@@map("players")
+```
+
+## Bad Examples
+
+```typescript
+// BAD: vague file and class names
+// File: player-stuff.ts
+export class PlayerManager {
+  async doThing(data: any) { ... }
+}
+```
+
+```typescript
+// BAD: inconsistent error code
+export class PlayerNotFoundError extends DomainError {
+  readonly code = 'not_found';  // should be PLAYER_NOT_FOUND
+}
+```
+
+```typescript
+// BAD: wrong file suffix
+// File: player-id.ts (should be player-id.vo.ts)
+export class PlayerId { ... }
+```
+
+## Checklist
+
+- [ ] File name includes correct layer suffix (`.entity.ts`, `.vo.ts`, `.use-case.ts`)
+- [ ] Class name matches file purpose and PascalCase convention
+- [ ] Domain error `code` follows `SCREAMING_SNAKE_CASE` patterns
+- [ ] API JSON uses camelCase; Prisma maps to snake_case columns
+- [ ] REST paths are kebab-case plural nouns
+- [ ] Injection tokens use `Symbol('DESCRIPTIVE_NAME')`
+- [ ] Private fields use `_` prefix; getters do not
+- [ ] Test files use `.unit.test.ts`, `.integration.test.ts`, or `.e2e.test.ts`

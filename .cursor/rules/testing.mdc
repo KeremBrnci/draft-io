@@ -1,0 +1,187 @@
+---
+description: Unit, integration, and E2E testing standards for draft.io
+globs: "**/*.{test,spec}.ts, **/e2e/**"
+alwaysApply: false
+---
+
+# Testing
+
+## Governance
+
+Subordinate to `docs/architecture/ai-constitution.md` (priority 7). Mandatory workflow: `.cursor/rules/workflow.mdc`.
+
+| Document | Path |
+|----------|------|
+| AI Constitution | `docs/architecture/ai-constitution.md` |
+| Workflow | `.cursor/rules/workflow.mdc` |
+| Universal agent instructions | `AGENTS.md` |
+| Project context skill | `.claude/skills/project-context/SKILL.md` |
+| AI review checklist | `docs/architecture/ai-review-checklist.md` |
+
+Use `testing` skill during implementation. Coverage gates are CI-blocking.
+
+## Purpose
+
+Define how draft.io tests are structured, named, and executed. Tests protect domain invariants and use case behavior. The test pyramid favors fast unit tests, targeted integration tests, and lean E2E smoke tests.
+
+## Required Behavior
+
+### Test Runner & Location
+
+- **Vitest** is the test runner for backend and frontend.
+- Backend unit tests: colocated as `*.unit.test.ts` next to source.
+- Backend integration tests: `apps/backend/test/integration/`.
+- Backend E2E tests: `apps/backend/test/e2e/`.
+- Frontend tests: colocated as `*.test.ts` in `apps/frontend/src/`.
+
+### Naming Conventions
+
+| Suffix | Scope | Example |
+|--------|-------|---------|
+| `*.unit.test.ts` | Single class/function, mocked deps | `player.entity.unit.test.ts` |
+| `*.integration.test.ts` | Repository + real/test DB | `players.repository.integration.test.ts` |
+| `*.e2e.test.ts` | HTTP layer, app bootstrapped | `players.e2e.test.ts` |
+
+### Unit Tests
+
+- Test **domain entities**, **value objects**, and **use cases** in isolation.
+- Mock repository ports with `vi.fn()` — never hit real database in unit tests.
+- Use descriptive `describe`/`it` blocks: `describe('PlayerId')`, `it('rejects invalid UUID')`.
+- Import from `vitest`: `describe`, `it`, `expect`, `vi`, `beforeEach`, `afterEach`.
+
+### Integration Tests
+
+- Test Prisma repository implementations against a test database.
+- Clean up data between tests; use transactions or truncation strategies.
+- Verify domain ↔ persistence mapping round-trips correctly.
+
+### E2E Tests
+
+- Bootstrap a minimal NestJS testing module with the target controller.
+- Mock use cases at the DI boundary — E2E tests HTTP contract, not full stack.
+- Apply the same global pipes/filters/prefix as production (`api/v1`, `ValidationPipe`, `HttpExceptionFilter`).
+- Use `supertest` for HTTP assertions.
+
+### Coverage Thresholds
+
+Backend coverage (enforced in `vitest.config.ts`):
+
+| Layer | Minimum |
+|-------|---------|
+| Domain | 90% lines/functions/branches/statements |
+| Application | 85% |
+| Overall included paths | 80% |
+
+Run `pnpm test:coverage` before merging domain/application changes.
+
+### Commands
+
+```bash
+pnpm test:unit          # All workspace unit tests
+pnpm test:integration   # Backend integration only
+pnpm test:e2e           # Backend + frontend E2E
+pnpm test               # Unit + backend E2E (CI default)
+```
+
+## Forbidden Patterns
+
+- Testing implementation details (private fields, internal method call order).
+- Shared mutable state between tests without cleanup.
+- Hitting production database in any test.
+- Skipping assertions (`expect(true).toBe(true)`).
+- `test.only` / `describe.only` committed to main.
+- E2E tests that boot the entire app with real DB when controller-level test suffices.
+- Testing NestJS framework behavior (e.g., that `@Get()` routes exist).
+- Snapshot tests for domain logic (prefer explicit assertions on behavior).
+
+## Good Examples
+
+```typescript
+// player-id.vo.unit.test.ts
+import { describe, expect, it } from 'vitest';
+import { PlayerId } from './player-id.vo';
+import { InvalidPlayerIdError } from '../errors/player.errors';
+
+describe('PlayerId', () => {
+  it('accepts a valid UUID v4', () => {
+    const id = PlayerId.create('770e8400-e29b-41d4-a716-446655440002');
+    expect(id.value).toBe('770e8400-e29b-41d4-a716-446655440002');
+  });
+
+  it('rejects malformed ids', () => {
+    expect(() => PlayerId.create('not-a-uuid')).toThrow(InvalidPlayerIdError);
+  });
+});
+```
+
+```typescript
+// create-player.use-case.unit.test.ts
+import { describe, expect, it, vi } from 'vitest';
+
+describe('CreatePlayerUseCase', () => {
+  it('persists a valid player', async () => {
+    const save = vi.fn().mockResolvedValue(undefined);
+    const repo = { save, findById: vi.fn(), findAll: vi.fn() };
+    const useCase = new CreatePlayerUseCase(repo);
+
+    const player = await useCase.execute({
+      name: 'Test Striker',
+      position: 'ST',
+      overallRating: 85,
+    });
+
+    expect(save).toHaveBeenCalledOnce();
+    expect(player.name.value).toBe('Test Striker');
+  });
+});
+```
+
+```typescript
+// players.e2e.test.ts — mock use cases at DI boundary
+const createPlayerUseCase = { execute: vi.fn().mockResolvedValue(mockPlayer) };
+
+beforeAll(async () => {
+  const moduleRef = await Test.createTestingModule({
+    controllers: [PlayersController],
+    providers: [{ provide: CreatePlayerUseCase, useValue: createPlayerUseCase }],
+  }).compile();
+  app = moduleRef.createNestApplication();
+  app.setGlobalPrefix('api/v1');
+  await app.init();
+});
+```
+
+## Bad Examples
+
+```typescript
+// BAD: unit test hitting real database
+it('saves player', async () => {
+  const prisma = new PrismaClient();
+  await prisma.player.create({ data: { ... } });
+});
+```
+
+```typescript
+// BAD: testing private implementation
+it('calls validate internally', () => {
+  expect((entity as any)._validate).toHaveBeenCalled();
+});
+```
+
+```typescript
+// BAD: no meaningful assertion
+it('creates player', async () => {
+  await useCase.execute(command);
+  expect(true).toBe(true);
+});
+```
+
+## Checklist
+
+- [ ] Test file uses correct suffix (`.unit.test.ts`, `.integration.test.ts`, `.e2e.test.ts`)
+- [ ] Unit tests mock all external dependencies
+- [ ] Domain errors tested with `toThrow(SpecificError)`
+- [ ] E2E tests apply global prefix, pipes, and filters
+- [ ] Integration tests clean up persisted data
+- [ ] Coverage thresholds met for changed domain/application code
+- [ ] No `test.only` or skipped tests without justification

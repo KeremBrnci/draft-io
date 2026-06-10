@@ -1,0 +1,41 @@
+{
+  "name": "draft-io",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Football draft and simulation game platform",
+  "scripts": {
+    "build": "pnpm -r build",
+    "dev": "pnpm -r --parallel dev",
+    "dev:backend": "pnpm --filter @draft-io/backend dev",
+    "dev:frontend": "pnpm --filter @draft-io/frontend dev",
+    "lint": "pnpm -r lint",
+    "lint:fix": "pnpm -r lint:fix",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md,yml,yaml}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md,yml,yaml}\"",
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm test:unit && pnpm --filter @draft-io/backend test:e2e",
+    "test:unit": "pnpm -r test:unit",
+    "test:integration": "pnpm --filter @draft-io/backend test:integration",
+    "test:e2e": "pnpm --filter @draft-io/backend test:e2e && pnpm --filter @draft-io/frontend test:e2e",
+    "test:coverage": "pnpm --filter @draft-io/backend test:coverage",
+    "architecture:check": "depcruise apps/backend/src --config .dependency-cruiser.cjs",
+    "clean": "pnpm -r exec rm -rf dist build .next coverage"
+  },
+  "devDependencies": {
+    "dependency-cruiser": "^16.10.1",
+    "@eslint/js": "^9.28.0",
+    "@types/node": "^22.15.29",
+    "eslint": "^9.28.0",
+    "eslint-config-prettier": "^10.1.5",
+    "eslint-plugin-import": "^2.31.0",
+    "globals": "^16.2.0",
+    "prettier": "^3.5.3",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.33.1"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=9.0.0"
+  },
+  "packageManager": "pnpm@9.15.9"
+}

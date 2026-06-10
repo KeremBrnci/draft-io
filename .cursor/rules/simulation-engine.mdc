@@ -1,0 +1,222 @@
+---
+description: Match simulation engine design and implementation rules
+globs: apps/backend/src/modules/simulation/**
+alwaysApply: false
+---
+
+# Simulation Engine
+
+## Governance
+
+Subordinate to `docs/architecture/ai-constitution.md` and `game-domain.mdc`. Simulation is Phase 8 — do not implement without plan and approval per `workflow.mdc`.
+
+| Document | Path |
+|----------|------|
+| AI Constitution | `docs/architecture/ai-constitution.md` |
+| Workflow | `.cursor/rules/workflow.mdc` |
+| Universal agent instructions | `AGENTS.md` |
+| Project context skill | `.claude/skills/project-context/SKILL.md` |
+| Project vision | `docs/architecture/project-vision.md` |
+
+Use `simulation-engine` skill for all randomness and match logic.
+
+## Purpose
+
+Guide implementation of the `simulation` bounded context: match resolution, chemistry calculations, and deterministic replay. The engine consumes team/player inputs by ID and produces match results without coupling to HTTP, Prisma, or foreign domain entities.
+
+## Required Behavior
+
+### Module Role
+
+The simulation module is a **domain service**, not a traditional CRUD aggregate. It:
+
+- Accepts resolved match inputs (team compositions, formations, chemistry scores).
+- Runs the simulation algorithm (instant resolution or tick-based).
+- Returns structured match output (score, events, player ratings).
+- Remains **pure and testable** — no I/O inside core engine logic.
+
+### Planned Architecture
+
+```
+simulation/
+├── domain/
+│   ├── entities/           # MatchResult, MatchEvent (outputs)
+│   ├── value-objects/      # Score, SimulationSeed, Minute, EventType
+│   ├── services/           # SimulationEngine, ChemistryCalculator
+│   ├── errors/             # InvalidMatchInputError, etc.
+│   └── ports/              # RandomSource, Clock (for testability)
+├── application/
+│   ├── use-cases/          # SimulateMatchUseCase
+│   ├── commands/           # SimulateMatchCommand
+│   └── queries/            # GetMatchReplayQuery (future)
+├── infrastructure/         # Seed-based RNG adapter, persistence (future)
+└── presentation/           # HTTP/WS endpoints (future)
+```
+
+### Input Contract
+
+Simulation inputs are **plain data structures**, assembled by the `matches` application layer:
+
+| Field | Source | Notes |
+|-------|--------|-------|
+| `homeTeamId`, `awayTeamId` | Matches module | IDs only |
+| `homeLineup`, `awayLineup` | Resolved player snapshots | Rating, position per slot |
+| `homeFormation`, `awayFormation` | Formation codes | Modifiers per template |
+| `homeChemistry`, `awayChemistry` | Chemistry calculator | Nullable until implemented |
+| `seed` | Optional | Enables deterministic replay |
+
+The simulation module **does not** fetch teams or players — callers resolve and pass snapshots.
+
+### Output Contract
+
+| Field | Description |
+|-------|-------------|
+| `homeScore`, `awayScore` | Final goals |
+| `events` | Ordered match events (goals, cards — future) |
+| `playerRatings` | Per-player performance grades (future) |
+| `statistics` | Possession, shots (future) |
+| `seed` | Seed used for replay verification |
+
+### Determinism & Randomness
+
+- Inject randomness via a `RandomSource` port — never call `Math.random()` directly in domain services.
+- When `seed` is provided, output must be **bitwise reproducible** across runs.
+- Document which inputs affect the seed hash (lineups, formations, chemistry, seed).
+
+### Chemistry Integration
+
+- Chemistry calculation may live in `simulation/domain/services/` or a sibling `chemistry/` subfolder.
+- Chemistry is computed from **player link data** (nation, league, position adjacency).
+- Output: numeric score consumed as simulation modifier.
+- See `docs/game-design/chemistry-system.md` for planned link types.
+
+### Performance Targets
+
+- Instant resolution mode: complete in **< 1 second** for a single match.
+- Tick-based mode (future): configurable virtual minute duration.
+- Engine must not block the event loop — offload heavy batch simulation to workers if needed.
+
+### Testing Requirements
+
+- 100% unit test coverage on `SimulationEngine` and `ChemistryCalculator`.
+- Golden-file tests: fixed seed + fixed inputs → expected score/events.
+- Property-based tests for invariants (scores ≥ 0, events match score).
+
+## Forbidden Patterns
+
+- Importing `Team` or `Player` entities from other modules into simulation domain.
+- Database queries inside the simulation engine.
+- Non-deterministic output when seed is provided.
+- Hardcoded team/player data in engine logic.
+- HTTP concerns in domain services.
+- Global `Math.random()` in domain layer.
+- Coupling simulation output format to Prisma schema shapes.
+- Running simulation synchronously in WebSocket handler without timeout guard.
+
+## Good Examples
+
+```typescript
+// domain/services/simulation-engine.ts
+export interface MatchInput {
+  readonly homeLineup: readonly PlayerSnapshot[];
+  readonly awayLineup: readonly PlayerSnapshot[];
+  readonly homeFormation: string;
+  readonly awayFormation: string;
+  readonly homeChemistry: number | null;
+  readonly awayChemistry: number | null;
+  readonly seed?: string;
+}
+
+export interface MatchOutput {
+  readonly homeScore: number;
+  readonly awayScore: number;
+  readonly events: readonly MatchEvent[];
+  readonly seed: string;
+}
+
+export class SimulationEngine {
+  constructor(private readonly random: RandomSource) {}
+
+  simulate(input: MatchInput): MatchOutput {
+    const rng = this.random.fromSeed(input.seed ?? this.random.generateSeed());
+    const homeStrength = this.calculateStrength(input.homeLineup, input.homeChemistry);
+    const awayStrength = this.calculateStrength(input.awayLineup, input.awayChemistry);
+    const homeScore = this.resolveGoals(homeStrength, awayStrength, rng);
+    const awayScore = this.resolveGoals(awayStrength, homeStrength, rng);
+    return { homeScore, awayScore, events: [], seed: rng.seed };
+  }
+}
+```
+
+```typescript
+// domain/ports/random-source.ts
+export interface RandomSource {
+  fromSeed(seed: string): SeededRng;
+  generateSeed(): string;
+}
+```
+
+```typescript
+// application/use-cases/simulate-match.use-case.ts
+export class SimulateMatchUseCase {
+  constructor(
+    private readonly engine: SimulationEngine,
+    private readonly chemistryCalculator: ChemistryCalculator,
+  ) {}
+
+  execute(command: SimulateMatchCommand): MatchOutput {
+    const homeChemistry = this.chemistryCalculator.calculate(command.homeLineup);
+    const awayChemistry = this.chemistryCalculator.calculate(command.awayLineup);
+    return this.engine.simulate({
+      ...command,
+      homeChemistry,
+      awayChemistry,
+    });
+  }
+}
+```
+
+## Bad Examples
+
+```typescript
+// BAD: fetching foreign aggregates inside engine
+export class SimulationEngine {
+  constructor(private readonly teamRepo: TeamRepository) {}
+
+  async simulate(homeTeamId: string, awayTeamId: string) {
+    const home = await this.teamRepo.findById(homeTeamId);
+    const away = await this.teamRepo.findById(awayTeamId);
+  }
+}
+```
+
+```typescript
+// BAD: non-deterministic with provided seed
+simulate(input: MatchInput): MatchOutput {
+  const roll = Math.random();  // ignores input.seed
+  return { homeScore: roll > 0.5 ? 1 : 0, awayScore: 0, events: [], seed: '' };
+}
+```
+
+```typescript
+// BAD: Prisma in simulation domain
+import { PrismaClient } from '@prisma/client';
+
+export class SimulationEngine {
+  async saveResult(result: MatchOutput) {
+    await this.prisma.match.create({ data: result });
+  }
+}
+```
+
+## Checklist
+
+- [ ] Engine accepts plain input snapshots, not foreign entities
+- [ ] Randomness injected via `RandomSource` port
+- [ ] Same seed + same inputs produce identical output
+- [ ] No Prisma, NestJS, or HTTP imports in domain services
+- [ ] Chemistry calculation separated and unit tested
+- [ ] Output structure defined as domain types, not Prisma models
+- [ ] Golden-file tests cover at least one fixed scenario
+- [ ] Performance target documented and verified for instant mode
+- [ ] Cross-module data resolved in `matches` application layer before calling simulation

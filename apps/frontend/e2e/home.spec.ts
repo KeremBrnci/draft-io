@@ -1,0 +1,8 @@
+import { expect, test } from '@playwright/test';
+
+test('home page displays platform title', async ({ page }) => {
+  await page.goto('/');
+
+  await expect(page.getByRole('heading', { name: 'draft.io' })).toBeVisible();
+  await expect(page.getByText(/architecture foundation/i)).toBeVisible();
+});

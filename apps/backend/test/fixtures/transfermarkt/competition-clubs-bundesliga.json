@@ -1,0 +1,8 @@
+{
+  "id": "L1",
+  "name": "Bundesliga",
+  "clubs": [
+    { "id": "27", "name": "Bayern Munich" },
+    { "id": "16", "name": "Borussia Dortmund" }
+  ]
+}

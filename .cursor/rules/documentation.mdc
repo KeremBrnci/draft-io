@@ -1,0 +1,174 @@
+---
+description: Documentation standards for docs/ and README files
+globs: docs/**, **/README.md
+alwaysApply: false
+---
+
+# Documentation
+
+## Governance
+
+Subordinate to `docs/architecture/ai-constitution.md`. Documentation updates are workflow Step 10.
+
+| Document | Path |
+|----------|------|
+| AI Constitution | `docs/architecture/ai-constitution.md` |
+| Workflow | `.cursor/rules/workflow.mdc` |
+| Universal agent instructions | `AGENTS.md` |
+| Project context skill | `.claude/skills/project-context/SKILL.md` |
+| Project vision | `docs/architecture/project-vision.md` |
+
+## Purpose
+
+Maintain clear, accurate documentation for draft.io's architecture, game design, and module conventions. Docs live in `docs/` and colocated `README.md` files. Documentation describes **intent and rules** — it is not a substitute for self-documenting code.
+
+## Required Behavior
+
+### Documentation Structure
+
+```
+docs/
+├── architecture/       # System design, module interactions, audits
+├── game-design/        # Game rules: players, formations, draft, simulation
+└── decisions/          # ADRs (Architecture Decision Records)
+```
+
+### Document Types
+
+| Type | Location | When to write |
+|------|----------|---------------|
+| Architecture overview | `docs/architecture/` | New modules, cross-cutting concerns |
+| Game design spec | `docs/game-design/` | New game mechanics or rule changes |
+| ADR | `docs/decisions/NNN-title.md` | Significant technical decisions |
+| Module guide | `apps/backend/src/modules/README.md` | Module structure conventions |
+| Package/app README | Colocated | Setup, scripts, local dev |
+
+### ADR Format
+
+Each ADR in `docs/decisions/` follows:
+
+```markdown
+# NNN: Title
+
+## Status
+Accepted | Proposed | Deprecated
+
+## Context
+Why this decision is needed.
+
+## Decision
+What was decided.
+
+## Consequences
+Positive and negative outcomes.
+```
+
+### Game Design Docs
+
+- State **current implementation status** explicitly (`Implemented`, `Partial`, `Not implemented`).
+- Separate **rules** (what the game does) from **open questions** (undecided).
+- Reference domain modules by name (`players`, `teams`, `simulation`).
+- Include input/output tables for systems like match simulation and chemistry.
+
+### README Files
+
+- Start with one-sentence purpose.
+- Include prerequisites (Node 20+, pnpm 9+).
+- List available scripts with brief descriptions.
+- Link to deeper docs rather than duplicating architecture content.
+- Keep setup steps tested and current.
+
+### Accuracy
+
+- Update docs when implementation status changes (e.g., placeholder → implemented).
+- Mark future/planned features clearly — don't document them as if they exist.
+- Cross-reference related docs (architecture overview ↔ game design ↔ ADRs).
+
+### Writing Style
+
+- Use complete sentences and active voice.
+- Prefer tables and diagrams (ASCII or mermaid) for complex flows.
+- Use consistent terminology: "aggregate", "use case", "value object", "starting eleven".
+- Code examples in docs should match actual project patterns (reference `players/` module).
+
+## Forbidden Patterns
+
+- Documenting aspirational features without a "Current State" section.
+- Duplicating the same architecture explanation in multiple READMEs.
+- Stale setup instructions (wrong ports, missing env vars).
+- Documenting internal implementation details that change frequently.
+- Using docs to specify behavior that contradicts domain code.
+- Empty placeholder sections ("TBD" everywhere with no context).
+- Committing generated build artifacts documentation.
+
+## Good Examples
+
+```markdown
+# Match Simulation
+
+## Purpose
+Match simulation resolves competitive encounters between two teams.
+
+## Rules
+
+### Current State
+- **Not implemented.** The `simulation` module is a placeholder.
+- Team and player domain structures exist to support future inputs.
+
+### Planned Inputs
+| Input | Source |
+|-------|--------|
+| Team A starting eleven | `Team.startingEleven` |
+| Formation | `Team.formationCode` |
+```
+
+```markdown
+# 002: Clean Architecture
+
+## Status
+Accepted
+
+## Context
+The backend must support multiple game domains with testable business logic.
+
+## Decision
+Adopt Clean Architecture with four layers per bounded context module.
+
+## Consequences
+- Positive: Domain logic is framework-agnostic and unit-testable.
+- Negative: More boilerplate than a simple CRUD approach.
+```
+
+## Bad Examples
+
+```markdown
+# Players Module
+
+Players are managed via the API. Use Prisma to create players.
+POST /players with JSON body.
+```
+
+```markdown
+# Simulation
+
+The simulation engine runs tick-based physics with full play-by-play.
+(When module is still an empty placeholder)
+```
+
+```markdown
+# Setup
+
+Run npm install && npm start
+(When project uses pnpm and separate backend/frontend dev scripts)
+```
+
+## Checklist
+
+- [ ] Document has a clear Purpose section at the top
+- [ ] Implementation status is stated honestly (implemented vs planned)
+- [ ] Game rules separated from open questions
+- [ ] ADRs follow the standard format with status and consequences
+- [ ] README includes working setup steps and script references
+- [ ] Terminology matches codebase conventions
+- [ ] Cross-references link to related docs instead of duplicating content
+- [ ] Docs updated alongside code changes that affect described behavior

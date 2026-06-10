@@ -1,0 +1,636 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Country {
+  id         String   @id @default(uuid()) @db.Uuid
+  provider   String?  @db.VarChar(32)
+  externalId String?  @map("external_id") @db.VarChar(128)
+  name       String   @db.VarChar(120)
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  leagues League[]
+  teams   Team[]
+  players Player[]
+
+  @@unique([provider, externalId])
+  @@index([name])
+  @@map("countries")
+}
+
+model Player {
+  id                  String    @id @default(uuid()) @db.Uuid
+  provider            String?   @db.VarChar(32)
+  externalId          String?   @map("external_id") @db.VarChar(128)
+  firstName           String    @map("first_name") @db.VarChar(100)
+  lastName            String    @map("last_name") @db.VarChar(100)
+  displayName         String    @map("display_name") @db.VarChar(120)
+  birthDate           DateTime? @map("birth_date") @db.Date
+  nationality         String    @db.VarChar(64)
+  countryId           String?   @map("country_id") @db.Uuid
+  teamId              String?   @map("team_id") @db.Uuid
+  leagueId            String?   @map("league_id") @db.Uuid
+  marketValue         Decimal?  @map("market_value") @db.Decimal(18, 2)
+  marketValueCurrency String?   @map("market_value_currency") @db.VarChar(8)
+  imageUrl            String?   @map("image_url") @db.VarChar(2048)
+  status              String    @db.VarChar(32)
+  createdAt           DateTime  @default(now()) @map("created_at")
+  updatedAt           DateTime  @updatedAt @map("updated_at")
+
+  countryRef Country? @relation(fields: [countryId], references: [id], onDelete: SetNull)
+  team       Team?    @relation(fields: [teamId], references: [id], onDelete: SetNull)
+  league     League?          @relation(fields: [leagueId], references: [id], onDelete: SetNull)
+  cards               Card[]
+  positions           PlayerPosition[]
+  metrics             PlayerMetrics?
+  overallCalculations OverallCalculation[]
+
+  @@unique([provider, externalId])
+  @@index([nationality])
+  @@index([status])
+  @@index([teamId])
+  @@index([leagueId])
+  @@index([countryId])
+  @@map("players")
+}
+
+/// First-class position assignment for a player (primary + secondary roles).
+model PlayerPosition {
+  id           String   @id @default(uuid()) @db.Uuid
+  playerId     String   @map("player_id") @db.Uuid
+  positionCode String   @map("position_code") @db.VarChar(10)
+  isPrimary    Boolean  @map("is_primary")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  player Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
+
+  @@unique([playerId, positionCode])
+  @@index([playerId])
+  @@index([positionCode])
+  @@index([isPrimary])
+  @@map("player_positions")
+}
+
+/// Database-driven card edition family (BASE, HERO, TOTY, etc.)
+model CardType {
+  id          String   @id @default(uuid()) @db.Uuid
+  code        String   @unique @db.VarChar(64)
+  name        String   @db.VarChar(120)
+  description String?  @db.VarChar(512)
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  templates CardTemplate[]
+  cards     Card[]
+
+  @@index([isActive])
+  @@map("card_types")
+}
+
+/// Database-driven collectible tier
+model CardRarity {
+  id          String   @id @default(uuid()) @db.Uuid
+  code        String   @unique @db.VarChar(64)
+  name        String   @db.VarChar(120)
+  description String?  @db.VarChar(512)
+  sortOrder   Int      @map("sort_order")
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  cards Card[]
+
+  @@index([sortOrder])
+  @@index([isActive])
+  @@map("card_rarities")
+}
+
+/// Visual/presentation configuration — no rendering in backend
+model CardTemplate {
+  id              String   @id @default(uuid()) @db.Uuid
+  cardTypeId      String   @map("card_type_id") @db.Uuid
+  name            String   @db.VarChar(120)
+  backgroundImage String?  @map("background_image") @db.VarChar(2048)
+  borderImage     String?  @map("border_image") @db.VarChar(2048)
+  animationKey    String?  @map("animation_key") @db.VarChar(64)
+  primaryColor    String?  @map("primary_color") @db.VarChar(16)
+  secondaryColor  String?  @map("secondary_color") @db.VarChar(16)
+  isActive        Boolean  @default(true) @map("is_active")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  cardType CardType @relation(fields: [cardTypeId], references: [id], onDelete: Restrict)
+  cards    Card[]
+
+  @@index([cardTypeId])
+  @@index([isActive])
+  @@map("card_templates")
+}
+
+/// Playable game asset — gameplay strength lives here, not on Player
+model Card {
+  id             String    @id @default(uuid()) @db.Uuid
+  playerId       String    @map("player_id") @db.Uuid
+  cardTypeId     String    @map("card_type_id") @db.Uuid
+  cardRarityId   String    @map("card_rarity_id") @db.Uuid
+  cardTemplateId String    @map("card_template_id") @db.Uuid
+  overall        Int       @db.SmallInt
+  overallSource  String    @map("overall_source") @db.VarChar(32)
+  cardVersion    String    @map("card_version") @db.VarChar(64)
+  releaseDate    DateTime? @map("release_date") @db.Date
+  isActive       Boolean   @default(true) @map("is_active")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+
+  player       Player       @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  cardType     CardType     @relation(fields: [cardTypeId], references: [id], onDelete: Restrict)
+  cardRarity   CardRarity   @relation(fields: [cardRarityId], references: [id], onDelete: Restrict)
+  cardTemplate CardTemplate @relation(fields: [cardTemplateId], references: [id], onDelete: Restrict)
+
+  @@index([playerId])
+  @@index([cardTypeId])
+  @@index([cardRarityId])
+  @@index([overall])
+  @@index([isActive])
+  @@map("cards")
+}
+
+model Team {
+  id             String   @id @default(uuid()) @db.Uuid
+  provider       String?  @db.VarChar(32)
+  externalId     String?  @map("external_id") @db.VarChar(128)
+  name           String   @db.VarChar(100)
+  shortName      String?  @map("short_name") @db.VarChar(32)
+  countryId      String?  @map("country_id") @db.Uuid
+  leagueId       String?  @map("league_id") @db.Uuid
+  country        String?  @db.VarChar(64)
+  logoUrl        String?  @map("logo_url") @db.VarChar(2048)
+  formationCode  String?  @map("formation_code") @db.VarChar(16)
+  manager        String?  @db.VarChar(100)
+  /// Slot values are Card UUIDs (legacy field name: playerIds)
+  startingEleven Json?    @map("starting_eleven")
+  chemistryScore Int?     @map("chemistry_score") @db.SmallInt
+  teamOverall    Int?     @map("team_overall") @db.SmallInt
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  countryRef Country? @relation(fields: [countryId], references: [id], onDelete: SetNull)
+  league     League?  @relation(fields: [leagueId], references: [id], onDelete: SetNull)
+  players    Player[]
+  coaches    Coach[]
+
+  @@unique([provider, externalId])
+  @@index([name])
+  @@index([countryId])
+  @@index([leagueId])
+  @@map("teams")
+}
+
+/// Technical staff imported from Transfermarkt (head coaches per club).
+model Coach {
+  id              String    @id @default(uuid()) @db.Uuid
+  provider        String?   @db.VarChar(32)
+  externalId      String?   @map("external_id") @db.VarChar(128)
+  firstName       String    @map("first_name") @db.VarChar(100)
+  lastName        String    @map("last_name") @db.VarChar(100)
+  displayName     String    @map("display_name") @db.VarChar(120)
+  role            String    @db.VarChar(64)
+  nationality     String    @db.VarChar(64)
+  age             Int?      @db.SmallInt
+  birthDate       DateTime? @map("birth_date") @db.Date
+  imageUrl        String?   @map("image_url") @db.VarChar(2048)
+  appointedDate   DateTime? @map("appointed_date") @db.Date
+  contractExpires DateTime? @map("contract_expires") @db.Date
+  teamId          String?   @map("team_id") @db.Uuid
+  leagueId        String?   @map("league_id") @db.Uuid
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+
+  team   Team?   @relation(fields: [teamId], references: [id], onDelete: SetNull)
+  league League? @relation(fields: [leagueId], references: [id], onDelete: SetNull)
+  selectedByParticipants LobbyParticipant[] @relation("SelectedCoach")
+  coachOptions         LobbyParticipantCoachOption[]
+
+  @@unique([provider, externalId])
+  @@index([teamId])
+  @@index([leagueId])
+  @@index([role])
+  @@index([displayName])
+  @@map("coaches")
+}
+
+/// Tracks admin import runs (competition → clubs → players → enrichment)
+model ImportJob {
+  id               String    @id @default(uuid()) @db.Uuid
+  jobType          String    @map("job_type") @db.VarChar(32)
+  provider         String    @db.VarChar(32)
+  targetExternalId String?   @map("target_external_id") @db.VarChar(128)
+  targetName       String?   @map("target_name") @db.VarChar(120)
+  status           String    @db.VarChar(32)
+  startedAt        DateTime? @map("started_at")
+  finishedAt       DateTime? @map("finished_at")
+  totalRecords     Int       @default(0) @map("total_records")
+  processedRecords Int       @default(0) @map("processed_records")
+  failedRecords    Int       @default(0) @map("failed_records")
+  errorMessage     String?   @map("error_message") @db.VarChar(1024)
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+
+  logs           ImportJobLog[]
+  failedRecords_ ImportFailedRecord[] @relation("JobFailedRecords")
+
+  @@index([status])
+  @@index([createdAt])
+  @@index([targetExternalId])
+  @@map("import_jobs")
+}
+
+model ImportJobLog {
+  id        String   @id @default(uuid()) @db.Uuid
+  jobId     String   @map("job_id") @db.Uuid
+  level     String   @db.VarChar(16)
+  message   String   @db.VarChar(1024)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  job ImportJob @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@index([jobId])
+  @@index([createdAt])
+  @@map("import_job_logs")
+}
+
+model ImportFailedRecord {
+  id           String   @id @default(uuid()) @db.Uuid
+  jobId        String   @map("job_id") @db.Uuid
+  recordType   String   @map("record_type") @db.VarChar(32)
+  externalId   String?  @map("external_id") @db.VarChar(128)
+  slug         String?  @db.VarChar(120)
+  displayName  String?  @map("display_name") @db.VarChar(120)
+  errorMessage String   @map("error_message") @db.VarChar(1024)
+  resolved     Boolean  @default(false)
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  job ImportJob @relation("JobFailedRecords", fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@index([jobId])
+  @@index([resolved])
+  @@map("import_failed_records")
+}
+
+model League {
+  id         String   @id @default(uuid()) @db.Uuid
+  provider   String?  @db.VarChar(32)
+  externalId String?  @map("external_id") @db.VarChar(128)
+  slug       String?  @db.VarChar(120)
+  name       String   @db.VarChar(100)
+  countryId  String?  @map("country_id") @db.Uuid
+  country    String?  @db.VarChar(64)
+  logoUrl    String?  @map("logo_url") @db.VarChar(2048)
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  countryRef Country? @relation(fields: [countryId], references: [id], onDelete: SetNull)
+  players    Player[]
+  teams      Team[]
+  coaches    Coach[]
+
+  @@unique([provider, externalId])
+  @@index([country])
+  @@index([name])
+  @@index([countryId])
+  @@map("leagues")
+}
+
+/// Registered overall algorithm versions (V1, V2, …)
+model OverallAlgorithmVersion {
+  id          String   @id @default(uuid()) @db.Uuid
+  code        String   @unique @db.VarChar(16)
+  name        String   @db.VarChar(120)
+  description String?  @db.VarChar(512)
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  metrics      PlayerMetrics[]
+  calculations OverallCalculation[]
+
+  @@index([isActive])
+  @@map("overall_algorithm_versions")
+}
+
+/// Latest per-player scoring inputs and component snapshot (career/legacy stored manually for V1)
+model PlayerMetrics {
+  id                 String   @id @default(uuid()) @db.Uuid
+  playerId           String   @unique @map("player_id") @db.Uuid
+  algorithmVersionId String   @map("algorithm_version_id") @db.Uuid
+  marketValueScore   Decimal  @map("market_value_score") @db.Decimal(6, 2)
+  careerScore        Decimal  @map("career_score") @db.Decimal(6, 2)
+  ageScore           Decimal  @map("age_score") @db.Decimal(6, 2)
+  leagueScore        Decimal  @map("league_score") @db.Decimal(6, 2)
+  legacyScore        Decimal  @map("legacy_score") @db.Decimal(6, 2)
+  profileTag         String?  @map("profile_tag") @db.VarChar(64)
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @updatedAt @map("updated_at")
+
+  player           Player                  @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  algorithmVersion OverallAlgorithmVersion @relation(fields: [algorithmVersionId], references: [id], onDelete: Restrict)
+
+  @@index([algorithmVersionId])
+  @@map("player_metrics")
+}
+
+/// Immutable historical overall calculation record
+model OverallCalculation {
+  id                 String   @id @default(uuid()) @db.Uuid
+  playerId           String   @map("player_id") @db.Uuid
+  algorithmVersionId String   @map("algorithm_version_id") @db.Uuid
+  marketValueScore   Decimal  @map("market_value_score") @db.Decimal(6, 2)
+  careerScore        Decimal  @map("career_score") @db.Decimal(6, 2)
+  ageScore           Decimal  @map("age_score") @db.Decimal(6, 2)
+  leagueScore        Decimal  @map("league_score") @db.Decimal(6, 2)
+  legacyScore        Decimal  @map("legacy_score") @db.Decimal(6, 2)
+  rawScore           Decimal  @map("raw_score") @db.Decimal(6, 2)
+  finalOverall       Int      @map("final_overall") @db.SmallInt
+  profileTag         String?  @map("profile_tag") @db.VarChar(64)
+  appliedFloor       Int?     @map("applied_floor") @db.SmallInt
+  appliedCeiling     Int?     @map("applied_ceiling") @db.SmallInt
+  createdAt          DateTime @default(now()) @map("created_at")
+
+  player           Player                  @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  algorithmVersion OverallAlgorithmVersion @relation(fields: [algorithmVersionId], references: [id], onDelete: Restrict)
+
+  @@index([playerId])
+  @@index([algorithmVersionId])
+  @@index([createdAt])
+  @@map("overall_calculations")
+}
+
+/// Tactical formation template — slot layout stored as JSON.
+model Formation {
+  id        String   @id @default(uuid()) @db.Uuid
+  code      String   @unique @db.VarChar(16)
+  slots     Json
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  participantOptions     LobbyParticipantFormationOption[]
+  selectedByParticipants LobbyParticipant[]              @relation("SelectedFormation")
+
+  @@map("formations")
+}
+
+/// Multiplayer draft lobby — host creates room, others join via code.
+model Lobby {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String   @db.VarChar(80)
+  code      String   @unique @db.VarChar(6)
+  status    String   @db.VarChar(32)
+  phase     String   @default("LOBBY") @db.VarChar(32)
+  maxPlayers Int     @default(8) @map("max_players") @db.SmallInt
+  expiresAt DateTime @default(dbgenerated("(NOW() + INTERVAL '30 minutes')")) @map("expires_at")
+  formationSelectionStartedAt DateTime? @map("formation_selection_started_at")
+  formationSelectionDeadline  DateTime? @map("formation_selection_deadline")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  participants LobbyParticipant[]
+  roomLeague   RoomLeague?
+
+  @@index([status])
+  @@index([phase])
+  @@index([createdAt])
+  @@index([expiresAt])
+  @@map("lobbies")
+}
+
+/// Mini league created after draft — every participant plays every other twice.
+model RoomLeague {
+  id        String   @id @default(uuid()) @db.Uuid
+  lobbyId   String   @unique @map("lobby_id") @db.Uuid
+  status    String   @db.VarChar(32)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  lobby     Lobby                @relation(fields: [lobbyId], references: [id], onDelete: Cascade)
+  fixtures  RoomFixture[]
+  standings RoomLeagueStanding[]
+  matches   RoomMatch[]
+
+  @@index([status])
+  @@map("room_leagues")
+}
+
+model RoomFixture {
+  id                String   @id @default(uuid()) @db.Uuid
+  leagueId          String   @map("league_id") @db.Uuid
+  roundNumber       Int      @map("round_number") @db.SmallInt
+  homeParticipantId String   @map("home_participant_id") @db.Uuid
+  awayParticipantId String   @map("away_participant_id") @db.Uuid
+  matchId           String?  @unique @map("match_id") @db.Uuid
+  createdAt         DateTime @default(now()) @map("created_at")
+
+  league RoomLeague @relation(fields: [leagueId], references: [id], onDelete: Cascade)
+  match  RoomMatch? @relation(fields: [matchId], references: [id], onDelete: SetNull)
+
+  @@unique([leagueId, roundNumber])
+  @@index([leagueId])
+  @@map("room_fixtures")
+}
+
+model RoomMatch {
+  id                  String    @id @default(uuid()) @db.Uuid
+  leagueId            String    @map("league_id") @db.Uuid
+  homeParticipantId   String    @map("home_participant_id") @db.Uuid
+  awayParticipantId   String    @map("away_participant_id") @db.Uuid
+  status              String    @db.VarChar(32)
+  currentMinute       Int       @default(0) @map("current_minute") @db.SmallInt
+  homeScore           Int       @default(0) @map("home_score") @db.SmallInt
+  awayScore           Int       @default(0) @map("away_score") @db.SmallInt
+  homeXg              Float     @default(0) @map("home_xg")
+  awayXg              Float     @default(0) @map("away_xg")
+  simulationSeed      Int       @map("simulation_seed")
+  homeSnapshot        Json      @map("home_snapshot")
+  awaySnapshot        Json      @map("away_snapshot")
+  manOfTheMatchCardId String?   @map("man_of_the_match_card_id") @db.Uuid
+  startedAt           DateTime? @map("started_at")
+  finishedAt          DateTime? @map("finished_at")
+  createdAt           DateTime  @default(now()) @map("created_at")
+  updatedAt           DateTime  @updatedAt @map("updated_at")
+
+  league  RoomLeague          @relation(fields: [leagueId], references: [id], onDelete: Cascade)
+  fixture RoomFixture?
+  events  RoomMatchEvent[]
+  stats   RoomMatchStatistic?
+
+  @@index([leagueId, status])
+  @@map("room_matches")
+}
+
+model RoomMatchEvent {
+  id                  String    @id @default(uuid()) @db.Uuid
+  matchId             String    @map("match_id") @db.Uuid
+  minute              Int       @db.SmallInt
+  eventType           String    @map("event_type") @db.VarChar(32)
+  teamSide            String    @map("team_side") @db.VarChar(8)
+  playerName          String?   @map("player_name") @db.VarChar(120)
+  secondaryPlayerName String?   @map("secondary_player_name") @db.VarChar(120)
+  cardId              String?   @map("card_id") @db.Uuid
+  commentary          String    @db.VarChar(512)
+  xgValue             Float?    @map("xg_value")
+  isGoal              Boolean   @default(false) @map("is_goal")
+  sortOrder           Int       @map("sort_order") @db.SmallInt
+  revealedAt          DateTime? @map("revealed_at")
+
+  match RoomMatch @relation(fields: [matchId], references: [id], onDelete: Cascade)
+
+  @@index([matchId, minute])
+  @@index([matchId, sortOrder])
+  @@map("room_match_events")
+}
+
+model RoomMatchStatistic {
+  id                   String @id @default(uuid()) @db.Uuid
+  matchId              String @unique @map("match_id") @db.Uuid
+  homePossession       Int    @map("home_possession") @db.SmallInt
+  awayPossession       Int    @map("away_possession") @db.SmallInt
+  homeShots            Int    @default(0) @map("home_shots") @db.SmallInt
+  awayShots            Int    @default(0) @map("away_shots") @db.SmallInt
+  homeShotsOnTarget    Int    @default(0) @map("home_shots_on_target") @db.SmallInt
+  awayShotsOnTarget    Int    @default(0) @map("away_shots_on_target") @db.SmallInt
+  homeCorners          Int    @default(0) @map("home_corners") @db.SmallInt
+  awayCorners          Int    @default(0) @map("away_corners") @db.SmallInt
+  homeFouls            Int    @default(0) @map("home_fouls") @db.SmallInt
+  awayFouls            Int    @default(0) @map("away_fouls") @db.SmallInt
+  homeYellowCards      Int    @default(0) @map("home_yellow_cards") @db.SmallInt
+  awayYellowCards      Int    @default(0) @map("away_yellow_cards") @db.SmallInt
+  homeRedCards         Int    @default(0) @map("home_red_cards") @db.SmallInt
+  awayRedCards         Int    @default(0) @map("away_red_cards") @db.SmallInt
+  homeDangerousAttacks Int    @default(0) @map("home_dangerous_attacks") @db.SmallInt
+  awayDangerousAttacks Int    @default(0) @map("away_dangerous_attacks") @db.SmallInt
+  playerRatings        Json   @default("{}") @map("player_ratings")
+
+  match RoomMatch @relation(fields: [matchId], references: [id], onDelete: Cascade)
+
+  @@map("room_match_statistics")
+}
+
+model RoomLeagueStanding {
+  id             String @id @default(uuid()) @db.Uuid
+  leagueId       String @map("league_id") @db.Uuid
+  participantId  String @map("participant_id") @db.Uuid
+  displayName    String @map("display_name") @db.VarChar(40)
+  played         Int    @default(0) @db.SmallInt
+  won            Int    @default(0) @db.SmallInt
+  drawn          Int    @default(0) @db.SmallInt
+  lost           Int    @default(0) @db.SmallInt
+  goalsFor       Int    @default(0) @map("goals_for") @db.SmallInt
+  goalsAgainst   Int    @default(0) @map("goals_against") @db.SmallInt
+  goalDifference Int    @default(0) @map("goal_difference") @db.SmallInt
+  points         Int    @default(0) @db.SmallInt
+  rank           Int    @default(0) @db.SmallInt
+
+  league RoomLeague @relation(fields: [leagueId], references: [id], onDelete: Cascade)
+
+  @@unique([leagueId, participantId])
+  @@index([leagueId, rank])
+  @@map("room_league_standings")
+}
+
+/// Draft session linked to a lobby — stores hidden balance state per participant.
+model DraftSession {
+  id         String   @id @default(uuid()) @db.Uuid
+  lobbyId    String   @unique @map("lobby_id") @db.Uuid
+  status     String   @db.VarChar(32)
+  rosterSize Int      @default(11) @map("roster_size") @db.SmallInt
+  config     Json
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  participants DraftParticipantState[]
+
+  @@index([status])
+  @@map("draft_sessions")
+}
+
+model DraftParticipantState {
+  id                 String   @id @default(uuid()) @db.Uuid
+  draftSessionId     String   @map("draft_session_id") @db.Uuid
+  lobbyParticipantId String   @map("lobby_participant_id") @db.Uuid
+  powerBudget        Int      @map("power_budget") @db.SmallInt
+  spentBudget        Int      @default(0) @map("spent_budget") @db.SmallInt
+  surpriseDebt       Int      @default(0) @map("surprise_debt") @db.SmallInt
+  surpriseCredit     Int      @default(0) @map("surprise_credit") @db.SmallInt
+  elitePicksTaken    Int      @default(0) @map("elite_picks_taken") @db.SmallInt
+  draftedCardIds     Json     @default("[]") @map("drafted_card_ids")
+  slotAssignments    Json     @default("[]") @map("slot_assignments")
+  pickCount          Int      @default(0) @map("pick_count") @db.SmallInt
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @updatedAt @map("updated_at")
+
+  draftSession DraftSession @relation(fields: [draftSessionId], references: [id], onDelete: Cascade)
+
+  @@unique([draftSessionId, lobbyParticipantId])
+  @@index([draftSessionId])
+  @@map("draft_participant_states")
+}
+
+model LobbyParticipant {
+  id           String   @id @default(uuid()) @db.Uuid
+  lobbyId      String   @map("lobby_id") @db.Uuid
+  displayName  String   @map("display_name") @db.VarChar(40)
+  isHost       Boolean  @default(false) @map("is_host")
+  isReady      Boolean  @default(false) @map("is_ready")
+  phaseStatus  String   @default("IN_LOBBY") @map("phase_status") @db.VarChar(32)
+  selectedFormationId String? @map("selected_formation_id") @db.Uuid
+  selectedCoachId     String? @map("selected_coach_id") @db.Uuid
+  sessionToken String   @unique @map("session_token") @db.VarChar(64)
+  joinedAt     DateTime @default(now()) @map("joined_at")
+
+  lobby               Lobby @relation(fields: [lobbyId], references: [id], onDelete: Cascade)
+  selectedFormation   Formation? @relation("SelectedFormation", fields: [selectedFormationId], references: [id], onDelete: SetNull)
+  selectedCoach       Coach? @relation("SelectedCoach", fields: [selectedCoachId], references: [id], onDelete: SetNull)
+  formationOptions    LobbyParticipantFormationOption[]
+  coachOptions        LobbyParticipantCoachOption[]
+
+  @@unique([lobbyId, displayName])
+  @@index([lobbyId])
+  @@index([selectedFormationId])
+  @@index([selectedCoachId])
+  @@map("lobby_participants")
+}
+
+model LobbyParticipantCoachOption {
+  id            String @id @default(uuid()) @db.Uuid
+  participantId String @map("participant_id") @db.Uuid
+  coachId       String @map("coach_id") @db.Uuid
+  sortOrder     Int    @map("sort_order") @db.SmallInt
+
+  participant LobbyParticipant @relation(fields: [participantId], references: [id], onDelete: Cascade)
+  coach       Coach            @relation(fields: [coachId], references: [id], onDelete: Cascade)
+
+  @@unique([participantId, coachId])
+  @@index([participantId])
+  @@map("lobby_participant_coach_options")
+}
+
+model LobbyParticipantFormationOption {
+  id            String @id @default(uuid()) @db.Uuid
+  participantId String @map("participant_id") @db.Uuid
+  formationId   String @map("formation_id") @db.Uuid
+  sortOrder     Int    @map("sort_order") @db.SmallInt
+
+  participant LobbyParticipant @relation(fields: [participantId], references: [id], onDelete: Cascade)
+  formation   Formation        @relation(fields: [formationId], references: [id], onDelete: Cascade)
+
+  @@unique([participantId, formationId])
+  @@index([participantId])
+  @@map("lobby_participant_formation_options")
+}

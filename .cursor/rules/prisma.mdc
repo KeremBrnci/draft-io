@@ -1,0 +1,187 @@
+---
+description: Prisma schema and repository persistence conventions
+globs: apps/backend/**/infrastructure/**, **/prisma/**
+alwaysApply: false
+---
+
+# Prisma & Persistence
+
+## Governance
+
+Subordinate to `docs/architecture/ai-constitution.md` and `architecture.mdc`. Mandatory workflow: `.cursor/rules/workflow.mdc`.
+
+| Document | Path |
+|----------|------|
+| AI Constitution | `docs/architecture/ai-constitution.md` |
+| Workflow | `.cursor/rules/workflow.mdc` |
+| Universal agent instructions | `AGENTS.md` |
+| Project context skill | `.claude/skills/project-context/SKILL.md` |
+
+Prisma only in infrastructure. Schema changes require database impact analysis (workflow Step 3).
+
+## Purpose
+
+Govern how PostgreSQL is accessed via Prisma in draft.io. Prisma is an **infrastructure concern only** — it never leaks into domain or application layers. Schema design supports the football draft/simulation domain with snake_case columns and UUID primary keys.
+
+## Required Behavior
+
+### Schema Location
+
+- Single schema: `apps/backend/prisma/schema.prisma`.
+- PostgreSQL provider; connection via `DATABASE_URL` environment variable.
+- Run migrations with Prisma CLI from `apps/backend/`.
+
+### Naming Conventions
+
+| Prisma field | Database column | TypeScript (domain) |
+|--------------|-----------------|-------------------|
+| `displayName` | `display_name` | `PlayerName` value object |
+| `overallRating` | `overall_rating` | `OverallRating` value object |
+| `createdAt` | `created_at` | `Date` |
+| `updatedAt` | `updated_at` | `Date` |
+
+- Model names: PascalCase singular (`Player`, `Team`).
+- Table names: snake_case plural via `@@map("players")`.
+- Primary keys: `String @id @default(uuid()) @db.Uuid`.
+- Add `@@index` for frequently filtered columns (e.g., `position`, `overallRating`).
+
+### Repository Pattern
+
+- Implement domain `*Repository` port in `infrastructure/persistence/prisma-{entity}.repository.ts`.
+- Class is `@Injectable()` — this is the only NestJS decorator in persistence layer.
+- Inject `PrismaService` from `infrastructure/database/prisma.service.ts`.
+- Use `upsert` for save operations to handle create and update uniformly.
+
+### Mappers
+
+- Separate mapper file: `infrastructure/mappers/{entity}.mapper.ts`.
+- `toDomain(record)` → reconstitutes entity via `Entity.reconstitute()`.
+- `toPersistence(entity)` → plain object for Prisma `create`/`update`/`upsert`.
+- Mappers are pure functions — no async, no side effects.
+
+### Queries
+
+- Keep queries in repository methods — no raw SQL unless performance-critical and documented.
+- Return domain entities, never Prisma model types, from repository public methods.
+- Use `findUnique` for ID lookups, `findMany` with explicit `orderBy` for lists.
+- Cross-module data: fetch by ID in application layer, never join across bounded contexts in a single query.
+
+### Migrations
+
+- Every schema change requires a migration file.
+- Review generated SQL before applying to shared environments.
+- Never edit applied migration files — create a new migration instead.
+
+## Forbidden Patterns
+
+- Importing `@prisma/client` in domain or application layers.
+- Returning `Prisma.Player` (or any Prisma type) from use cases or controllers.
+- Business validation in mappers or repositories (belongs in domain value objects).
+- Using Prisma models as domain entities directly.
+- `prisma.$queryRaw` without parameterization.
+- Storing domain logic in Prisma middleware.
+- Cross-module `include` joins that couple bounded contexts.
+- Nullable columns without explicit handling in mapper (`null` → domain default or error).
+
+## Good Examples
+
+```prisma
+// prisma/schema.prisma
+model Player {
+  id            String   @id @default(uuid()) @db.Uuid
+  displayName   String   @map("display_name") @db.VarChar(100)
+  position      String   @db.VarChar(10)
+  overallRating Int      @map("overall_rating") @db.SmallInt
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  @@index([position])
+  @@index([overallRating])
+  @@map("players")
+}
+```
+
+```typescript
+// infrastructure/mappers/player.mapper.ts
+export function toPlayerDomain(record: PrismaPlayer): Player {
+  return Player.reconstitute({
+    id: PlayerId.create(record.id),
+    name: PlayerName.create(record.displayName),
+    position: Position.create(record.position),
+    overallRating: OverallRating.create(record.overallRating),
+    createdAt: record.createdAt,
+    updatedAt: record.updatedAt,
+  });
+}
+
+export function toPlayerPersistence(player: Player) {
+  return {
+    id: player.id.value,
+    displayName: player.name.value,
+    position: player.position.value,
+    overallRating: player.overallRating.value,
+    createdAt: player.createdAt,
+    updatedAt: player.updatedAt,
+  };
+}
+```
+
+```typescript
+// infrastructure/persistence/prisma-player.repository.ts
+@Injectable()
+export class PrismaPlayerRepository implements PlayerRepository {
+  constructor(private readonly prisma: PrismaService) {}
+
+  async save(player: Player): Promise<void> {
+    const data = toPlayerPersistence(player);
+    await this.prisma.player.upsert({
+      where: { id: data.id },
+      create: data,
+      update: {
+        displayName: data.displayName,
+        position: data.position,
+        overallRating: data.overallRating,
+        updatedAt: data.updatedAt,
+      },
+    });
+  }
+}
+```
+
+## Bad Examples
+
+```typescript
+// BAD: Prisma in use case
+import { PrismaClient } from '@prisma/client';
+
+export class CreatePlayerUseCase {
+  async execute(command: CreatePlayerCommand) {
+    await this.prisma.player.create({ data: command });
+  }
+}
+```
+
+```typescript
+// BAD: validation in repository
+async save(player: Player): Promise<void> {
+  if (player.overallRating.value > 99) throw new Error('Invalid rating');
+  await this.prisma.player.create({ ... });
+}
+```
+
+```typescript
+// BAD: returning Prisma model from repository
+async findById(id: string): Promise<Prisma.Player | null> {
+  return this.prisma.player.findUnique({ where: { id } });
+}
+```
+
+## Checklist
+
+- [ ] Schema changes include `@@map`, `@map`, and appropriate indexes
+- [ ] Repository implements domain port interface
+- [ ] Mapper functions handle domain ↔ persistence conversion
+- [ ] Repository methods return domain entities only
+- [ ] No Prisma imports outside `infrastructure/` and `prisma/`
+- [ ] Migration created and reviewed for schema changes
+- [ ] Cross-module references resolved by ID in application layer, not SQL joins

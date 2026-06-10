@@ -1,0 +1,178 @@
+---
+description: Football game domain rules and bounded context conventions
+globs: apps/backend/src/modules/**
+alwaysApply: false
+---
+
+# Game Domain
+
+## Governance
+
+This rule is **priority 3** in the rule hierarchy. Supreme authority: `docs/architecture/ai-constitution.md`.
+
+| Document | Path |
+|----------|------|
+| AI Constitution | `docs/architecture/ai-constitution.md` |
+| Workflow | `.cursor/rules/workflow.mdc` |
+| Universal agent instructions | `AGENTS.md` |
+| Project context skill | `.claude/skills/project-context/SKILL.md` |
+| Project vision | `docs/architecture/project-vision.md` |
+
+Game rules must not leak outside domain/application. Major game features require planning per `workflow.mdc`.
+
+## Purpose
+
+Encode the football draft/simulation domain model for draft.io backend modules. Each module is a **bounded context** with a defined responsibility. Game rules live in domain entities and value objects — not in controllers, DTOs, or repositories.
+
+## Required Behavior
+
+### Domain Modules
+
+| Module | Type | Responsibility |
+|--------|------|----------------|
+| `positions` | Vocabulary | 15 valid position codes (GK, CB, ST, etc.) |
+| `players` | Aggregate | Player cards: name, position, overall rating |
+| `formations` | Templates | Tactical layouts with 11 slots and allowed positions |
+| `teams` | Aggregate | Starting eleven, formation code, manager (future) |
+| `nations` | Aggregate | National identity for players and leagues |
+| `leagues` | Aggregate | Groups of teams within a nation and season |
+| `draft` | Aggregate (future) | Draft room logic and pick order |
+| `lobbies` | Aggregate (future) | Lobby management and matchmaking |
+| `matches` | Aggregate (future) | Match scheduling and results |
+| `simulation` | Service (future) | Match engine and chemistry calculations |
+
+### Aggregate Rules
+
+- **Entities** extend `Entity<TId>` with private constructors and factory methods (`create`, `reconstitute`).
+- **Value objects** extend `ValueObject<TProps>` with validation in `static create()`.
+- **Invariants** enforced inside the aggregate — reject invalid state at creation/mutation time.
+- **IDs** are typed value objects (`PlayerId`, `TeamId`), not raw strings in domain.
+
+### Cross-Module References
+
+- Hold foreign aggregates by **ID only**: `playerIds: readonly string[]`, `formationCode: string`.
+- Import other modules' **value objects** in domain when needed (e.g., `Position` in `Player`).
+- Never import another module's **entity** into your domain layer.
+- Application use cases validate references exist before assignment.
+
+### Position System
+
+- 15 positions defined in `positions` module: `ALL_PLAYER_POSITIONS` in shared-types.
+- `Position.create(code)` validates against allowed codes.
+- Formations define slots with `allowedPositions` per slot.
+
+### Player Cards
+
+- `displayName`: 1–100 characters, non-empty.
+- `overallRating`: integer 1–99.
+- `position`: one of 15 valid codes.
+
+### Teams & Starting Eleven
+
+- Exactly 11 player slots in `StartingEleven` value object.
+- Each slot maps to a position compatible with the chosen formation.
+- `formationCode` references a predefined formation template.
+- `chemistryScore` and `teamOverall` reserved for future calculation (currently `null`).
+
+### Formations
+
+- Predefined templates stored in-memory (`formation-templates.ts`).
+- Each formation has a unique code (e.g., `4-3-3`) and 11 slots.
+- Slots specify allowed positions — validation in `FormationSlot` value object.
+
+### Future Flows (Design Targets)
+
+**Draft:** Lobby → draft room → picks assign `PlayerId` to `Team.startingEleven` → `DraftCompleted` event.
+
+**Match:** Schedule → load teams by ID → resolve players → apply chemistry → run simulation → store result.
+
+## Forbidden Patterns
+
+- Storing full `Player` objects inside `Team` domain entity.
+- Position validation via string comparison in controllers.
+- Overall rating bounds checked only in DTO, not in `OverallRating` value object.
+- Game rules scattered across infrastructure mappers.
+- Mutable collections exposed from entities (return copies or readonly arrays).
+- Skipping `reconstitute` factory when loading from persistence.
+- Business logic in NestJS modules or DTOs.
+
+## Good Examples
+
+```typescript
+// domain/value-objects/overall-rating.vo.ts
+export class OverallRating extends ValueObject<{ value: number }> {
+  static create(value: number): OverallRating {
+    if (!Number.isInteger(value) || value < 1 || value > 99) {
+      throw new InvalidOverallRatingError(value);
+    }
+    return new OverallRating({ value });
+  }
+}
+```
+
+```typescript
+// domain/entities/player.entity.ts
+export class Player extends Entity<PlayerId> {
+  static create(props: CreatePlayerProps): Player {
+    return new Player({ ...props, createdAt: new Date(), updatedAt: new Date() });
+  }
+
+  static reconstitute(props: PlayerProps): Player {
+    return new Player(props);
+  }
+
+  updatePosition(position: Position): void {
+    this._position = position;
+    this._updatedAt = new Date();
+  }
+}
+```
+
+```typescript
+// teams domain — reference players by ID
+export interface TeamProps {
+  readonly id: TeamId;
+  readonly name: TeamName;
+  readonly playerIds: readonly string[];
+  readonly formationCode: string;
+}
+```
+
+## Bad Examples
+
+```typescript
+// BAD: foreign entity embedded in aggregate
+import { Player } from '../../players/domain/entities/player.entity';
+
+export class Team extends Entity<TeamId> {
+  private readonly _startingEleven: Player[];
+}
+```
+
+```typescript
+// BAD: validation only in DTO
+export class CreatePlayerDto {
+  @IsInt() @Min(1) @Max(99) overallRating: number;
+  // No OverallRating value object — domain can be bypassed
+}
+```
+
+```typescript
+// BAD: public constructor bypassing invariants
+export class Player extends Entity<PlayerId> {
+  constructor(public name: string, public rating: number) {
+    super(PlayerId.create('any'));
+  }
+}
+```
+
+## Checklist
+
+- [ ] Module responsibility matches the domain table above
+- [ ] Entities use `create` and `reconstitute` factories
+- [ ] Value objects validate in `static create()`
+- [ ] Cross-module references use IDs, not embedded entities
+- [ ] Game invariants enforced in domain, not presentation
+- [ ] Position and rating rules use shared value objects
+- [ ] Domain errors defined in `domain/errors/` with `code` property
+- [ ] Future fields (`chemistryScore`, etc.) documented as nullable placeholders
