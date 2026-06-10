@@ -21,7 +21,10 @@
     "architecture:check": "depcruise apps/backend/src --config .dependency-cruiser.cjs",
     "clean": "pnpm -r exec rm -rf dist build .next coverage",
     "install:vercel": "pnpm install --frozen-lockfile --filter @draft-io/frontend...",
-    "build:vercel": "pnpm --filter @draft-io/shared-types build && pnpm --filter @draft-io/shared-utils build && pnpm --filter @draft-io/frontend build"
+    "build:vercel": "pnpm --filter @draft-io/shared-types build && pnpm --filter @draft-io/shared-utils build && pnpm --filter @draft-io/frontend build",
+    "build:railway": "pnpm --filter @draft-io/shared-types build && pnpm --filter @draft-io/shared-utils build && pnpm --filter @draft-io/backend exec prisma generate && pnpm --filter @draft-io/backend build",
+    "start:railway": "pnpm --filter @draft-io/backend start:prod",
+    "db:push:railway": "pnpm --filter @draft-io/backend exec prisma db push --skip-generate"
   },
   "devDependencies": {
     "dependency-cruiser": "^16.10.1",
