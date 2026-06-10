@@ -1,14 +1,16 @@
 [variables]
 NIXPACKS_NODE_VERSION = "20"
+NIXPACKS_NODE_ENV = "development"
 
 [phases.install]
 cmds = [
   "cd ../.. && npm install -g pnpm@9.15.9",
-  "cd ../.. && pnpm install --frozen-lockfile --filter @draft-io/backend...",
+  "cd ../.. && NODE_ENV=development pnpm install --frozen-lockfile --filter @draft-io/backend...",
+  "cd ../.. && NODE_ENV=development pnpm build:railway",
 ]
 
 [phases.build]
-cmds = ["cd ../.. && pnpm build:railway"]
+cmds = []
 
 [start]
 cmd = "node dist/main.js"

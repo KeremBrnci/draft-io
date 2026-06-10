@@ -1,6 +1,6 @@
 [build]
-builder = "nixpacks"
-buildCommand = "cd ../.. && pnpm build:railway"
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile.backend"
 watchPatterns = [
   "/apps/backend/**",
   "/packages/shared-types/**",
