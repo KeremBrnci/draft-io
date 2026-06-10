@@ -24,6 +24,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm --filter @draft-io/shared-types build
       - run: pnpm --filter @draft-io/shared-utils build
+      - run: pnpm --filter @draft-io/backend db:generate
       - run: pnpm lint
       - run: pnpm format:check
 
