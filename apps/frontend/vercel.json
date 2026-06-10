@@ -1,6 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "installCommand": "cd ../.. && PRISMA_SKIP_POSTINSTALL_GENERATE=true pnpm install:vercel",
-  "buildCommand": "cd ../.. && pnpm build:vercel",
-  "framework": "nextjs"
+  "framework": "nextjs",
+  "installCommand": "cd ../.. && PRISMA_SKIP_POSTINSTALL_GENERATE=true pnpm install --frozen-lockfile --filter @draft-io/frontend...",
+  "buildCommand": "cd ../.. && pnpm --filter @draft-io/shared-types build && pnpm --filter @draft-io/shared-utils build && pnpm --filter @draft-io/frontend build"
 }

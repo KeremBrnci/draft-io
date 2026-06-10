@@ -1,0 +1,4 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "echo 'NestJS backend cannot run on Vercel. Set Root Directory to apps/frontend for the web app, and host the API on Railway or Render.' && exit 1"
+}
