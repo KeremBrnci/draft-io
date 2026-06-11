@@ -1,15 +1,13 @@
-import type { LobbySummaryDto } from '@draft-io/shared-types';
-
 import type { DraftSessionRepository } from '../../../draft/domain/repositories/draft-session.repository';
 import { LobbyLifecycleService } from '../../../lobbies/application/services/lobby-lifecycle.service';
 import type { RoomEventsPublisher } from '../../../lobbies/application/services/room-events.publisher';
+import type { Lobby } from '../../../lobbies/domain/entities/lobby.entity';
 import { RoomPhase } from '../../../lobbies/domain/enums/room-phase.enum';
 import { InvalidLobbySessionError } from '../../../lobbies/domain/errors/lobby.errors';
 import { RoomEventName } from '../../../lobbies/domain/events/room.events';
 import type { LobbyRepository } from '../../../lobbies/domain/repositories/lobby.repository';
 import { LobbyCode } from '../../../lobbies/domain/value-objects/lobby-code.vo';
 import { SessionToken } from '../../../lobbies/domain/value-objects/session-token.vo';
-import { toLobbySummary } from '../../../lobbies/presentation/mappers/lobby-response.mapper';
 import { LeagueNotCompletedError } from '../../domain/errors/league.errors';
 import type { RoomLeagueRepository } from '../../domain/repositories/room-league.repository';
 
@@ -28,7 +26,7 @@ export class PlayAgainUseCase {
   async execute(command: {
     readonly code: string;
     readonly sessionToken: string;
-  }): Promise<LobbySummaryDto> {
+  }): Promise<Lobby> {
     const lobby = await this.lifecycle.requireActiveLobby(LobbyCode.create(command.code));
     const participant = lobby.findParticipantBySessionToken(
       SessionToken.reconstitute(command.sessionToken),
@@ -54,6 +52,6 @@ export class PlayAgainUseCase {
       phase: RoomPhase.LOBBY,
     });
 
-    return toLobbySummary(lobby);
+    return lobby;
   }
 }

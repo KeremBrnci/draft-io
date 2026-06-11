@@ -308,11 +308,11 @@ export class LobbiesController {
 
   @Post('code/:code/play-again')
   async playAgain(@Param('code') code: string, @Body() dto: StartLobbyDto) {
-    const data = await this.playAgainUseCase.execute({
+    const lobby = await this.playAgainUseCase.execute({
       code: code.toUpperCase(),
       sessionToken: dto.sessionToken,
     });
-    return { data };
+    return { data: toLobbySummary(lobby) };
   }
 
   @Get('code/:code/matches/:matchId')
