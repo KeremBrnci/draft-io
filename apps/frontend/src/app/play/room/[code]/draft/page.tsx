@@ -22,8 +22,8 @@ import { runDelayedAction, waitForActionFeedback } from '@/lib/action-feedback-d
 import { ApiClientError } from '@/lib/api/client';
 import { applyDraftPick, getDraftBoard } from '@/lib/api/draft';
 import { getLobbyByCode, setParticipantReady } from '@/lib/api/lobbies';
-import { clearLobbySession, readLobbySession } from '@/lib/lobby-session';
 import { isDraftPhaseMismatchMessage } from '@/lib/lobby-phase-routes';
+import { clearLobbySession, readLobbySession } from '@/lib/lobby-session';
 import { DRAFT_REFRESH_EVENTS } from '@/lib/lobby-stage-events';
 import { applyIfChanged } from '@/lib/stable-state';
 import { useDraftPickOptionsCache } from '@/lib/use-draft-pick-options-cache';
