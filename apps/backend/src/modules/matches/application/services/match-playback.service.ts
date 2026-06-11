@@ -481,6 +481,7 @@ export class MatchPlaybackService implements MatchPlaybackPort, OnModuleDestroy 
     }
 
     for (const event of input.eventsToReveal) {
+      const visualization = readEventVisualization(event.visualization);
       this.roomEventsPublisher.publish(input.lobbyCode, RoomEventName.MATCH_EVENT_CREATED, {
         lobbyCode: input.lobbyCode,
         phase: 'MATCHES',
@@ -488,8 +489,78 @@ export class MatchPlaybackService implements MatchPlaybackPort, OnModuleDestroy 
         eventId: event.id,
         eventType: event.eventType,
         commentary: event.commentary,
+        ...(visualization !== null
+          ? {
+              ballZone: visualization.ballZone,
+              ...(visualization.previousBallZone !== null
+                ? { previousBallZone: visualization.previousBallZone }
+                : {}),
+              homeMomentum: visualization.homeMomentum,
+              awayMomentum: visualization.awayMomentum,
+              ...(visualization.attackChainId !== null
+                ? { attackChainId: visualization.attackChainId }
+                : {}),
+            }
+          : {}),
       });
+
+      if (visualization !== null) {
+        this.roomEventsPublisher.publish(input.lobbyCode, RoomEventName.BALL_MOVED, {
+          lobbyCode: input.lobbyCode,
+          phase: 'MATCHES',
+          matchId: input.matchId,
+          ballZone: visualization.ballZone,
+          ...(visualization.previousBallZone !== null
+            ? { previousBallZone: visualization.previousBallZone }
+            : {}),
+        });
+
+        if (visualization.attackPhase === 'START') {
+          this.roomEventsPublisher.publish(input.lobbyCode, RoomEventName.ATTACK_STARTED, {
+            lobbyCode: input.lobbyCode,
+            phase: 'MATCHES',
+            matchId: input.matchId,
+            ...(visualization.attackChainId !== null
+              ? { attackChainId: visualization.attackChainId }
+              : {}),
+          });
+        } else if (visualization.attackPhase === 'PROGRESS') {
+          this.roomEventsPublisher.publish(input.lobbyCode, RoomEventName.ATTACK_PROGRESS, {
+            lobbyCode: input.lobbyCode,
+            phase: 'MATCHES',
+            matchId: input.matchId,
+            ...(visualization.attackChainId !== null
+              ? { attackChainId: visualization.attackChainId }
+              : {}),
+          });
+        }
+
+        this.roomEventsPublisher.publish(input.lobbyCode, RoomEventName.MOMENTUM_CHANGED, {
+          lobbyCode: input.lobbyCode,
+          phase: 'MATCHES',
+          matchId: input.matchId,
+          homeMomentum: visualization.homeMomentum,
+          awayMomentum: visualization.awayMomentum,
+        });
+      }
+
+      if (event.eventType === 'SHOT' || event.eventType === 'SHOT_ON_TARGET') {
+        this.roomEventsPublisher.publish(input.lobbyCode, RoomEventName.SHOT, {
+          lobbyCode: input.lobbyCode,
+          phase: 'MATCHES',
+          matchId: input.matchId,
+          eventId: event.id,
+          eventType: event.eventType,
+        });
+      }
+
       if (event.isGoal) {
+        this.roomEventsPublisher.publish(input.lobbyCode, RoomEventName.GOAL, {
+          lobbyCode: input.lobbyCode,
+          phase: 'MATCHES',
+          matchId: input.matchId,
+          ...(event.playerName !== null ? { playerName: event.playerName } : {}),
+        });
         this.roomEventsPublisher.publish(input.lobbyCode, RoomEventName.GOAL_SCORED, {
           lobbyCode: input.lobbyCode,
           phase: 'MATCHES',
@@ -561,6 +632,11 @@ export class MatchPlaybackService implements MatchPlaybackPort, OnModuleDestroy 
     });
 
     this.roomEventsPublisher.publish(lobbyCode, RoomEventName.FULL_TIME, {
+      lobbyCode,
+      phase: 'MATCHES',
+      matchId: match.id,
+    });
+    this.roomEventsPublisher.publish(lobbyCode, RoomEventName.MATCH_FINISHED, {
       lobbyCode,
       phase: 'MATCHES',
       matchId: match.id,
@@ -693,4 +769,38 @@ export class MatchPlaybackService implements MatchPlaybackPort, OnModuleDestroy 
     }
     this.active.delete(matchId);
   }
+}
+
+function readEventVisualization(visualization: RoomMatchEventRecord['visualization']): {
+  readonly ballZone: string;
+  readonly previousBallZone: string | null;
+  readonly homeMomentum: number;
+  readonly awayMomentum: number;
+  readonly attackChainId: string | null;
+  readonly attackPhase: string | null;
+} | null {
+  if (visualization === null) {
+    return null;
+  }
+
+  const ballZone = visualization.ballZone;
+  if (typeof ballZone !== 'string') {
+    return null;
+  }
+
+  return {
+    ballZone,
+    previousBallZone:
+      typeof visualization.previousBallZone === 'string'
+        ? visualization.previousBallZone
+        : null,
+    homeMomentum:
+      typeof visualization.homeMomentum === 'number' ? visualization.homeMomentum : 0.5,
+    awayMomentum:
+      typeof visualization.awayMomentum === 'number' ? visualization.awayMomentum : 0.5,
+    attackChainId:
+      typeof visualization.attackChainId === 'string' ? visualization.attackChainId : null,
+    attackPhase:
+      typeof visualization.attackPhase === 'string' ? visualization.attackPhase : null,
+  };
 }

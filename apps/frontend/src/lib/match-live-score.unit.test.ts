@@ -34,6 +34,8 @@ describe('resolveLiveMatchScores', () => {
       homeLineup: emptyLineup,
       awayLineup: emptyLineup,
       statistics: null,
+      liveVisualization: null,
+      replaySnapshots: [],
       events: [
         {
           id: 'e1',
@@ -43,6 +45,8 @@ describe('resolveLiveMatchScores', () => {
           playerName: 'Striker',
           secondaryPlayerName: null,
           cardId: 'c1',
+          secondaryCardId: null,
+          visualization: null,
           commentary: 'Gol!',
           xgValue: 0.4,
           isGoal: true,
@@ -75,6 +79,8 @@ describe('resolveLiveMatchScores', () => {
       homeLineup: emptyLineup,
       awayLineup: emptyLineup,
       statistics: null,
+      liveVisualization: null,
+      replaySnapshots: [],
       events: [],
     };
 

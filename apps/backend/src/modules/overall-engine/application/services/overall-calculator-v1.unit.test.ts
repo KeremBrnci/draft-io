@@ -27,6 +27,13 @@ function buildContext(overrides: Partial<OverallCalculationContext>): OverallCal
 describe('OverallCalculatorV1', () => {
   const calculator = new OverallCalculatorV1();
 
+  it('boosts goalkeeper overall above outfield peers with the same inputs', () => {
+    const outfield = calculator.calculate(buildContext({ primaryPosition: 'CB' }));
+    const goalkeeper = calculator.calculate(buildContext({ primaryPosition: 'GK' }));
+
+    expect(goalkeeper.finalOverall - outfield.finalOverall).toBe(7);
+  });
+
   it('returns weighted component breakdown and calibrated overall', () => {
     const result = calculator.calculate(buildContext({}));
 

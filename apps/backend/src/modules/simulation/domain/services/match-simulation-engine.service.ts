@@ -1,5 +1,6 @@
 import { deriveMatchStoppageTime } from '@draft-io/shared-types';
 
+import { getFormationMatchModifier } from '../constants/formation-match-modifiers';
 import type {
   GeneratedMatchEvent,
   MatchGoalProfile,
@@ -73,14 +74,17 @@ function createRng(seed: number): SeededRng {
 }
 
 const XG_BY_ATTACK: Record<string, number> = {
-  LONG_SHOT: 0.03,
-  BOX_SHOT: 0.25,
+  LONG_SHOT: 0.04,
+  BOX_SHOT: 0.32,
   PENALTY: 0.78,
-  ONE_ON_ONE: 0.55,
-  HEADER: 0.18,
-  FREE_KICK: 0.08,
-  CORNER_HEADER: 0.12,
+  ONE_ON_ONE: 0.62,
+  HEADER: 0.22,
+  FREE_KICK: 0.1,
+  CORNER_HEADER: 0.15,
 };
+
+const DANGEROUS_ATTACK_XG = 0.05;
+const CORNER_XG = 0.03;
 
 export class MatchSimulationEngine {
   constructor(private readonly config: MatchSimulationConfig = DEFAULT_MATCH_SIMULATION_CONFIG) {}
@@ -91,8 +95,24 @@ export class MatchSimulationEngine {
     readonly seed: number;
   }): SimulatedMatchResult {
     const rng = createRng(input.seed);
-    const homeStrength = this.teamStrength(input.home, true);
-    const awayStrength = this.teamStrength(input.away, false);
+    const homeStrength = this.teamStrength(input.home, true, rng);
+    const awayStrength = this.teamStrength(input.away, false, rng);
+    const homeXgBudget = this.computeTeamExpectedGoals(
+      input.home,
+      input.away,
+      true,
+      homeStrength,
+      awayStrength,
+      rng,
+    );
+    const awayXgBudget = this.computeTeamExpectedGoals(
+      input.away,
+      input.home,
+      false,
+      awayStrength,
+      homeStrength,
+      rng,
+    );
     const goalProfile = this.sampleGoalProfile(rng);
     const minimumGoals = this.minimumGoalsForProfile(goalProfile);
     const goalChanceMultiplier = this.goalChanceMultiplierForProfile(goalProfile);
@@ -129,10 +149,16 @@ export class MatchSimulationEngine {
       isGoal: false,
     });
 
-    const eventCount = rng.int(this.config.targetEventCountMin, this.config.targetEventCountMax);
+    const eventBias =
+      (getFormationMatchModifier(input.home.formationCode).eventBias +
+        getFormationMatchModifier(input.away.formationCode).eventBias) /
+      2;
+    const eventCount = Math.round(
+      rng.int(this.config.targetEventCountMin, this.config.targetEventCountMax) * eventBias,
+    );
     const minutes = rng
       .shuffle(Array.from({ length: 88 }, (_, index) => index + 2))
-      .slice(0, eventCount);
+      .slice(0, Math.max(this.config.targetEventCountMin, eventCount));
 
     for (const minute of minutes.sort((left, right) => left - right)) {
       const attackingSide = this.pickAttackingSide(
@@ -141,6 +167,8 @@ export class MatchSimulationEngine {
         homeMomentum,
         awayMomentum,
         rng,
+        input.home,
+        input.away,
       );
       const attackingTeam = attackingSide === 'HOME' ? input.home : input.away;
       const defendingTeam = attackingSide === 'HOME' ? input.away : input.home;
@@ -152,27 +180,34 @@ export class MatchSimulationEngine {
       }
 
       const attackRoll = rng.next();
-      if (attackRoll < 0.28) {
+      if (attackRoll < 0.2) {
         events.push(this.buildDangerousAttack(minute, attackingSide, attackingTeam, rng));
-        continue;
-      }
-
-      if (attackRoll < 0.38) {
-        events.push(this.buildCorner(minute, attackingSide, attackingTeam, rng));
         if (attackingSide === 'HOME') {
-          stats.homeCorners += 1;
+          homeXg += DANGEROUS_ATTACK_XG;
         } else {
-          stats.awayCorners += 1;
+          awayXg += DANGEROUS_ATTACK_XG;
         }
         continue;
       }
 
-      if (attackRoll < 0.44) {
+      if (attackRoll < 0.28) {
+        events.push(this.buildCorner(minute, attackingSide, attackingTeam, rng));
+        if (attackingSide === 'HOME') {
+          stats.homeCorners += 1;
+          homeXg += CORNER_XG;
+        } else {
+          stats.awayCorners += 1;
+          awayXg += CORNER_XG;
+        }
+        continue;
+      }
+
+      if (attackRoll < 0.34) {
         events.push(this.buildFreeKick(minute, attackingSide, attackingTeam, rng));
         continue;
       }
 
-      if (attackRoll < 0.5 && minute > 15) {
+      if (attackRoll < 0.4 && minute > 15) {
         const cardEvent = this.buildCard(minute, attackingSide, defendingTeam, rng);
         events.push(cardEvent);
         if (cardEvent.eventType === 'YELLOW_CARD') {
@@ -194,8 +229,23 @@ export class MatchSimulationEngine {
 
       const shotType = this.pickShotType(rng);
       const shooter = this.pickShooter(attackingTeam, shotType, rng);
-      const xg = this.xgForShot(shotType, shooter.overall, defendingTeam.matchPower);
-      const goalChance = Math.min(0.94, xg * (1.42 + rng.next() * 0.48) * goalChanceMultiplier);
+      const xgBudget = attackingSide === 'HOME' ? homeXgBudget : awayXgBudget;
+      const xg = this.scaleShotXg(
+        this.xgForShot(shotType, shooter.overall, defendingTeam, attackingTeam.teamChemistry),
+        xgBudget,
+      );
+      const goalChance =
+        shotType === 'PENALTY'
+          ? this.penaltyGoalChance(shooter, defendingTeam, rng)
+          : this.goalChanceFromShot(
+              xg,
+              xgBudget,
+              attackingTeam.teamChemistry,
+              goalChanceMultiplier,
+              rng,
+              shooter.overall,
+              defendingTeam,
+            );
 
       if (attackingSide === 'HOME') {
         stats.homeShots += 1;
@@ -205,7 +255,7 @@ export class MatchSimulationEngine {
         awayXg += xg;
       }
 
-      if (rng.next() < 0.55) {
+      if (rng.next() < 0.64) {
         if (attackingSide === 'HOME') {
           stats.homeShotsOnTarget += 1;
         } else {
@@ -353,6 +403,8 @@ export class MatchSimulationEngine {
         halfTimeAwayScore,
         homeXg,
         awayXg,
+        homeXgBudget,
+        awayXgBudget,
         rng,
         goalCooldown,
         goalChanceMultiplier,
@@ -382,6 +434,8 @@ export class MatchSimulationEngine {
         halfTimeAwayScore,
         homeXg,
         awayXg,
+        homeXgBudget,
+        awayXgBudget,
         rng,
         goalCooldown,
       });
@@ -427,8 +481,8 @@ export class MatchSimulationEngine {
     return {
       homeScore,
       awayScore,
-      homeXg: round2(homeXg),
-      awayXg: round2(awayXg),
+      homeXg: this.finalizeTeamXg(homeXg, homeXgBudget),
+      awayXg: this.finalizeTeamXg(awayXg, awayXgBudget),
       events,
       statistics: {
         ...stats,
@@ -462,9 +516,9 @@ export class MatchSimulationEngine {
       return 0;
     }
     if (profile === 'thriller') {
-      return 3;
+      return this.config.goalDistribution.thrillerMinimumGoals;
     }
-    return 1;
+    return this.config.goalDistribution.livelyMinimumGoals;
   }
 
   private goalChanceMultiplierForProfile(profile: MatchGoalProfile): number {
@@ -492,6 +546,8 @@ export class MatchSimulationEngine {
     readonly halfTimeAwayScore: number;
     readonly homeXg: number;
     readonly awayXg: number;
+    readonly homeXgBudget: number;
+    readonly awayXgBudget: number;
     readonly rng: SeededRng;
     readonly goalCooldown: GoalCooldownTracker;
   }): {
@@ -528,12 +584,18 @@ export class MatchSimulationEngine {
         0,
         0,
         input.rng,
+        input.home,
+        input.away,
       );
       const attackingTeam = attackingSide === 'HOME' ? input.home : input.away;
       const defendingTeam = attackingSide === 'HOME' ? input.away : input.home;
       const shotType = this.pickShotType(input.rng);
       const shooter = this.pickShooter(attackingTeam, shotType, input.rng);
-      const xg = this.xgForShot(shotType, shooter.overall, defendingTeam.matchPower);
+      const xgBudget = attackingSide === 'HOME' ? input.homeXgBudget : input.awayXgBudget;
+      const xg = this.scaleShotXg(
+        this.xgForShot(shotType, shooter.overall, defendingTeam, attackingTeam.teamChemistry),
+        xgBudget,
+      );
       const assister = this.pickAssister(attackingTeam, shooter, input.rng);
 
       input.events.push(this.buildGoalChance(minute, attackingSide, attackingTeam));
@@ -584,8 +646,8 @@ export class MatchSimulationEngine {
       awayScore,
       halfTimeHomeScore,
       halfTimeAwayScore,
-      homeXg: round2(homeXg),
-      awayXg: round2(awayXg),
+      homeXg,
+      awayXg,
     };
   }
 
@@ -603,6 +665,8 @@ export class MatchSimulationEngine {
     readonly halfTimeAwayScore: number;
     readonly homeXg: number;
     readonly awayXg: number;
+    readonly homeXgBudget: number;
+    readonly awayXgBudget: number;
     readonly rng: SeededRng;
     readonly goalCooldown: GoalCooldownTracker;
     readonly goalChanceMultiplier: number;
@@ -640,15 +704,18 @@ export class MatchSimulationEngine {
       0,
       0,
       input.rng,
+      input.home,
+      input.away,
     );
     const attackingTeam = attackingSide === 'HOME' ? input.home : input.away;
     const defendingTeam = attackingSide === 'HOME' ? input.away : input.home;
     const shooter = this.pickShooter(attackingTeam, 'PENALTY', input.rng);
-    const xg = this.xgForShot('PENALTY', shooter.overall, defendingTeam.matchPower);
-    const goalChance = Math.min(
-      0.94,
-      xg * (1.42 + input.rng.next() * 0.48) * input.goalChanceMultiplier,
+    const xgBudget = attackingSide === 'HOME' ? input.homeXgBudget : input.awayXgBudget;
+    const xg = this.scaleShotXg(
+      this.xgForShot('PENALTY', shooter.overall, defendingTeam, attackingTeam.teamChemistry),
+      xgBudget,
     );
+    const goalChance = this.penaltyGoalChance(shooter, defendingTeam, input.rng);
 
     input.events.push({
       minute,
@@ -725,8 +792,8 @@ export class MatchSimulationEngine {
       awayScore,
       halfTimeHomeScore,
       halfTimeAwayScore,
-      homeXg: round2(homeXg),
-      awayXg: round2(awayXg),
+      homeXg,
+      awayXg,
     };
   }
 
@@ -755,7 +822,7 @@ export class MatchSimulationEngine {
     goalCooldown: GoalCooldownTracker,
     events: readonly GeneratedMatchEvent[],
   ): number | null {
-    const candidates = Array.from({ length: 79 }, (_, index) => index + 10).filter(
+    const strictCandidates = Array.from({ length: 79 }, (_, index) => index + 10).filter(
       (minute) =>
         !usedMinutes.has(minute) &&
         !goalCooldown.isBlocked(minute) &&
@@ -763,11 +830,19 @@ export class MatchSimulationEngine {
         !this.hasGoalAtMinute(events, minute + 1),
     );
 
-    if (candidates.length === 0) {
+    if (strictCandidates.length > 0) {
+      return rng.pick(strictCandidates);
+    }
+
+    const relaxedCandidates = Array.from({ length: 85 }, (_, index) => index + 5).filter(
+      (minute) => !usedMinutes.has(minute) && !goalCooldown.isBlocked(minute),
+    );
+
+    if (relaxedCandidates.length === 0) {
       return null;
     }
 
-    return rng.pick(candidates);
+    return rng.pick(relaxedCandidates);
   }
 
   private hasScoringAtMinute(events: readonly GeneratedMatchEvent[], minute: number): boolean {
@@ -785,13 +860,159 @@ export class MatchSimulationEngine {
     return events.some((event) => event.minute === minute && event.eventType === 'GOAL');
   }
 
-  private teamStrength(team: MatchTeamSnapshot, isHome: boolean): number {
-    const chemistryBoost = Math.min(
-      this.config.chemistryImpactCap,
-      (team.teamChemistry / 33) * this.config.chemistryImpactCap,
+  private teamStrength(team: MatchTeamSnapshot, isHome: boolean, rng: SeededRng): number {
+    const weights = this.config.strengthWeights;
+    const formation = getFormationMatchModifier(team.formationCode);
+    const overallComponent = (team.teamAverageOverall / 100) * weights.overall;
+    const chemistryComponent = (team.teamChemistry / 33) * weights.chemistry;
+    const formationComponent = formation.strengthScore * weights.formation;
+    const homeComponent = isHome ? weights.home : 0;
+    const randomComponent = (0.85 + rng.next() * 0.3) * weights.randomness;
+
+    return (
+      (overallComponent +
+        chemistryComponent +
+        formationComponent +
+        homeComponent +
+        randomComponent) *
+      100
     );
-    const homeBoost = isHome ? this.config.homeAdvantagePercent / 100 : 0;
-    return team.matchPower * (1 + chemistryBoost + homeBoost);
+  }
+
+  private computeTeamExpectedGoals(
+    team: MatchTeamSnapshot,
+    opponent: MatchTeamSnapshot,
+    isHome: boolean,
+    teamStrength: number,
+    opponentStrength: number,
+    rng: SeededRng,
+  ): number {
+    const formation = getFormationMatchModifier(team.formationCode);
+    const opponentFormation = getFormationMatchModifier(opponent.formationCode);
+    const powerRatio = teamStrength / Math.max(opponentStrength, 1);
+    const powerDifferenceModifier = clamp(0.75, 1.35, 0.88 + (powerRatio - 1) * 0.55);
+    const attackVsDefenseModifier = clamp(
+      0.8,
+      1.32,
+      1 + (this.attackLineRating(team) - this.defensiveLineRating(opponent)) / 56,
+    );
+    const chemistryModifier =
+      1 +
+      Math.min(
+        this.config.chemistryConversionCap,
+        (team.teamChemistry / 33) * this.config.chemistryConversionCap,
+      );
+    const homeModifier = isHome ? 1 + this.config.homeAdvantagePercent / 100 : 1;
+    const controlledRandomness = 0.88 + rng.next() * 0.24;
+    const formationAttackModifier = formation.attackMultiplier;
+    const opponentDefenseModifier = 1 / opponentFormation.defenseMultiplier;
+
+    const raw =
+      this.config.baseTeamXg *
+      powerDifferenceModifier *
+      attackVsDefenseModifier *
+      chemistryModifier *
+      homeModifier *
+      formationAttackModifier *
+      opponentDefenseModifier *
+      controlledRandomness;
+
+    return clamp(this.config.minTeamXg, this.config.maxTeamXg, raw);
+  }
+
+  private scaleShotXg(shotXg: number, teamXgBudget: number): number {
+    return round2(shotXg * (teamXgBudget / this.config.baseTeamXg) * 1.05);
+  }
+
+  private finalizeTeamXg(accumulatedXg: number, teamXgBudget: number): number {
+    const blended = accumulatedXg * 0.42 + teamXgBudget * 0.72;
+    return round2(clamp(this.config.minTeamXg, this.config.maxTeamXg, blended));
+  }
+
+  private goalChanceFromShot(
+    shotXg: number,
+    teamXgBudget: number,
+    teamChemistry: number,
+    goalChanceMultiplier: number,
+    rng: SeededRng,
+    shooterOverall: number,
+    defendingTeam: MatchTeamSnapshot,
+  ): number {
+    const xgScale = teamXgBudget / this.config.baseTeamXg;
+    const chemistryConversion =
+      1 +
+      Math.min(
+        this.config.chemistryConversionCap * 0.75,
+        (teamChemistry / 33) * this.config.chemistryConversionCap * 0.75,
+      );
+    const conversion =
+      this.config.goalConversionBase + rng.next() * this.config.goalConversionVariance;
+    const matchupModifier = this.attackDefenseMatchupModifier(shooterOverall, defendingTeam);
+
+    return Math.min(
+      0.96,
+      shotXg * conversion * goalChanceMultiplier * xgScale * chemistryConversion * matchupModifier,
+    );
+  }
+
+  private penaltyGoalChance(
+    shooter: MatchPlayerSnapshot,
+    defendingTeam: MatchTeamSnapshot,
+    rng: SeededRng,
+  ): number {
+    const goalkeeper = this.resolveGoalkeeper(defendingTeam);
+    const shooterEdge = clamp(-0.06, 0.06, (shooter.overall - goalkeeper.overall) / 120);
+    const noise = (rng.next() - 0.5) * 0.08;
+
+    return clamp(0.55, 0.97, this.config.penaltyConversionRate + shooterEdge + noise);
+  }
+
+  private resolveGoalkeeper(team: MatchTeamSnapshot): MatchPlayerSnapshot {
+    const goalkeeper = team.players.find((player) => player.positionCode === 'GK');
+    if (goalkeeper !== undefined) {
+      return goalkeeper;
+    }
+
+    const fallback = team.players[team.players.length - 1];
+    if (fallback === undefined) {
+      throw new Error('Team has no players');
+    }
+    return fallback;
+  }
+
+  private defensiveLineRating(team: MatchTeamSnapshot): number {
+    const goalkeeper = this.resolveGoalkeeper(team);
+    const defenders = team.players.filter((player) =>
+      ['CB', 'LCB', 'RCB', 'LB', 'RB', 'LWB', 'RWB'].includes(player.positionCode),
+    );
+
+    const defenseAverage =
+      defenders.length > 0
+        ? defenders.reduce((sum, player) => sum + player.overall, 0) / defenders.length
+        : team.teamAverageOverall;
+
+    return defenseAverage * 0.55 + goalkeeper.overall * 0.45;
+  }
+
+  private attackLineRating(team: MatchTeamSnapshot): number {
+    const attackers = team.players.filter((player) =>
+      ['ST', 'CF', 'LW', 'RW', 'CAM', 'LAM', 'RAM'].includes(player.positionCode),
+    );
+
+    if (attackers.length === 0) {
+      return team.teamAverageOverall;
+    }
+
+    return attackers.reduce((sum, player) => sum + player.overall, 0) / attackers.length;
+  }
+
+  private attackDefenseMatchupModifier(
+    shooterOverall: number,
+    defendingTeam: MatchTeamSnapshot,
+  ): number {
+    const defensiveRating = this.defensiveLineRating(defendingTeam);
+
+    return clamp(0.7, 1.42, 1 + (shooterOverall - defensiveRating) / 48);
   }
 
   private pickAttackingSide(
@@ -800,9 +1021,15 @@ export class MatchSimulationEngine {
     homeMomentum: number,
     awayMomentum: number,
     rng: SeededRng,
+    home?: MatchTeamSnapshot,
+    away?: MatchTeamSnapshot,
   ): MatchTeamSide {
-    const homeWeight = homeStrength * (1 + homeMomentum);
-    const awayWeight = awayStrength * (1 + awayMomentum);
+    const homeFormationBoost =
+      home === undefined ? 1 : getFormationMatchModifier(home.formationCode).attackMultiplier;
+    const awayFormationBoost =
+      away === undefined ? 1 : getFormationMatchModifier(away.formationCode).attackMultiplier;
+    const homeWeight = homeStrength * (1 + homeMomentum) * homeFormationBoost;
+    const awayWeight = awayStrength * (1 + awayMomentum) * awayFormationBoost;
     const total = homeWeight + awayWeight;
     return rng.next() < homeWeight / total ? 'HOME' : 'AWAY';
   }
@@ -819,12 +1046,24 @@ export class MatchSimulationEngine {
   private xgForShot(
     shotType: keyof typeof XG_BY_ATTACK,
     shooterOverall: number,
-    defendingPower: number,
+    defendingTeam: MatchTeamSnapshot,
+    attackingChemistry: number,
   ): number {
     const base = XG_BY_ATTACK[shotType] ?? 0.1;
-    const qualityFactor = 0.85 + (shooterOverall - 70) / 100;
-    const defenseFactor = 1.05 - defendingPower / 200;
-    return round2(Math.max(0.01, Math.min(0.95, base * qualityFactor * defenseFactor)));
+    const qualityFactor = 0.86 + (shooterOverall - 70) / 72;
+    const defenseFormation = getFormationMatchModifier(defendingTeam.formationCode);
+    const defensiveRating = this.defensiveLineRating(defendingTeam);
+    const defenseFactor =
+      clamp(0.62, 1.18, 1.14 - defensiveRating / 118) / defenseFormation.defenseMultiplier;
+    const chemistryQuality =
+      1 +
+      Math.min(
+        this.config.chemistryConversionCap * 0.5,
+        (attackingChemistry / 33) * this.config.chemistryConversionCap * 0.5,
+      );
+    return round2(
+      Math.max(0.02, Math.min(0.95, base * qualityFactor * defenseFactor * chemistryQuality)),
+    );
   }
 
   private pickShooter(
@@ -1088,4 +1327,8 @@ export class MatchSimulationEngine {
 
 function round2(value: number): number {
   return Math.round(value * 100) / 100;
+}
+
+function clamp(min: number, max: number, value: number): number {
+  return Math.min(max, Math.max(min, value));
 }

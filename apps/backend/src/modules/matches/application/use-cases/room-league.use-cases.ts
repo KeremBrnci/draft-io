@@ -19,6 +19,7 @@ import type { LobbyRepository } from '../../../lobbies/domain/repositories/lobby
 import {
   COACH_POOL_SIZE,
   CoachPoolService,
+  shuffleDeterministic,
 } from '../../../lobbies/domain/services/coach-pool.service';
 import { LobbyCode } from '../../../lobbies/domain/value-objects/lobby-code.vo';
 import { SessionToken } from '../../../lobbies/domain/value-objects/session-token.vo';
@@ -288,11 +289,18 @@ export class CheckDraftCompletionUseCase {
       return false;
     }
 
-    const coachCatalog = await this.loadCoachCatalog(lobby.draftLeagueIds);
+    const poolEntropy = `${lobby.id.value}:${Date.now()}:${Math.random()}`;
+    const coachCatalog = shuffleDeterministic(
+      (await this.loadCoachCatalog(lobby.draftLeagueIds)).map((coach) => ({
+        id: coach.id.value,
+      })),
+      `${poolEntropy}:catalog`,
+    );
     const pools = this.coachPoolService.assignPersonalPools(
       lobby.id.value,
       lobby.participants.map((participant) => participant.id),
-      coachCatalog.map((coach) => ({ id: coach.id.value })),
+      coachCatalog,
+      poolEntropy,
     );
 
     lobby.advanceToCoachSelection(pools);

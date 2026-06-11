@@ -7,6 +7,10 @@ export interface MatchEventUiMeta {
 }
 
 const EVENT_UI: Record<MatchEventTypeDto, MatchEventUiMeta> = {
+  PASS: { icon: '↔️', label: 'Pas', tone: 'attack' },
+  DRIBBLE: { icon: '🏃', label: 'Top sürme', tone: 'attack' },
+  CROSS: { icon: '🎯', label: 'Orta', tone: 'attack' },
+  FOUL: { icon: '🚫', label: 'Faul', tone: 'card' },
   KICK_OFF: { icon: '⚽', label: 'Başlangıç', tone: 'whistle' },
   HALF_TIME: { icon: '⏸️', label: 'Devre arası', tone: 'whistle' },
   FULL_TIME: { icon: '🏁', label: 'Maç sonu', tone: 'whistle' },

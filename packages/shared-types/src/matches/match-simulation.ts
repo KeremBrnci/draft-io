@@ -1,3 +1,9 @@
+import type {
+  MatchEventVisualizationDto,
+  MatchLiveVisualizationDto,
+  MatchReplaySnapshotDto,
+} from './match-visualization.js';
+
 export type MatchStatusDto =
   | 'SCHEDULED'
   | 'PRE_MATCH'
@@ -7,6 +13,9 @@ export type MatchStatusDto =
   | 'PAUSED';
 
 export type MatchEventTypeDto =
+  | 'PASS'
+  | 'DRIBBLE'
+  | 'CROSS'
   | 'DANGEROUS_ATTACK'
   | 'GOAL_CHANCE'
   | 'SHOT'
@@ -19,6 +28,7 @@ export type MatchEventTypeDto =
   | 'RED_CARD'
   | 'CORNER'
   | 'FREE_KICK'
+  | 'FOUL'
   | 'WOODWORK'
   | 'KICK_OFF'
   | 'HALF_TIME'
@@ -69,9 +79,11 @@ export interface MatchEventDto {
   readonly playerName: string | null;
   readonly secondaryPlayerName: string | null;
   readonly cardId: string | null;
+  readonly secondaryCardId: string | null;
   readonly commentary: string;
   readonly xgValue: number | null;
   readonly isGoal: boolean;
+  readonly visualization: MatchEventVisualizationDto | null;
 }
 
 export interface MatchStatisticsDto {
@@ -117,4 +129,6 @@ export interface MatchStateDto {
   readonly awayLineup: MatchTeamLineupDto;
   readonly events: readonly MatchEventDto[];
   readonly statistics: MatchStatisticsDto | null;
+  readonly liveVisualization: MatchLiveVisualizationDto | null;
+  readonly replaySnapshots: readonly MatchReplaySnapshotDto[];
 }

@@ -8,10 +8,13 @@ import { useCallback, useEffect, useMemo, useRef, useState, startTransition } fr
 import '@/components/league/league.css';
 import { GoalCelebrationOverlay } from '@/components/league/goal-celebration-overlay';
 import { LeagueVictoryOverlay } from '@/components/league/league-victory-overlay';
+import { MatchActivePlayers } from '@/components/league/match-active-players';
 import { MatchCommentaryFeed } from '@/components/league/match-commentary-feed';
 import { MatchGoalScorersPanel } from '@/components/league/match-goal-scorers-panel';
 import { MatchLineupsPanel } from '@/components/league/match-lineups-panel';
+import { MatchLivePitch } from '@/components/league/match-live-pitch';
 import { MatchLiveStatsPanel } from '@/components/league/match-live-stats-panel';
+import { MatchMomentumBar } from '@/components/league/match-momentum-bar';
 import { MatchResultsOverlay } from '@/components/league/match-results-overlay';
 import { MatchWarmupOverlay } from '@/components/league/match-warmup-overlay';
 import { RoomChatPanel } from '@/components/league/room-chat-panel';
@@ -187,6 +190,13 @@ export default function LeaguePage(): React.ReactElement {
       event === 'MATCH_STARTED' ||
       event === 'MATCH_MINUTE_UPDATED' ||
       event === 'MATCH_EVENT_CREATED' ||
+      event === 'BALL_MOVED' ||
+      event === 'ATTACK_STARTED' ||
+      event === 'ATTACK_PROGRESS' ||
+      event === 'SHOT' ||
+      event === 'GOAL' ||
+      event === 'MOMENTUM_CHANGED' ||
+      event === 'MATCH_FINISHED' ||
       event === 'GOAL_SCORED' ||
       event === 'HALF_TIME' ||
       event === 'FULL_TIME' ||
@@ -308,6 +318,18 @@ export default function LeaguePage(): React.ReactElement {
                   {goalCelebration !== null ? (
                     <GoalCelebrationOverlay celebration={goalCelebration} />
                   ) : null}
+
+                  {!isWarmup ? (
+                    <div className="league-live__visualization">
+                      <MatchLivePitch
+                        visualization={match.liveVisualization}
+                        homeName={match.homeDisplayName}
+                        awayName={match.awayDisplayName}
+                      />
+                      <MatchActivePlayers visualization={match.liveVisualization} />
+                    </div>
+                  ) : null}
+
                   <div
                     className={`league-live__scoreboard${goalCelebration !== null ? ' league-live__scoreboard--goal' : ''}`}
                   >
@@ -381,14 +403,26 @@ export default function LeaguePage(): React.ReactElement {
                   ) : null}
 
                   {!isWarmup && liveStats !== null ? (
-                    <MatchLiveStatsPanel
-                      homeName={match.homeDisplayName}
-                      awayName={match.awayDisplayName}
-                      stats={liveStats}
-                    />
+                    <>
+                      <MatchMomentumBar
+                        homeName={match.homeDisplayName}
+                        awayName={match.awayDisplayName}
+                        momentum={match.liveVisualization?.momentum ?? null}
+                      />
+                      <MatchLiveStatsPanel
+                        homeName={match.homeDisplayName}
+                        awayName={match.awayDisplayName}
+                        stats={liveStats}
+                      />
+                    </>
                   ) : null}
 
-                  <MatchLineupsPanel homeLineup={match.homeLineup} awayLineup={match.awayLineup} />
+                  {!isLivePlay && !isWarmup ? (
+                    <MatchLineupsPanel
+                      homeLineup={match.homeLineup}
+                      awayLineup={match.awayLineup}
+                    />
+                  ) : null}
 
                   {match.status === 'FULL_TIME' && match.manOfTheMatchPlayerName !== null ? (
                     <p className="league-motm">

@@ -12,6 +12,7 @@ import type { LobbyRepository } from '../../../lobbies/domain/repositories/lobby
 import { LobbyCode } from '../../../lobbies/domain/value-objects/lobby-code.vo';
 import { type MatchSimulationEngine } from '../../../simulation/domain/services/match-simulation-engine.service';
 import type { RoomLeagueRepository } from '../../domain/repositories/room-league.repository';
+import { MatchVisualizationEnricher } from '../../domain/services/match-visualization-enricher.service';
 import type { MatchPlaybackPort } from '../ports/match-playback.port';
 import { buildParticipantTeamSnapshot } from '../services/team-snapshot.builder';
 
@@ -106,6 +107,13 @@ export class StartNextMatchUseCase {
       away: awaySnapshot,
       seed,
     });
+    const enricher = new MatchVisualizationEnricher();
+    const enrichedEvents = enricher.enrich({
+      events: simulation.events,
+      home: homeSnapshot,
+      away: awaySnapshot,
+      seed,
+    });
     const match = await this.roomLeagueRepository.createMatch({
       leagueId: league.id,
       fixtureId: fixture.id,
@@ -119,7 +127,7 @@ export class StartNextMatchUseCase {
       homeXg: simulation.homeXg,
       awayXg: simulation.awayXg,
       manOfTheMatchCardId: simulation.manOfTheMatchCardId,
-      events: simulation.events,
+      events: enrichedEvents,
       statistics: simulation.statistics,
     });
 

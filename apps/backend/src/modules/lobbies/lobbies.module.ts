@@ -127,6 +127,8 @@ import { RoomEventsModule } from './room-events.module';
       COACH_REPOSITORY,
       TEAM_REPOSITORY,
       LEAGUE_REPOSITORY,
+      GetDraftSessionByLobbyUseCase,
+      DRAFT_POOL_REPOSITORY,
     ]),
     provideUseCase(SelectCoachUseCase, [
       LOBBY_REPOSITORY,

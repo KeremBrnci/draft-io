@@ -44,6 +44,7 @@ export type {
 } from './lobbies/index.js';
 export type { FormationSlotDto, FormationSummaryDto } from './formations/index.js';
 export type {
+  CoachSelectionOptionDto,
   CoachSelectionParticipantDto,
   CoachSelectionStateDto,
   FormationSelectionParticipantDto,
@@ -57,6 +58,16 @@ export type {
   StartDraftResultDto,
   StartFormationSelectionResultDto,
 } from './rooms/index.js';
+export type {
+  MatchActivePlayerDto,
+  MatchAttackChainDto,
+  MatchEventVisualizationDto,
+  MatchLiveVisualizationDto,
+  MatchMomentumDto,
+  MatchReplaySnapshotDto,
+  PitchZoneDto,
+} from './matches/index.js';
+export { PITCH_ZONE_POSITIONS, PITCH_ZONES } from './matches/index.js';
 export type {
   ChemistryBreakdownDto,
   ChemistryConfigDto,

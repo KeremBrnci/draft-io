@@ -23,6 +23,11 @@ import type {
   RoomMatchStatisticRecord,
   RoomStandingRecord,
 } from '../../domain/repositories/room-league.repository';
+import {
+  buildReplaySnapshots,
+  resolveLiveVisualization,
+  toEventVisualizationDto,
+} from '../../domain/services/match-live-visualization.service';
 import { computeLivePlayerRatings } from '../../domain/services/match-player-ratings.service';
 
 export function toTeamReviewStateDto(
@@ -241,10 +246,14 @@ export function toMatchStateDto(
       playerName: event.playerName,
       secondaryPlayerName: event.secondaryPlayerName,
       cardId: event.cardId,
+      secondaryCardId: event.secondaryCardId,
       commentary: event.commentary,
       xgValue: event.xgValue,
       isGoal: event.isGoal,
+      visualization: toEventVisualizationDto(event.visualization, event.teamSide),
     })),
+    liveVisualization: resolveLiveVisualization(events, match.currentMinute),
+    replaySnapshots: buildReplaySnapshots(events),
     statistics:
       statistics === null
         ? null

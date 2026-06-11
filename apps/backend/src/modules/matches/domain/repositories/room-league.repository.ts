@@ -52,7 +52,9 @@ export interface RoomMatchEventRecord {
   readonly playerName: string | null;
   readonly secondaryPlayerName: string | null;
   readonly cardId: string | null;
+  readonly secondaryCardId: string | null;
   readonly commentary: string;
+  readonly visualization: Record<string, unknown> | null;
   readonly xgValue: number | null;
   readonly isGoal: boolean;
   readonly sortOrder: number;

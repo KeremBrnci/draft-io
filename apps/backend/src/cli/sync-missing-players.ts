@@ -14,8 +14,11 @@ import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 
 import { ExternalProvider } from '../core/external-reference/external-provider';
+import { PrismaService } from '../infrastructure/database/prisma.service';
+import { seedPlayerCardsIfMissing } from '../modules/cards/infrastructure/seed/seed-player-cards';
 import { SyncMissingSquadPlayersUseCase } from '../modules/data-providers/application/use-cases/sync-missing-squad-players.use-case';
 import { CalculatePlayerOverallUseCase } from '../modules/overall-engine/application/use-cases/calculate-player-overall.use-case';
+import { RecalculateOverallUseCase } from '../modules/overall-engine/application/use-cases/recalculate-overall.use-case';
 import { PLAYER_REPOSITORY } from '../modules/players/domain/repositories/player.repository';
 import type { PlayerRepository } from '../modules/players/domain/repositories/player.repository';
 
@@ -63,7 +66,9 @@ async function main(): Promise<void> {
   try {
     const syncUseCase = app.get(SyncMissingSquadPlayersUseCase);
     const calculateOverallUseCase = app.get(CalculatePlayerOverallUseCase);
+    const recalculateOverallUseCase = app.get(RecalculateOverallUseCase);
     const playerRepository = app.get<PlayerRepository>(PLAYER_REPOSITORY);
+    const prisma = app.get(PrismaService);
 
     const result = await syncUseCase.execute({
       provider: 'TRANSFERMARKT',
@@ -99,6 +104,27 @@ async function main(): Promise<void> {
 
     if (overallCalculated > 0) {
       logger.log(`Calculated overall for ${String(overallCalculated)} imported players`);
+    }
+
+    const activeCards = await seedPlayerCardsIfMissing(prisma);
+    logger.log(`Draft card pool size after seed: ${String(activeCards)}`);
+
+    const goalkeeperIds = await prisma.player.findMany({
+      where: {
+        status: 'ACTIVE',
+        marketValue: { not: null },
+        positions: { some: { positionCode: 'GK', isPrimary: true } },
+      },
+      select: { id: true },
+    });
+
+    if (goalkeeperIds.length > 0) {
+      const gkRecalc = await recalculateOverallUseCase.execute({
+        playerIds: goalkeeperIds.map((entry) => entry.id),
+      });
+      logger.log(
+        `Recalculated goalkeeper overalls: processed=${String(gkRecalc.processed)} calculated=${String(gkRecalc.calculated)} failed=${String(gkRecalc.failed)}`,
+      );
     }
   } finally {
     await app.close();

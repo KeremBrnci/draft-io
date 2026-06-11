@@ -261,7 +261,12 @@ export class PrismaRoomLeagueRepository implements RoomLeagueRepository {
           playerName: event.playerName,
           secondaryPlayerName: event.secondaryPlayerName,
           cardId: event.cardId,
+          secondaryCardId: event.secondaryCardId ?? null,
           commentary: event.commentary,
+          visualization:
+            event.visualization === null || event.visualization === undefined
+              ? Prisma.JsonNull
+              : (event.visualization as unknown as Prisma.InputJsonValue),
           xgValue: event.xgValue,
           isGoal: event.isGoal,
           sortOrder: index,
@@ -298,7 +303,9 @@ export class PrismaRoomLeagueRepository implements RoomLeagueRepository {
       playerName: record.playerName,
       secondaryPlayerName: record.secondaryPlayerName,
       cardId: record.cardId,
+      secondaryCardId: record.secondaryCardId,
       commentary: record.commentary,
+      visualization: parseVisualization(record.visualization),
       xgValue: record.xgValue,
       isGoal: record.isGoal,
       sortOrder: record.sortOrder,
@@ -509,6 +516,14 @@ export class PrismaRoomLeagueRepository implements RoomLeagueRepository {
       finishedAt: record.finishedAt,
     };
   }
+}
+
+function parseVisualization(value: unknown): Record<string, unknown> | null {
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+    return null;
+  }
+
+  return value as Record<string, unknown>;
 }
 
 function parseRatingMap(value: unknown): Record<string, number> {

@@ -1,4 +1,8 @@
-import { OVERALL_V1_CALIBRATION, OVERALL_V1_WEIGHTS } from '../../domain/config/overall-v1.config';
+import {
+  GOALKEEPER_POSITION_OVERALL_BOOST,
+  OVERALL_V1_CALIBRATION,
+  OVERALL_V1_WEIGHTS,
+} from '../../domain/config/overall-v1.config';
 import { OVERALL_ALGORITHM_V1 } from '../../domain/enums/overall-algorithm-version.enum';
 import type { OverallCalculationContext } from '../../domain/models/overall-calculation-context';
 import type { OverallCalculationResult } from '../../domain/models/overall-calculation-result';
@@ -47,17 +51,29 @@ export class OverallCalculatorV1 implements OverallCalculator, OverallCalculatio
       context.marketValue,
       context.age,
     );
+    const finalOverall = this.applyPositionOverallAdjustment(bounded.finalOverall, context);
 
     return {
       algorithmVersion: OVERALL_ALGORITHM_V1,
       components,
       rawScore: round2(rawScore),
-      finalOverall: bounded.finalOverall,
+      finalOverall,
       profileTag: context.profileTag,
       appliedFloor: bounded.appliedFloor,
       appliedCeiling: bounded.appliedCeiling,
-      overall: bounded.finalOverall,
+      overall: finalOverall,
     };
+  }
+
+  private applyPositionOverallAdjustment(
+    overall: number,
+    context: OverallCalculationContext,
+  ): number {
+    if (context.primaryPosition.toUpperCase() !== 'GK') {
+      return overall;
+    }
+
+    return Math.min(99, overall + GOALKEEPER_POSITION_OVERALL_BOOST);
   }
 }
 

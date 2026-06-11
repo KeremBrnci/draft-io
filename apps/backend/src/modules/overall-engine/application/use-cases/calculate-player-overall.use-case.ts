@@ -5,6 +5,7 @@ import { PlayerId } from '../../../players/domain/value-objects/player-id.vo';
 import type { OverallCalculation } from '../../domain/entities/overall-calculation.entity';
 import type { PlayerMetrics } from '../../domain/entities/player-metrics.entity';
 import { OVERALL_ALGORITHM_V1 } from '../../domain/enums/overall-algorithm-version.enum';
+import type { CardOverallIntegrationPort } from '../../domain/ports/card-overall-integration.port';
 import type { OverallCalculator } from '../../domain/ports/overall-calculator.port';
 import type { OverallAlgorithmVersionRepository } from '../../domain/repositories/overall-algorithm-version.repository';
 import type { OverallCalculationRepository } from '../../domain/repositories/overall-calculation.repository';
@@ -34,6 +35,7 @@ export class CalculatePlayerOverallUseCase {
     private readonly algorithmVersionRepository: OverallAlgorithmVersionRepository,
     private readonly overallCalculator: OverallCalculator,
     private readonly manualOverrideGuard: ManualOverrideGuardService,
+    private readonly cardOverallIntegration: CardOverallIntegrationPort,
   ) {}
 
   async execute(command: CalculatePlayerOverallCommand): Promise<CalculatePlayerOverallResult> {
@@ -88,6 +90,13 @@ export class CalculatePlayerOverallUseCase {
     const skippedDueToManualOverride = await this.manualOverrideGuard.hasManualOverride(
       command.playerId,
     );
+
+    if (!skippedDueToManualOverride) {
+      await this.cardOverallIntegration.applyCalculatedOverallToBaseCards(
+        command.playerId,
+        result.finalOverall,
+      );
+    }
 
     return { calculation, metrics, skippedDueToManualOverride };
   }

@@ -3,6 +3,11 @@ import type { LobbySummaryDto } from '../lobbies/lobby-summary.js';
 
 import type { ParticipantPhaseStatusDto, RoomPhaseDto } from './room-phase.js';
 
+export interface CoachSelectionOptionDto extends CoachBrowserItemDto {
+  readonly projectedTeamChemistry: number;
+  readonly chemistryBonus: number;
+}
+
 export interface CoachSelectionParticipantDto {
   readonly id: string;
   readonly displayName: string;
@@ -17,7 +22,7 @@ export interface CoachSelectionStateDto {
   readonly coachSelectedCount: number;
   readonly allCoachesSelected: boolean;
   readonly participants: readonly CoachSelectionParticipantDto[];
-  readonly myCoachOptions: readonly CoachBrowserItemDto[];
+  readonly myCoachOptions: readonly CoachSelectionOptionDto[];
   readonly mySelectedCoachId: string | null;
 }
 

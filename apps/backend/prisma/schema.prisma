@@ -499,7 +499,9 @@ model RoomMatchEvent {
   playerName          String?   @map("player_name") @db.VarChar(120)
   secondaryPlayerName String?   @map("secondary_player_name") @db.VarChar(120)
   cardId              String?   @map("card_id") @db.Uuid
+  secondaryCardId     String?   @map("secondary_card_id") @db.Uuid
   commentary          String    @db.VarChar(512)
+  visualization       Json?     @map("visualization")
   xgValue             Float?    @map("xg_value")
   isGoal              Boolean   @default(false) @map("is_goal")
   sortOrder           Int       @map("sort_order") @db.SmallInt

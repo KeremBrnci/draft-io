@@ -1,4 +1,5 @@
 export type {
+  CoachSelectionOptionDto,
   CoachSelectionParticipantDto,
   CoachSelectionStateDto,
   SelectCoachCommandDto,

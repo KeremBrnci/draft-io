@@ -14,12 +14,12 @@ export const PICK_BOARD_EMERGENCY_OVERALL_FLOOR = 58;
 
 /** Position-specific strict floors (GK pools are much smaller per league). */
 export const PICK_BOARD_POSITION_FLOORS: Readonly<Partial<Record<string, number>>> = {
-  GK: 65,
+  GK: 72,
 };
 
 /** Position-specific relaxed floors (e.g. thin GK pool in single-league lobbies). */
 export const PICK_BOARD_RELAXED_POSITION_FLOORS: Readonly<Partial<Record<string, number>>> = {
-  GK: 60,
+  GK: 66,
 };
 
 export function pickBoardOverallFloor(
@@ -43,10 +43,10 @@ const GK_PICK_BOARD_WINDOWS: Record<
   PickBoardProfile,
   { readonly minOverall: number; readonly maxOverall: number | null }
 > = {
-  ELITE: { minOverall: 72, maxOverall: null },
-  COMPACT: { minOverall: 68, maxOverall: 76 },
-  SPREAD: { minOverall: 64, maxOverall: 78 },
-  VALUE: { minOverall: 58, maxOverall: 70 },
+  ELITE: { minOverall: 78, maxOverall: null },
+  COMPACT: { minOverall: 74, maxOverall: 82 },
+  SPREAD: { minOverall: 70, maxOverall: 84 },
+  VALUE: { minOverall: 64, maxOverall: 78 },
 };
 
 export function resolvePickBoardWindow(
@@ -60,8 +60,8 @@ export function resolvePickBoardWindow(
   return PICK_BOARD_WINDOWS[profile];
 }
 
-export const RECENTLY_OFFERED_PLAYER_LIMIT = 30;
-export const RECENTLY_OFFERED_WEIGHT_MULTIPLIER = 0.08;
+export const RECENTLY_OFFERED_PLAYER_LIMIT = 45;
+export const RECENTLY_OFFERED_WEIGHT_MULTIPLIER = 0.14;
 
 export const PICK_BOARD_WINDOWS: Record<
   PickBoardProfile,

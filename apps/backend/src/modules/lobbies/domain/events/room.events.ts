@@ -13,6 +13,13 @@ export enum RoomEventName {
   MATCH_STARTED = 'MATCH_STARTED',
   MATCH_MINUTE_UPDATED = 'MATCH_MINUTE_UPDATED',
   MATCH_EVENT_CREATED = 'MATCH_EVENT_CREATED',
+  BALL_MOVED = 'BALL_MOVED',
+  ATTACK_STARTED = 'ATTACK_STARTED',
+  ATTACK_PROGRESS = 'ATTACK_PROGRESS',
+  SHOT = 'SHOT',
+  GOAL = 'GOAL',
+  MOMENTUM_CHANGED = 'MOMENTUM_CHANGED',
+  MATCH_FINISHED = 'MATCH_FINISHED',
   GOAL_SCORED = 'GOAL_SCORED',
   HALF_TIME = 'HALF_TIME',
   FULL_TIME = 'FULL_TIME',
@@ -39,6 +46,11 @@ export interface RoomEventPayload {
   readonly eventId?: string;
   readonly eventType?: string;
   readonly commentary?: string;
+  readonly ballZone?: string;
+  readonly previousBallZone?: string;
+  readonly homeMomentum?: number;
+  readonly awayMomentum?: number;
+  readonly attackChainId?: string;
   readonly winnerDisplayName?: string;
   readonly winnerParticipantId?: string;
   readonly messageId?: string;

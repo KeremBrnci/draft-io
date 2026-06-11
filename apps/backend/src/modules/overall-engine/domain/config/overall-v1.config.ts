@@ -204,3 +204,6 @@ export const OVERALL_PROFILE_BOUNDS: Readonly<Record<OverallProfileTag, OverallP
 
 export const DEFAULT_CAREER_SCORE = 50;
 export const DEFAULT_LEGACY_SCORE = 0;
+
+/** Goalkeepers are undervalued by outfield-weighted components — lift into draft range. */
+export const GOALKEEPER_POSITION_OVERALL_BOOST = 7;

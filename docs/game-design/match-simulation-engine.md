@@ -1,8 +1,10 @@
-# Match Simulation Engine V1
+# Match Simulation Engine V2 — Fun First
 
-## Purpose
+## Philosophy
 
-Resolve head-to-head matches between drafted squads with believable football outcomes, live minute-by-minute playback, and persistent statistics.
+Matches should feel **exciting, eventful, competitive, and unpredictable** — not boring, defensive, or low-scoring.
+
+This is a **multiplayer football draft game**, not a football management simulator. When realism and fun conflict, **choose fun**.
 
 ## Inputs
 
@@ -12,48 +14,77 @@ Each match uses immutable team snapshots captured at kick-off:
 - `teamAverageOverall`, `teamChemistry`, `matchPower`
 - Eleven drafted players with real names, positions, card overalls
 
-Strength is derived from draft balance calculators already used during roster building.
-
 ## Time model
 
-Matches do not simulate wall-clock 90 minutes. Playback uses accelerated time:
+Accelerated playback (default **~260ms per match minute**). Statuses: `SCHEDULED`, `LIVE`, `HALF_TIME`, `FULL_TIME`, `PAUSED`.
 
-- Default: **1 real second = 1 match minute**
-- Configurable via `DEFAULT_MATCH_SIMULATION_CONFIG.msPerMinute`
+## Match strength weights
 
-Statuses: `SCHEDULED`, `LIVE`, `HALF_TIME`, `FULL_TIME`, `PAUSED`.
+Composite strength for attack selection:
 
-## Momentum system
+| Component  | Weight |
+| ---------- | ------ |
+| Overall    | 65%    |
+| Chemistry  | 20%    |
+| Formation  | 10%    |
+| Home       | 1.5%   |
+| Randomness | 3.5%   |
 
-Each team carries hidden momentum during generation and playback:
+Chemistry improves **chance quality and conversion**, not raw overall alone.
 
-- Goals increase attacking team momentum (+0.15) and reduce opponent momentum (-0.10)
-- Attack selection weights combine `matchPower`, chemistry boost (max ~10%), home advantage (~5%), and momentum
-- Stronger teams dominate possession more often but upsets remain possible
+## Team xG model
+
+```
+teamXG = baseXG
+  × powerDifferenceModifier
+  × attackVsDefenseModifier
+  × chemistryModifier
+  × homeModifier
+  × formationAttackModifier
+  × opponentDefenseModifier
+  × controlledRandomness
+```
+
+- `baseXG = 1.6`
+- Clamp per team: **0.8 – 4.0**
+- Final reported xG blends live shot accumulation with the team xG budget
+
+## Formation impact
+
+| Formation | Attack | Defense | Feel                    |
+| --------- | ------ | ------- | ----------------------- |
+| 3-4-3     | +18%   | -10%    | High volume, open game  |
+| 4-3-3     | +12%   | -5%     | Pressing, wide attacks  |
+| 4-4-2     | —      | —       | Balanced baseline       |
+| 5-3-2     | -10%   | +10%    | Compact, fewer chances  |
+| 4-5-1     | -15%   | +12%    | Low block, counter risk |
+
+Formation modifiers affect shots, dangerous attacks, corners, and xG — visible in post-match stats.
 
 ## Event generation
 
-Target: **12–22 major events** per match.
+Target **22–38 meaningful events** per match (dangerous attacks, shots, corners, penalties, woodwork, big chances, goals).
 
-Event types include dangerous attacks, shots, goals, woodwork, penalties, cards, corners, and free kicks. Events are pre-generated with seeded RNG, stored in `room_match_events`, then revealed minute-by-minute during playback.
+Commentary stays active even when goals are scarce.
 
-## Result storage
+## Goal distribution targets
 
-Persisted entities:
+| Metric            | Target    |
+| ----------------- | --------- |
+| Average goals     | 3.0 – 4.5 |
+| Preferred average | ~3.6      |
+| Average total xG  | 3.2 – 5.5 |
+| Draw rate         | 15% – 25% |
+| Home wins         | 40% – 50% |
+| Away wins         | 30% – 40% |
+| 0-0 frequency     | < 3%      |
 
-- `RoomMatch` — scoreline, xG, snapshots, status, seed
-- `RoomMatchEvent` — commentary, player references, xG per shot
-- `RoomMatchStatistic` — possession, shots, cards, player ratings
-- `RoomLeagueStanding` — table row updated after `FULL_TIME`
-
-## Chemistry influence
-
-Chemistry contributes up to **10%** effective strength via `chemistryImpactCap`. Overall / match power remains primary; chemistry can swing close games.
+Common scorelines: 2-1, 2-2, 3-1, 3-2, 4-2.
 
 ## Validation
 
-`match-simulation-engine.service.unit.test.ts` runs 1000 simulations and checks:
+`match-simulation-engine.service.unit.test.ts` runs 2000 simulations against the targets above.
 
-- Average goals and xG remain football-like
-- Home win rate > away win rate with home advantage
-- Draw rate remains meaningful
+## Config
+
+Tunable via `DEFAULT_MATCH_SIMULATION_CONFIG` in `match-simulation.types.ts` and `FORMATION_MATCH_MODIFIERS` in `formation-match-modifiers.ts`.

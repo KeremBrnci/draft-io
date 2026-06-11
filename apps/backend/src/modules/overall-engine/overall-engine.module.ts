@@ -15,10 +15,12 @@ import { GetOverallHistoryUseCase } from './application/use-cases/get-overall-hi
 import { GetPlayerMetricsUseCase } from './application/use-cases/get-player-metrics.use-case';
 import { RecalculateOverallUseCase } from './application/use-cases/recalculate-overall.use-case';
 import { UpsertPlayerMetricsUseCase } from './application/use-cases/upsert-player-metrics.use-case';
+import { CARD_OVERALL_INTEGRATION } from './domain/ports/card-overall-integration.port';
 import { OVERALL_CALCULATOR } from './domain/ports/overall-calculator.port';
 import { OVERALL_ALGORITHM_VERSION_REPOSITORY } from './domain/repositories/overall-algorithm-version.repository';
 import { OVERALL_CALCULATION_REPOSITORY } from './domain/repositories/overall-calculation.repository';
 import { PLAYER_METRICS_REPOSITORY } from './domain/repositories/player-metrics.repository';
+import { CardOverallIntegrationAdapter } from './infrastructure/adapters/card-overall-integration.adapter';
 import { PrismaOverallAlgorithmVersionRepository } from './infrastructure/persistence/prisma-overall-algorithm-version.repository';
 import { PrismaOverallCalculationRepository } from './infrastructure/persistence/prisma-overall-calculation.repository';
 import { PrismaPlayerMetricsRepository } from './infrastructure/persistence/prisma-player-metrics.repository';
@@ -51,6 +53,10 @@ import { AdminOverallController } from './presentation/controllers/admin-overall
         new ManualOverrideGuardService(cardRepository),
       inject: [CARD_REPOSITORY],
     },
+    {
+      provide: CARD_OVERALL_INTEGRATION,
+      useClass: CardOverallIntegrationAdapter,
+    },
     provideUseCase(CalculatePlayerOverallUseCase, [
       PLAYER_REPOSITORY,
       LEAGUE_REPOSITORY,
@@ -59,6 +65,7 @@ import { AdminOverallController } from './presentation/controllers/admin-overall
       OVERALL_ALGORITHM_VERSION_REPOSITORY,
       OVERALL_CALCULATOR,
       ManualOverrideGuardService,
+      CARD_OVERALL_INTEGRATION,
     ]),
     provideUseCase(RecalculateOverallUseCase, [PLAYER_REPOSITORY, CalculatePlayerOverallUseCase]),
     provideUseCase(GetOverallHistoryUseCase, [OVERALL_CALCULATION_REPOSITORY]),

@@ -7,6 +7,7 @@ import { useCallback, useMemo, useState, startTransition } from 'react';
 
 import '@/components/league/league.css';
 import { CoachCard } from '@/components/cards';
+import { DraftPlayerChemistryBadge } from '@/components/draft/draft-player-chemistry-badge';
 import { PlayGameBackdrop } from '@/components/play/play-game-backdrop';
 import { PlayLoadingState } from '@/components/play/play-loading-state';
 import { PlayStageRail } from '@/components/play/play-stage-rail';
@@ -185,6 +186,12 @@ export default function CoachSelectionPage(): React.ReactElement {
                     {isBusy ? <span className="coach-selection-card__spinner" aria-hidden /> : null}
                     <CoachCard coach={coach} size="sm" visual="interactive" />
                     <span className="coach-selection-card__name">{coach.displayName}</span>
+                    <DraftPlayerChemistryBadge
+                      chemistry={coach.chemistryBonus}
+                      showZero
+                      suffix="kimya"
+                      className="coach-selection-card__chemistry"
+                    />
                   </button>
                 );
               })}

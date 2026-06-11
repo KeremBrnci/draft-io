@@ -961,6 +961,10 @@
   word-break: break-word;
 }
 
+.coach-selection-card__chemistry {
+  justify-self: center;
+}
+
 .coach-selection-card--busy {
   border-color: rgb(74 222 128 / 65%);
   box-shadow: 0 0 24px rgb(34 197 94 / 24%);

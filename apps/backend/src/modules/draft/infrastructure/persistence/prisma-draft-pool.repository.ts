@@ -79,14 +79,48 @@ export class PrismaDraftPoolRepository implements DraftPoolRepository {
       where.overall = overallFilter;
     }
 
-    const records = await this.prisma.card.findMany({
-      where,
-      include: cardInclude,
-      orderBy: [{ overall: 'desc' }, { createdAt: 'desc' }],
-      take: query.limit ?? 200,
-    });
+    const limit = query.limit ?? 200;
+    const records = await this.fetchDiversePoolRecords(where, limit);
 
     return records.map((record) => this.toDraftPoolCard(record));
+  }
+
+  private async fetchDiversePoolRecords(
+    where: Prisma.CardWhereInput,
+    limit: number,
+  ): Promise<readonly DraftPoolRecord[]> {
+    const eliteTake = Math.max(1, Math.ceil(limit * 0.45));
+    const valueTake = Math.max(1, Math.ceil(limit * 0.35));
+    const depthTake = Math.max(1, limit - eliteTake - valueTake);
+
+    const [eliteSlice, valueSlice, depthSlice] = await Promise.all([
+      this.prisma.card.findMany({
+        where,
+        include: cardInclude,
+        orderBy: [{ overall: 'desc' }, { createdAt: 'desc' }],
+        take: eliteTake,
+      }),
+      this.prisma.card.findMany({
+        where,
+        include: cardInclude,
+        orderBy: [{ overall: 'asc' }, { createdAt: 'desc' }],
+        take: valueTake,
+      }),
+      this.prisma.card.findMany({
+        where,
+        include: cardInclude,
+        orderBy: [{ createdAt: 'desc' }, { overall: 'desc' }],
+        skip: eliteTake,
+        take: depthTake,
+      }),
+    ]);
+
+    const merged = new Map<string, DraftPoolRecord>();
+    for (const record of [...eliteSlice, ...valueSlice, ...depthSlice]) {
+      merged.set(record.id, record);
+    }
+
+    return [...merged.values()].slice(0, limit);
   }
 
   async findByIds(cardIds: readonly string[]): Promise<readonly DraftPoolCard[]> {

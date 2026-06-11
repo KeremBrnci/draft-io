@@ -1,8 +1,9 @@
 import { buildTransfermarktNationalityFlagUrl, translateNationality } from '@draft-io/shared-utils';
 
-import type { CoachBrowserItem } from '../../../coaches/application/read-models/coach-browser-item';
 import type { CoachRepository } from '../../../coaches/domain/repositories/coach.repository';
 import { CoachId } from '../../../coaches/domain/value-objects/coach-id.vo';
+import type { GetDraftSessionByLobbyUseCase } from '../../../draft/application/use-cases/get-draft-session-by-lobby.use-case';
+import type { DraftPoolRepository } from '../../../draft/domain/repositories/draft-pool.repository';
 import type { LeagueRepository } from '../../../leagues/domain/repositories/league.repository';
 import { LeagueId } from '../../../leagues/domain/value-objects/league-id.vo';
 import type { StartNextMatchUseCase } from '../../../matches/application/use-cases/start-next-match.use-case';
@@ -16,6 +17,8 @@ import { RoomEventName, type RoomEventPayload } from '../../domain/events/room.e
 import type { LobbyRepository } from '../../domain/repositories/lobby.repository';
 import { LobbyCode } from '../../domain/value-objects/lobby-code.vo';
 import { SessionToken } from '../../domain/value-objects/session-token.vo';
+import type { CoachSelectionOption } from '../read-models/coach-selection-option';
+import { CoachSelectionChemistryService } from '../services/coach-selection-chemistry.service';
 import { LobbyLifecycleService } from '../services/lobby-lifecycle.service';
 import type { RoomEventsPublisher } from '../services/room-events.publisher';
 
@@ -72,7 +75,7 @@ export class SelectCoachUseCase {
 export interface CoachSelectionState {
   readonly lobby: Lobby;
   readonly participant: LobbyParticipant | null;
-  readonly myCoachOptions: readonly CoachBrowserItem[];
+  readonly myCoachOptions: readonly CoachSelectionOption[];
 }
 
 export interface GetCoachSelectionQuery {
@@ -88,6 +91,8 @@ export class GetCoachSelectionUseCase {
     private readonly coachRepository: CoachRepository,
     private readonly teamRepository: TeamRepository,
     private readonly leagueRepository: LeagueRepository,
+    private readonly getDraftSessionByLobbyUseCase: GetDraftSessionByLobbyUseCase,
+    private readonly draftPoolRepository: DraftPoolRepository,
   ) {
     this.lifecycle = new LobbyLifecycleService(lobbyRepository);
   }
@@ -99,7 +104,7 @@ export class GetCoachSelectionUseCase {
         ? null
         : lobby.findParticipantBySessionToken(SessionToken.reconstitute(query.sessionToken));
 
-    let myCoachOptions: readonly CoachBrowserItem[] = [];
+    let myCoachOptions: readonly CoachSelectionOption[] = [];
     if (participant !== null) {
       const coaches = await Promise.all(
         participant.coachOptionIds.map((coachId) =>
@@ -121,15 +126,29 @@ export class GetCoachSelectionUseCase {
             : this.leagueRepository.findById(LeagueId.create(leagueId));
         }),
       );
+      const session = await this.getDraftSessionByLobbyUseCase.execute({ lobbyId: lobby.id.value });
+      const draftParticipant = session?.participants.find(
+        (entry) => entry.participantId === participant.id,
+      );
+      const draftedCards =
+        draftParticipant === undefined || draftParticipant.draftedCardIds.length === 0
+          ? []
+          : await this.draftPoolRepository.findByIds(draftParticipant.draftedCardIds);
+      const chemistryService =
+        session === null ? null : new CoachSelectionChemistryService(session.config.chemistry);
 
       myCoachOptions = coaches
-        .map((coach, index): CoachBrowserItem | null => {
+        .map((coach, index): CoachSelectionOption | null => {
           if (coach === null) {
             return null;
           }
 
           const team = teams[index];
           const league = leagues[index];
+          const chemistryProjection =
+            chemistryService === null
+              ? { projectedTeamChemistry: 0, chemistryBonus: 0 }
+              : chemistryService.projectForCoach(draftedCards, coach);
 
           return {
             id: coach.id.value,
@@ -147,9 +166,11 @@ export class GetCoachSelectionUseCase {
             leagueId: coach.leagueId ?? team?.leagueId ?? null,
             leagueName: league?.name.value ?? null,
             leagueLogoUrl: league?.logoUrl ?? null,
+            projectedTeamChemistry: chemistryProjection.projectedTeamChemistry,
+            chemistryBonus: chemistryProjection.chemistryBonus,
           };
         })
-        .filter((entry): entry is CoachBrowserItem => entry !== null);
+        .filter((entry): entry is CoachSelectionOption => entry !== null);
     }
 
     return { lobby, participant, myCoachOptions };
