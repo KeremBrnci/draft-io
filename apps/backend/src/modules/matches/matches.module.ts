@@ -12,6 +12,7 @@ import { FORMATION_REPOSITORY } from '../formations/domain/repositories/formatio
 import { FormationsModule } from '../formations/formations.module';
 import { ROOM_EVENTS_PUBLISHER } from '../lobbies/application/services/room-events.publisher';
 import { LOBBY_REPOSITORY } from '../lobbies/domain/repositories/lobby.repository';
+import { ROOM_CHAT_REPOSITORY } from '../lobbies/domain/repositories/room-chat.repository';
 import { LobbiesModule } from '../lobbies/lobbies.module';
 import { RoomEventsModule } from '../lobbies/room-events.module';
 import { MatchSimulationEngine } from '../simulation/domain/services/match-simulation-engine.service';
@@ -84,6 +85,7 @@ import { PrismaRoomLeagueRepository } from './infrastructure/persistence/prisma-
       LOBBY_REPOSITORY,
       ROOM_LEAGUE_REPOSITORY,
       DRAFT_SESSION_REPOSITORY,
+      ROOM_CHAT_REPOSITORY,
       ROOM_EVENTS_PUBLISHER,
     ]),
   ],

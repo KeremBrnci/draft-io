@@ -6,6 +6,7 @@ import { RoomPhase } from '../../../lobbies/domain/enums/room-phase.enum';
 import { InvalidLobbySessionError } from '../../../lobbies/domain/errors/lobby.errors';
 import { RoomEventName } from '../../../lobbies/domain/events/room.events';
 import type { LobbyRepository } from '../../../lobbies/domain/repositories/lobby.repository';
+import type { RoomChatRepository } from '../../../lobbies/domain/repositories/room-chat.repository';
 import { LobbyCode } from '../../../lobbies/domain/value-objects/lobby-code.vo';
 import { SessionToken } from '../../../lobbies/domain/value-objects/session-token.vo';
 import { LeagueNotCompletedError } from '../../domain/errors/league.errors';
@@ -18,6 +19,7 @@ export class PlayAgainUseCase {
     private readonly lobbyRepository: LobbyRepository,
     private readonly roomLeagueRepository: RoomLeagueRepository,
     private readonly draftSessionRepository: DraftSessionRepository,
+    private readonly roomChatRepository: RoomChatRepository,
     private readonly roomEventsPublisher: RoomEventsPublisher,
   ) {
     this.lifecycle = new LobbyLifecycleService(lobbyRepository);
@@ -39,6 +41,7 @@ export class PlayAgainUseCase {
 
     await this.roomLeagueRepository.deleteByLobbyId(lobby.id.value);
     await this.draftSessionRepository.deleteByLobbyId(lobby.id.value);
+    await this.roomChatRepository.deleteByLobbyId(lobby.id.value);
 
     lobby.resetForPlayAgain();
     this.lifecycle.touch(lobby);

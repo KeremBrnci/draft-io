@@ -19,6 +19,7 @@ export enum RoomEventName {
   LEAGUE_TABLE_UPDATED = 'LEAGUE_TABLE_UPDATED',
   LEAGUE_COMPLETED = 'LEAGUE_COMPLETED',
   LOBBY_RESET = 'LOBBY_RESET',
+  CHAT_MESSAGE = 'CHAT_MESSAGE',
 }
 
 export interface RoomEventPayload {
@@ -40,4 +41,8 @@ export interface RoomEventPayload {
   readonly commentary?: string;
   readonly winnerDisplayName?: string;
   readonly winnerParticipantId?: string;
+  readonly messageId?: string;
+  readonly displayName?: string;
+  readonly body?: string;
+  readonly sentAt?: string;
 }

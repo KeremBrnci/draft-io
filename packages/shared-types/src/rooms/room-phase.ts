@@ -29,4 +29,5 @@ export type RoomEventNameDto =
   | 'FULL_TIME'
   | 'LEAGUE_TABLE_UPDATED'
   | 'LEAGUE_COMPLETED'
-  | 'LOBBY_RESET';
+  | 'LOBBY_RESET'
+  | 'CHAT_MESSAGE';

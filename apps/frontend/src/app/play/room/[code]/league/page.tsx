@@ -12,6 +12,7 @@ import { MatchCommentaryFeed } from '@/components/league/match-commentary-feed';
 import { MatchLiveStatsPanel } from '@/components/league/match-live-stats-panel';
 import { MatchResultsOverlay } from '@/components/league/match-results-overlay';
 import { MatchWarmupOverlay } from '@/components/league/match-warmup-overlay';
+import { RoomChatPanel } from '@/components/league/room-chat-panel';
 import { PlayButton } from '@/components/play/play-button';
 import { PlayGameBackdrop } from '@/components/play/play-game-backdrop';
 import { PlayLoadingState } from '@/components/play/play-loading-state';
@@ -27,6 +28,7 @@ import { applyIfChanged } from '@/lib/stable-state';
 import { useCoalescedCallback } from '@/lib/use-coalesced-callback';
 import { useGoalCelebration } from '@/lib/use-goal-celebration';
 import { useMonotonicLiveScores } from '@/lib/use-monotonic-live-scores';
+import { useRoomChat } from '@/lib/use-room-chat';
 import { useVisibleInterval } from '@/lib/use-visible-interval';
 
 import '../../../play.css';
@@ -117,6 +119,7 @@ export default function LeaguePage(): React.ReactElement {
   }, [code]);
 
   const coalescedLoad = useCoalescedCallback(load);
+  const chat = useRoomChat(code, session);
 
   const queueNextMatch = useCallback(async (): Promise<void> => {
     if (autoNextQueuedRef.current) {
@@ -276,7 +279,8 @@ export default function LeaguePage(): React.ReactElement {
         ) : league === null ? (
           <PlayLoadingState message="Lig ekranı yükleniyor…" icon="🏟️" />
         ) : (
-          <div className="play-arena league-layout">
+          <div className="play-arena league-layout league-layout--with-chat">
+            <div className="league-layout__main">
             <div className="play-arena__header">
               <div>
                 <p className="play-arena__eyebrow">
@@ -494,6 +498,16 @@ export default function LeaguePage(): React.ReactElement {
                 </table>
               </div>
             </section>
+            </div>
+
+            <RoomChatPanel
+              messages={chat.messages}
+              viewerParticipantId={session?.participantId ?? null}
+              canSend={chat.canSend}
+              sending={chat.sending}
+              error={chat.error}
+              onSend={chat.sendMessage}
+            />
           </div>
         )}
       </main>

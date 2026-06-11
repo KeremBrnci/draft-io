@@ -39,11 +39,17 @@ import {
 } from './application/use-cases/formation-selection.use-cases';
 import { GetLobbyByCodeUseCase } from './application/use-cases/get-lobby-by-code.use-case';
 import { JoinLobbyUseCase } from './application/use-cases/join-lobby.use-case';
+import {
+  ListRoomChatMessagesUseCase,
+  SendRoomChatMessageUseCase,
+} from './application/use-cases/room-chat.use-cases';
 import { SetParticipantReadyUseCase } from './application/use-cases/set-participant-ready.use-case';
 import { StartDraftUseCase } from './application/use-cases/start-draft.use-case';
 import { StartLobbyUseCase } from './application/use-cases/start-lobby.use-case';
 import { LOBBY_REPOSITORY } from './domain/repositories/lobby.repository';
+import { ROOM_CHAT_REPOSITORY } from './domain/repositories/room-chat.repository';
 import { PrismaLobbyRepository } from './infrastructure/persistence/prisma-lobby.repository';
+import { PrismaRoomChatRepository } from './infrastructure/persistence/prisma-room-chat.repository';
 import { LobbiesController } from './presentation/controllers/lobbies.controller';
 import { RoomEventsModule } from './room-events.module';
 
@@ -122,11 +128,27 @@ import { RoomEventsModule } from './room-events.module';
       ROOM_EVENTS_PUBLISHER,
       StartNextMatchUseCase,
     ]),
+    provideUseCase(ListRoomChatMessagesUseCase, [LOBBY_REPOSITORY, ROOM_CHAT_REPOSITORY]),
+    provideUseCase(SendRoomChatMessageUseCase, [
+      LOBBY_REPOSITORY,
+      ROOM_CHAT_REPOSITORY,
+      ROOM_EVENTS_PUBLISHER,
+    ]),
     {
       provide: LOBBY_REPOSITORY,
       useClass: PrismaLobbyRepository,
     },
+    {
+      provide: ROOM_CHAT_REPOSITORY,
+      useClass: PrismaRoomChatRepository,
+    },
   ],
-  exports: [CreateLobbyUseCase, JoinLobbyUseCase, GetLobbyByCodeUseCase, LOBBY_REPOSITORY],
+  exports: [
+    CreateLobbyUseCase,
+    JoinLobbyUseCase,
+    GetLobbyByCodeUseCase,
+    LOBBY_REPOSITORY,
+    ROOM_CHAT_REPOSITORY,
+  ],
 })
 export class LobbiesModule {}

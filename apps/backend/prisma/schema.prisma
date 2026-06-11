@@ -403,12 +403,27 @@ model Lobby {
 
   participants LobbyParticipant[]
   roomLeague   RoomLeague?
+  chatMessages RoomChatMessage[]
 
   @@index([status])
   @@index([phase])
   @@index([createdAt])
   @@index([expiresAt])
   @@map("lobbies")
+}
+
+model RoomChatMessage {
+  id            String   @id @default(uuid()) @db.Uuid
+  lobbyId       String   @map("lobby_id") @db.Uuid
+  participantId String   @map("participant_id") @db.Uuid
+  displayName   String   @map("display_name") @db.VarChar(40)
+  body          String   @db.VarChar(280)
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  lobby Lobby @relation(fields: [lobbyId], references: [id], onDelete: Cascade)
+
+  @@index([lobbyId, createdAt])
+  @@map("room_chat_messages")
 }
 
 /// Mini league created after draft — every participant plays every other twice.

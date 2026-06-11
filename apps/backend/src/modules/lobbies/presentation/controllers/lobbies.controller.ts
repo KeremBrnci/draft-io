@@ -26,6 +26,10 @@ import {
 } from '../../application/use-cases/formation-selection.use-cases';
 import { GetLobbyByCodeUseCase } from '../../application/use-cases/get-lobby-by-code.use-case';
 import { JoinLobbyUseCase } from '../../application/use-cases/join-lobby.use-case';
+import {
+  ListRoomChatMessagesUseCase,
+  SendRoomChatMessageUseCase,
+} from '../../application/use-cases/room-chat.use-cases';
 import { SetParticipantReadyUseCase } from '../../application/use-cases/set-participant-ready.use-case';
 import { StartDraftUseCase } from '../../application/use-cases/start-draft.use-case';
 import { StartLobbyUseCase } from '../../application/use-cases/start-lobby.use-case';
@@ -39,6 +43,7 @@ import {
 import { FormationSelectionQueryDto, SelectFormationDto } from '../dto/formation-selection.dto';
 import { JoinLobbyDto } from '../dto/join-lobby.dto';
 import { SetParticipantReadyDto, StartLobbyDto } from '../dto/lobby-ready.dto';
+import { RoomChatQueryDto, SendRoomChatMessageDto } from '../dto/room-chat.dto';
 import { toCoachSelectionState } from '../mappers/coach-selection-response.mapper';
 import { toDraftBoardStateDto } from '../mappers/draft-board-response.mapper';
 import { toFormationSelectionState } from '../mappers/formation-selection-response.mapper';
@@ -68,6 +73,8 @@ export class LobbiesController {
     private readonly startNextMatchUseCase: StartNextMatchUseCase,
     private readonly getMatchStateUseCase: GetMatchStateUseCase,
     private readonly playAgainUseCase: PlayAgainUseCase,
+    private readonly listRoomChatMessagesUseCase: ListRoomChatMessagesUseCase,
+    private readonly sendRoomChatMessageUseCase: SendRoomChatMessageUseCase,
   ) {}
 
   @Post()
@@ -296,6 +303,31 @@ export class LobbiesController {
   @Get('code/:code/league')
   async getLeague(@Param('code') code: string) {
     const data = await this.getLeagueStateUseCase.execute({ code: code.toUpperCase() });
+    return { data };
+  }
+
+  @Get('code/:code/chat')
+  async listChat(
+    @Param('code') code: string,
+    @Query() query: RoomChatQueryDto,
+  ): Promise<ApiResponse<Awaited<ReturnType<ListRoomChatMessagesUseCase['execute']>>>> {
+    const data = await this.listRoomChatMessagesUseCase.execute({
+      code: code.toUpperCase(),
+      sessionToken: query.sessionToken,
+    });
+    return { data };
+  }
+
+  @Post('code/:code/chat')
+  async sendChat(
+    @Param('code') code: string,
+    @Body() dto: SendRoomChatMessageDto,
+  ): Promise<ApiResponse<Awaited<ReturnType<SendRoomChatMessageUseCase['execute']>>>> {
+    const data = await this.sendRoomChatMessageUseCase.execute({
+      code: code.toUpperCase(),
+      sessionToken: dto.sessionToken,
+      body: dto.body,
+    });
     return { data };
   }
 

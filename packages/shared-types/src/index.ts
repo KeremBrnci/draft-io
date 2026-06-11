@@ -47,9 +47,12 @@ export type {
   CoachSelectionStateDto,
   FormationSelectionParticipantDto,
   FormationSelectionStateDto,
+  ListRoomChatMessagesQueryDto,
+  RoomChatMessageDto,
   RoomEventNameDto,
   SelectCoachCommandDto,
   SelectFormationCommandDto,
+  SendRoomChatMessageCommandDto,
   StartDraftResultDto,
   StartFormationSelectionResultDto,
 } from './rooms/index.js';
