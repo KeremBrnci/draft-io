@@ -205,12 +205,7 @@ const DraftPitchSlot = memo(function DraftPitchSlot({
     .join(' ');
 
   return (
-    <div
-      className={slotClassName}
-      style={style}
-      onDragOver={handleDragOver}
-      onDrop={handleDrop}
-    >
+    <div className={slotClassName} style={style} onDragOver={handleDragOver} onDrop={handleDrop}>
       {slot.card === null ? (
         locked ? (
           <DraftEmptyCard label={slot.label} active={isActive} locked />

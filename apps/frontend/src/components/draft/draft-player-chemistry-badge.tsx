@@ -43,19 +43,14 @@ export const DraftPlayerChemistryBadge = memo(function DraftPlayerChemistryBadge
     return null;
   }
 
-  const tier =
-    chemistry <= 0 && showZero ? 'none' : resolveDraftPlayerChemistryTier(chemistry);
+  const tier = chemistry <= 0 && showZero ? 'none' : resolveDraftPlayerChemistryTier(chemistry);
   const sourceLabel = formatDraftPlayerChemistrySources(sources);
   const title =
     sourceLabel.length > 0 ? `+${chemistry} kimya · ${sourceLabel}` : `+${chemistry} kimya`;
 
   return (
     <span
-      className={[
-        'draft-player-chem',
-        `draft-player-chem--${tier}`,
-        className,
-      ]
+      className={['draft-player-chem', `draft-player-chem--${tier}`, className]
         .filter(Boolean)
         .join(' ')}
       title={title}

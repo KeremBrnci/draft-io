@@ -1,9 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import {
-  createParticipantDraftState,
-  swapSlotAssignments,
-} from './participant-draft-state.js';
+import { createParticipantDraftState, swapSlotAssignments } from './participant-draft-state.js';
 
 describe('swapSlotAssignments', () => {
   it('swaps two filled slots and updates deployed positions', () => {
