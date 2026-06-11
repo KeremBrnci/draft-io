@@ -482,7 +482,9 @@
   position: relative;
   z-index: 1;
   width: 100%;
-  max-width: none;
+  max-width: min(100%, var(--play-game-max-width, 42rem));
+  margin-left: auto;
+  margin-right: auto;
   padding: 1.25rem 1rem 2rem;
 }
 
@@ -538,17 +540,17 @@
   }
 
   .draft-pitch-board {
-    width: min(100%, 44rem);
-    min-height: 36rem;
+    width: min(100%, 34rem);
+    min-height: 28rem;
   }
 
   .draft-empty-card {
-    width: 4.85rem;
+    width: 4.35rem;
   }
 
   .draft-pitch-slot__card {
-    width: 8.5rem;
-    transform: scale(0.76);
+    width: 7.75rem;
+    transform: scale(0.72);
   }
 }
 

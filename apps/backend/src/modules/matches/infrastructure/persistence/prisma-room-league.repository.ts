@@ -6,6 +6,7 @@ import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../../../infrastructure/database/prisma.service';
 import type { MatchTeamSnapshot } from '../../../simulation/domain/models/match-simulation.types';
 import { generateDoubleRoundRobinFixtures } from '../../../simulation/domain/services/fixture-generator.service';
+import { isLeagueSeasonComplete } from '../../domain/services/league-season.service';
 import type {
   CreateLeagueInput,
   CreateMatchInput,
@@ -147,7 +148,8 @@ export class PrismaRoomLeagueRepository implements RoomLeagueRepository {
       awayRedCards: record.awayRedCards,
       homeDangerousAttacks: record.homeDangerousAttacks,
       awayDangerousAttacks: record.awayDangerousAttacks,
-      playerRatings: record.playerRatings as Record<string, number>,
+      initialPlayerRatings: parseRatingMap(record.initialPlayerRatings),
+      playerRatings: parseRatingMap(record.playerRatings),
     };
   }
 
@@ -244,6 +246,7 @@ export class PrismaRoomLeagueRepository implements RoomLeagueRepository {
           awayRedCards: input.statistics.awayRedCards,
           homeDangerousAttacks: input.statistics.homeDangerousAttacks,
           awayDangerousAttacks: input.statistics.awayDangerousAttacks,
+          initialPlayerRatings: input.statistics.initialPlayerRatings,
           playerRatings: input.statistics.playerRatings,
         },
       });
@@ -348,10 +351,7 @@ export class PrismaRoomLeagueRepository implements RoomLeagueRepository {
     });
 
     if (match.status === 'FULL_TIME') {
-      const remaining = await this.prisma.roomFixture.count({
-        where: { leagueId: match.leagueId, matchId: null },
-      });
-      return remaining === 0;
+      return this.ensureLeagueCompleted(match.leagueId);
     }
 
     await this.prisma.roomMatch.update({
@@ -412,15 +412,7 @@ export class PrismaRoomLeagueRepository implements RoomLeagueRepository {
     });
 
     await this.recalculateRanks(match.leagueId);
-    const remaining = await this.prisma.roomFixture.count({
-      where: { leagueId: match.leagueId, matchId: null },
-    });
-    const leagueCompleted = remaining === 0;
-    if (leagueCompleted) {
-      await this.updateLeagueStatus(match.leagueId, 'COMPLETED');
-    }
-
-    return leagueCompleted;
+    return this.ensureLeagueCompleted(match.leagueId);
   }
 
   async updateLeagueStatus(leagueId: string, status: string): Promise<void> {
@@ -431,6 +423,37 @@ export class PrismaRoomLeagueRepository implements RoomLeagueRepository {
     return this.prisma.roomMatch.count({
       where: { leagueId, status: 'FULL_TIME' },
     });
+  }
+
+  async countFixtures(leagueId: string): Promise<number> {
+    return this.prisma.roomFixture.count({ where: { leagueId } });
+  }
+
+  async isLeagueSeasonComplete(leagueId: string): Promise<boolean> {
+    const [fixtureCount, completedMatchCount] = await Promise.all([
+      this.countFixtures(leagueId),
+      this.countCompletedMatches(leagueId),
+    ]);
+
+    return isLeagueSeasonComplete(fixtureCount, completedMatchCount);
+  }
+
+  async ensureLeagueCompleted(leagueId: string): Promise<boolean> {
+    const seasonComplete = await this.isLeagueSeasonComplete(leagueId);
+    if (!seasonComplete) {
+      return false;
+    }
+
+    const league = await this.prisma.roomLeague.findUnique({
+      where: { id: leagueId },
+      select: { status: true },
+    });
+
+    if (league !== null && league.status !== 'COMPLETED') {
+      await this.updateLeagueStatus(leagueId, 'COMPLETED');
+    }
+
+    return true;
   }
 
   private async recalculateRanks(leagueId: string): Promise<void> {
@@ -486,4 +509,16 @@ export class PrismaRoomLeagueRepository implements RoomLeagueRepository {
       finishedAt: record.finishedAt,
     };
   }
+}
+
+function parseRatingMap(value: unknown): Record<string, number> {
+  if (typeof value !== 'object' || value === null) {
+    return {};
+  }
+
+  return Object.fromEntries(
+    Object.entries(value).flatMap(([cardId, rating]) =>
+      typeof rating === 'number' ? [[cardId, rating]] : [],
+    ),
+  );
 }

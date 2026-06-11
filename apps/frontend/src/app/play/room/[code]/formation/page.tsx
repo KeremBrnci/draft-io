@@ -16,6 +16,7 @@ import { getFormationSelection, selectFormation, startDraft } from '@/lib/api/fo
 import { clearLobbySession, readLobbySession } from '@/lib/lobby-session';
 import { FORMATION_REFRESH_EVENTS } from '@/lib/lobby-stage-events';
 import { applyIfChanged } from '@/lib/stable-state';
+import { useBackgroundLoadErrors } from '@/lib/use-background-load-errors';
 import { useLobbyStageSync } from '@/lib/use-lobby-stage-sync';
 import { usePhaseRedirect } from '@/lib/use-phase-redirect';
 
@@ -33,6 +34,7 @@ export default function FormationSelectionPage(): React.ReactElement {
   const [startingDraft, setStartingDraft] = useState(false);
   const session = useMemo(() => readLobbySession(code), [code]);
   const redirectForPhase = usePhaseRedirect(code);
+  const backgroundErrors = useBackgroundLoadErrors();
 
   const loadState = useCallback(async (): Promise<void> => {
     if (session === null) {
@@ -44,6 +46,7 @@ export default function FormationSelectionPage(): React.ReactElement {
       const nextState = await getFormationSelection(code, session.sessionToken);
       startTransition(() => {
         setState((current) => applyIfChanged(current, nextState));
+        backgroundErrors.onLoadSuccess();
         setError(null);
       });
 
@@ -60,9 +63,15 @@ export default function FormationSelectionPage(): React.ReactElement {
         return;
       }
 
-      setError('Formasyon seçimi yüklenemedi.');
+      const message = backgroundErrors.resolvePollError(
+        loadError,
+        'Formasyon seçimi yüklenemedi.',
+      );
+      if (message !== null) {
+        setError(message);
+      }
     }
-  }, [code, redirectForPhase, session]);
+  }, [backgroundErrors, code, redirectForPhase, session]);
 
   useLobbyStageSync({
     lobbyCode: code,

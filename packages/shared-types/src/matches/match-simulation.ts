@@ -44,6 +44,21 @@ export interface MatchTeamSnapshotDto {
   readonly players: readonly MatchPlayerSnapshotDto[];
 }
 
+export interface MatchLineupPlayerDto {
+  readonly cardId: string;
+  readonly displayName: string;
+  readonly positionCode: string;
+  readonly overall: number;
+  readonly matchRating: number;
+}
+
+export interface MatchTeamLineupDto {
+  readonly participantId: string;
+  readonly displayName: string;
+  readonly formationCode: string;
+  readonly players: readonly MatchLineupPlayerDto[];
+}
+
 export interface MatchEventDto {
   readonly id: string;
   readonly minute: number;
@@ -74,6 +89,7 @@ export interface MatchStatisticsDto {
   readonly awayRedCards: number;
   readonly homeDangerousAttacks: number;
   readonly awayDangerousAttacks: number;
+  readonly initialPlayerRatings: Readonly<Record<string, number>>;
   readonly playerRatings: Readonly<Record<string, number>>;
 }
 
@@ -95,6 +111,8 @@ export interface MatchStateDto {
   readonly awayDisplayName: string;
   readonly manOfTheMatchCardId: string | null;
   readonly manOfTheMatchPlayerName: string | null;
+  readonly homeLineup: MatchTeamLineupDto;
+  readonly awayLineup: MatchTeamLineupDto;
   readonly events: readonly MatchEventDto[];
   readonly statistics: MatchStatisticsDto | null;
 }

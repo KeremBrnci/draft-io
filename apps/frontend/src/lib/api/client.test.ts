@@ -34,4 +34,25 @@ describe('apiGet', () => {
 
     await expect(apiGet('/players/missing')).rejects.toThrow(ApiClientError);
   });
+
+  it('retries transient upstream failures before surfacing an error', async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce({
+        ok: false,
+        status: 502,
+        statusText: 'Bad Gateway',
+        json: () => Promise.resolve({ message: 'Backend request failed: timeout' }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve({ data: { ok: true } }),
+      });
+
+    vi.stubGlobal('fetch', fetchMock);
+
+    const result = await apiGet<{ ok: boolean }>('/health');
+    expect(result).toEqual({ ok: true });
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
 });

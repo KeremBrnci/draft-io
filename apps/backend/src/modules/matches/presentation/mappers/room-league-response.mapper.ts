@@ -2,10 +2,12 @@ import {
   deriveMatchStoppageTime,
   formatMatchMinuteLabel,
   type MatchStateDto,
+  type MatchTeamLineupDto,
   type RoomLeagueStateDto,
   type TeamReviewStateDto,
 } from '@draft-io/shared-types';
 
+import { computeLivePlayerRatings } from '../../domain/services/match-player-ratings.service';
 import type { Lobby } from '../../../lobbies/domain/entities/lobby.entity';
 import { RoomPhase } from '../../../lobbies/domain/enums/room-phase.enum';
 import {
@@ -136,6 +138,48 @@ function resolveDisplayedMatchScores(
   };
 }
 
+function resolveDisplayedPlayerRatings(
+  match: RoomMatchRecord,
+  events: readonly RoomMatchEventRecord[],
+  statistics: RoomMatchStatisticRecord | null,
+): Readonly<Record<string, number>> {
+  if (statistics === null) {
+    return {};
+  }
+
+  if (match.status === 'FULL_TIME') {
+    return statistics.playerRatings;
+  }
+
+  const playerCardIds = [...match.homeSnapshot.players, ...match.awaySnapshot.players].map(
+    (player) => player.cardId,
+  );
+
+  return computeLivePlayerRatings(
+    statistics.initialPlayerRatings,
+    events,
+    playerCardIds,
+  );
+}
+
+function toTeamLineup(
+  snapshot: RoomMatchRecord['homeSnapshot'],
+  playerRatings: Readonly<Record<string, number>>,
+): MatchTeamLineupDto {
+  return {
+    participantId: snapshot.participantId,
+    displayName: snapshot.displayName,
+    formationCode: snapshot.formationCode,
+    players: snapshot.players.map((player) => ({
+      cardId: player.cardId,
+      displayName: player.displayName,
+      positionCode: player.positionCode,
+      overall: player.overall,
+      matchRating: playerRatings[player.cardId] ?? 6.5,
+    })),
+  };
+}
+
 export function toMatchStateDto(
   match: RoomMatchRecord,
   events: readonly RoomMatchEventRecord[],
@@ -143,6 +187,7 @@ export function toMatchStateDto(
 ): MatchStateDto {
   const scores = resolveDisplayedMatchScores(match, events);
   const stoppage = deriveMatchStoppageTime(match.simulationSeed);
+  const displayedPlayerRatings = resolveDisplayedPlayerRatings(match, events, statistics);
 
   return {
     id: match.id,
@@ -166,6 +211,8 @@ export function toMatchStateDto(
       match.awaySnapshot,
       match.manOfTheMatchCardId,
     ),
+    homeLineup: toTeamLineup(match.homeSnapshot, displayedPlayerRatings),
+    awayLineup: toTeamLineup(match.awaySnapshot, displayedPlayerRatings),
     events: events.map((event) => ({
       id: event.id,
       minute: event.minute,
@@ -198,7 +245,8 @@ export function toMatchStateDto(
             awayRedCards: statistics.awayRedCards,
             homeDangerousAttacks: statistics.homeDangerousAttacks,
             awayDangerousAttacks: statistics.awayDangerousAttacks,
-            playerRatings: statistics.playerRatings,
+            initialPlayerRatings: statistics.initialPlayerRatings,
+            playerRatings: displayedPlayerRatings,
           },
   };
 }

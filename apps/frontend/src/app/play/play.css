@@ -276,7 +276,7 @@
 .play-main--lobby {
   position: relative;
   z-index: 1;
-  max-width: 52rem;
+  max-width: min(100%, var(--play-game-max-width));
   padding-top: 2rem;
 }
 
@@ -347,7 +347,7 @@
 }
 
 .play-title--lobby {
-  font-size: clamp(1.5rem, 4vw, 2rem);
+  font-size: clamp(1.35rem, 3.5vw, 1.65rem);
   margin-bottom: 0;
   letter-spacing: -0.03em;
 }
@@ -708,7 +708,7 @@
 }
 
 .play-main--formation {
-  max-width: 56rem;
+  max-width: min(100%, var(--play-game-max-width));
 }
 
 .play--formation .formation-grid {
@@ -838,6 +838,7 @@
 /* ── Game theme (football / playful) ── */
 
 .play--game {
+  --play-game-max-width: 42rem;
   position: relative;
   overflow-x: hidden;
   background: #0b1f14;

@@ -1,10 +1,12 @@
 export type {
   MatchEventDto,
   MatchEventTypeDto,
+  MatchLineupPlayerDto,
   MatchPlayerSnapshotDto,
   MatchStatisticsDto,
   MatchStateDto,
   MatchStatusDto,
+  MatchTeamLineupDto,
   MatchTeamSideDto,
   MatchTeamSnapshotDto,
 } from './match-simulation.js';

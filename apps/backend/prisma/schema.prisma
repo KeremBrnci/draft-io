@@ -530,6 +530,7 @@ model RoomMatchStatistic {
   awayRedCards         Int    @default(0) @map("away_red_cards") @db.SmallInt
   homeDangerousAttacks Int    @default(0) @map("home_dangerous_attacks") @db.SmallInt
   awayDangerousAttacks Int    @default(0) @map("away_dangerous_attacks") @db.SmallInt
+  initialPlayerRatings Json @default("{}") @map("initial_player_ratings")
   playerRatings        Json   @default("{}") @map("player_ratings")
 
   match RoomMatch @relation(fields: [matchId], references: [id], onDelete: Cascade)

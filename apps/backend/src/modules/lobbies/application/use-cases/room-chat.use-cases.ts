@@ -44,7 +44,7 @@ export class ListRoomChatMessagesUseCase {
   private readonly lifecycle: LobbyLifecycleService;
 
   constructor(
-    private readonly lobbyRepository: LobbyRepository,
+    lobbyRepository: LobbyRepository,
     private readonly roomChatRepository: RoomChatRepository,
   ) {
     this.lifecycle = new LobbyLifecycleService(lobbyRepository);
@@ -75,7 +75,7 @@ export class SendRoomChatMessageUseCase {
   private readonly lifecycle: LobbyLifecycleService;
 
   constructor(
-    private readonly lobbyRepository: LobbyRepository,
+    lobbyRepository: LobbyRepository,
     private readonly roomChatRepository: RoomChatRepository,
     private readonly roomEventsPublisher: RoomEventsPublisher,
   ) {

@@ -35,9 +35,16 @@ export class PlayAgainUseCase {
     }
 
     const league = await this.roomLeagueRepository.findByLobbyId(lobby.id.value);
-    if (league === null || league.status !== 'COMPLETED') {
+    if (league === null) {
       throw new LeagueNotCompletedError();
     }
+
+    const seasonComplete = await this.roomLeagueRepository.isLeagueSeasonComplete(league.id);
+    if (!seasonComplete) {
+      throw new LeagueNotCompletedError();
+    }
+
+    await this.roomLeagueRepository.ensureLeagueCompleted(league.id);
 
     await this.roomLeagueRepository.deleteByLobbyId(lobby.id.value);
     await this.draftSessionRepository.deleteByLobbyId(lobby.id.value);

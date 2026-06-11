@@ -2,6 +2,13 @@ import { describe, expect, it } from 'vitest';
 
 import { resolveLiveMatchScores } from './match-live-score';
 
+const emptyLineup = {
+  participantId: 'p1',
+  displayName: 'Team',
+  formationCode: '4-3-3',
+  players: [],
+};
+
 describe('resolveLiveMatchScores', () => {
   it('counts only revealed GOAL events during live play', () => {
     const match = {
@@ -22,6 +29,8 @@ describe('resolveLiveMatchScores', () => {
       awayDisplayName: 'Away',
       manOfTheMatchCardId: null,
       manOfTheMatchPlayerName: null,
+      homeLineup: emptyLineup,
+      awayLineup: emptyLineup,
       statistics: null,
       events: [
         {
@@ -61,6 +70,8 @@ describe('resolveLiveMatchScores', () => {
       awayDisplayName: 'Away',
       manOfTheMatchCardId: null,
       manOfTheMatchPlayerName: null,
+      homeLineup: emptyLineup,
+      awayLineup: emptyLineup,
       statistics: null,
       events: [],
     };

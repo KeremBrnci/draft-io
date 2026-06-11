@@ -16,6 +16,7 @@ import { getTeamReview, startLeague } from '@/lib/api/league';
 import { clearLobbySession, readLobbySession } from '@/lib/lobby-session';
 import { TEAM_REVIEW_REFRESH_EVENTS } from '@/lib/lobby-stage-events';
 import { applyIfChanged } from '@/lib/stable-state';
+import { useBackgroundLoadErrors } from '@/lib/use-background-load-errors';
 import { useLobbyStageSync } from '@/lib/use-lobby-stage-sync';
 import { usePhaseRedirect } from '@/lib/use-phase-redirect';
 
@@ -29,6 +30,7 @@ export default function TeamReviewPage(): React.ReactElement {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const redirectForPhase = usePhaseRedirect(code);
+  const backgroundErrors = useBackgroundLoadErrors();
 
   const load = useCallback(async (): Promise<void> => {
     if (session === null) {
@@ -40,6 +42,7 @@ export default function TeamReviewPage(): React.ReactElement {
       const next = await getTeamReview(code, session.sessionToken);
       startTransition(() => {
         setState((current) => applyIfChanged(current, next));
+        backgroundErrors.onLoadSuccess();
         setError(null);
       });
 
@@ -60,9 +63,16 @@ export default function TeamReviewPage(): React.ReactElement {
         setError('Oda bulunamadı veya süresi doldu.');
         return;
       }
-      setError('Takım inceleme ekranı yüklenemedi.');
+
+      const message = backgroundErrors.resolvePollError(
+        loadError,
+        'Takım inceleme ekranı yüklenemedi.',
+      );
+      if (message !== null) {
+        setError(message);
+      }
     }
-  }, [code, redirectForPhase, session]);
+  }, [backgroundErrors, code, redirectForPhase, session]);
 
   useLobbyStageSync({
     lobbyCode: code,

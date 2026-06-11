@@ -3,7 +3,7 @@
 import type { RoomChatMessageDto } from '@draft-io/shared-types';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { ApiClientError } from '@/lib/api/client';
+import { normalizeApiErrorMessage } from '@/lib/api/resilience';
 import { getRoomChatMessages, sendRoomChatMessage } from '@/lib/api/room-chat';
 import type { StoredLobbySession } from '@/lib/lobby-session';
 import { parseRoomChatMessage, subscribeRoomSocket } from '@/lib/room-socket';
@@ -67,11 +67,7 @@ export function useRoomChat(
           return;
         }
 
-        if (loadError instanceof ApiClientError) {
-          setError(loadError.message);
-        } else {
-          setError('Sohbet geçmişi yüklenemedi.');
-        }
+        setError(normalizeApiErrorMessage(loadError, 'Sohbet geçmişi yüklenemedi.'));
       });
 
     return () => {
@@ -118,11 +114,7 @@ export function useRoomChat(
         });
         appendMessage(message);
       } catch (sendError) {
-        if (sendError instanceof ApiClientError) {
-          setError(sendError.message);
-        } else {
-          setError('Mesaj gönderilemedi.');
-        }
+        setError(normalizeApiErrorMessage(sendError, 'Mesaj gönderilemedi.'));
       } finally {
         setSending(false);
       }

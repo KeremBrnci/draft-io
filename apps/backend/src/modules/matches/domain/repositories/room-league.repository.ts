@@ -115,6 +115,7 @@ export interface RoomMatchStatisticRecord {
   readonly awayRedCards: number;
   readonly homeDangerousAttacks: number;
   readonly awayDangerousAttacks: number;
+  readonly initialPlayerRatings: Readonly<Record<string, number>>;
   readonly playerRatings: Readonly<Record<string, number>>;
 }
 
@@ -147,6 +148,9 @@ export interface RoomLeagueRepository {
   }): Promise<boolean>;
   updateLeagueStatus(leagueId: string, status: string): Promise<void>;
   countCompletedMatches(leagueId: string): Promise<number>;
+  countFixtures(leagueId: string): Promise<number>;
+  isLeagueSeasonComplete(leagueId: string): Promise<boolean>;
+  ensureLeagueCompleted(leagueId: string): Promise<boolean>;
   deleteByLobbyId(lobbyId: string): Promise<void>;
   findById(id: string): Promise<RoomLeagueRecord | null>;
 }

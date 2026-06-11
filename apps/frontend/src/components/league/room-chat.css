@@ -1,5 +1,5 @@
 .league-layout--with-chat {
-  grid-template-columns: minmax(0, 1fr) minmax(17rem, 22rem);
+  grid-template-columns: minmax(0, 1fr) minmax(14rem, 17rem);
   align-items: start;
 }
 
@@ -12,7 +12,7 @@
 .room-chat {
   display: flex;
   flex-direction: column;
-  min-height: 24rem;
+  min-height: 20rem;
   max-height: calc(100vh - 10rem);
   border-radius: 16px;
   border: 1px solid rgb(74 222 128 / 22%);

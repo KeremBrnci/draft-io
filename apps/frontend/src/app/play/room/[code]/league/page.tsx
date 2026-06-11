@@ -9,6 +9,7 @@ import '@/components/league/league.css';
 import { GoalCelebrationOverlay } from '@/components/league/goal-celebration-overlay';
 import { LeagueVictoryOverlay } from '@/components/league/league-victory-overlay';
 import { MatchCommentaryFeed } from '@/components/league/match-commentary-feed';
+import { MatchLineupsPanel } from '@/components/league/match-lineups-panel';
 import { MatchLiveStatsPanel } from '@/components/league/match-live-stats-panel';
 import { MatchResultsOverlay } from '@/components/league/match-results-overlay';
 import { MatchWarmupOverlay } from '@/components/league/match-warmup-overlay';
@@ -25,6 +26,7 @@ import { getActiveLiveMatchAlert } from '@/lib/match-live-alert';
 import { computeLiveMatchStats } from '@/lib/match-live-stats';
 import { useRoomSocket } from '@/lib/room-socket';
 import { applyIfChanged } from '@/lib/stable-state';
+import { useBackgroundLoadErrors } from '@/lib/use-background-load-errors';
 import { useCoalescedCallback } from '@/lib/use-coalesced-callback';
 import { useGoalCelebration } from '@/lib/use-goal-celebration';
 import { useMonotonicLiveScores } from '@/lib/use-monotonic-live-scores';
@@ -94,6 +96,7 @@ export default function LeaguePage(): React.ReactElement {
   const autoNextQueuedRef = useRef(false);
   const loadGenerationRef = useRef(0);
   const pauseLiveUpdatesRef = useRef(false);
+  const backgroundErrors = useBackgroundLoadErrors();
 
   const load = useCallback(async (): Promise<void> => {
     const generation = loadGenerationRef.current + 1;
@@ -107,16 +110,20 @@ export default function LeaguePage(): React.ReactElement {
 
       startTransition(() => {
         setLeague((current) => mergeLeagueState(current, next));
+        backgroundErrors.onLoadSuccess();
         setError(null);
       });
     } catch (loadError) {
-      if (loadError instanceof ApiClientError) {
-        setError(loadError.message);
+      if (loadGenerationRef.current !== generation) {
         return;
       }
-      setError('Lig ekranı yüklenemedi.');
+
+      const message = backgroundErrors.resolvePollError(loadError, 'Lig ekranı yüklenemedi.');
+      if (message !== null) {
+        setError(message);
+      }
     }
-  }, [code]);
+  }, [backgroundErrors, code]);
 
   const coalescedLoad = useCoalescedCallback(load);
   const chat = useRoomChat(code, session);
@@ -364,6 +371,11 @@ export default function LeaguePage(): React.ReactElement {
                     stats={liveStats}
                   />
                 ) : null}
+
+                <MatchLineupsPanel
+                  homeLineup={match.homeLineup}
+                  awayLineup={match.awayLineup}
+                />
 
                 {match.status === 'FULL_TIME' && match.manOfTheMatchPlayerName !== null ? (
                   <p className="league-motm">

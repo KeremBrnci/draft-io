@@ -5,7 +5,6 @@ import type {
   MatchGoalProfile,
   MatchPlayerSnapshot,
   MatchSimulationConfig,
-  MatchStatisticsSnapshot,
   MutableMatchStatCounters,
   MatchTeamSide,
   MatchTeamSnapshot,
@@ -116,6 +115,7 @@ export class MatchSimulationEngine {
     for (const player of [...input.home.players, ...input.away.players]) {
       playerRatings.set(player.cardId, 6.2 + rng.next() * 0.6);
     }
+    const initialPlayerRatings = Object.fromEntries(playerRatings);
 
     events.push({
       minute: 0,
@@ -434,6 +434,7 @@ export class MatchSimulationEngine {
         ...stats,
         homePossession: possession.home,
         awayPossession: possession.away,
+        initialPlayerRatings,
         playerRatings: Object.fromEntries(playerRatings),
       },
       manOfTheMatchCardId,
@@ -1052,7 +1053,7 @@ export class MatchSimulationEngine {
   private calculatePossession(
     homeStrength: number,
     awayStrength: number,
-    stats: Omit<MatchStatisticsSnapshot, 'homePossession' | 'awayPossession' | 'playerRatings'>,
+    stats: MutableMatchStatCounters,
   ): { home: number; away: number } {
     const attackWeight = stats.homeDangerousAttacks + stats.homeShots * 2 + homeStrength * 0.4;
     const awayWeight = stats.awayDangerousAttacks + stats.awayShots * 2 + awayStrength * 0.4;

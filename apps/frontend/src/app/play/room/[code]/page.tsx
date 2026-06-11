@@ -15,6 +15,7 @@ import { getLobbyByCode, setParticipantReady, startLobby } from '@/lib/api/lobbi
 import { clearLobbySession, readLobbySession, type StoredLobbySession } from '@/lib/lobby-session';
 import { LOBBY_REFRESH_EVENTS } from '@/lib/lobby-stage-events';
 import { applyIfChanged } from '@/lib/stable-state';
+import { useBackgroundLoadErrors } from '@/lib/use-background-load-errors';
 import { useLobbyStageSync } from '@/lib/use-lobby-stage-sync';
 import { usePhaseRedirect } from '@/lib/use-phase-redirect';
 
@@ -69,12 +70,14 @@ export default function LobbyRoomPage(): React.ReactElement {
   const [copied, setCopied] = useState(false);
   const [nowMs, setNowMs] = useState(() => Date.now());
   const redirectForPhase = usePhaseRedirect(code);
+  const backgroundErrors = useBackgroundLoadErrors();
 
   const loadLobby = useCallback(async (): Promise<void> => {
     try {
       const nextLobby = await getLobbyByCode(code);
       startTransition(() => {
         setLobby((current) => applyIfChanged(current, nextLobby));
+        backgroundErrors.onLoadSuccess();
         setError(null);
       });
 
@@ -96,9 +99,12 @@ export default function LobbyRoomPage(): React.ReactElement {
         return;
       }
 
-      setError('Oda bulunamadı veya yüklenemedi.');
+      const message = backgroundErrors.resolvePollError(error, 'Oda bulunamadı veya yüklenemedi.');
+      if (message !== null) {
+        setError(message);
+      }
     }
-  }, [code, redirectForPhase]);
+  }, [backgroundErrors, code, redirectForPhase]);
 
   useLobbyStageSync({
     lobbyCode: code,

@@ -1,5 +1,12 @@
 import type { ApiResponse, PaginatedResponse } from '@draft-io/shared-types';
 
+import {
+  isRetryableResponseStatus,
+  isTransientApiError,
+  normalizeApiErrorMessage,
+  sleep,
+} from '@/lib/api/resilience';
+
 const API_BASE_URL =
   typeof window !== 'undefined'
     ? '/api/v1'
@@ -33,8 +40,10 @@ async function readErrorMessage(response: Response): Promise<string> {
 }
 
 const API_REQUEST_TIMEOUT_MS = 30_000;
+const API_MAX_RETRIES = 2;
+const API_RETRY_DELAYS_MS = [250, 750] as const;
 
-async function request(url: string, init?: RequestInit): Promise<Response> {
+async function requestOnce(url: string, init?: RequestInit): Promise<Response> {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => {
     controller.abort();
@@ -62,6 +71,36 @@ async function request(url: string, init?: RequestInit): Promise<Response> {
   }
 }
 
+async function request(url: string, init?: RequestInit): Promise<Response> {
+  let lastError: unknown;
+
+  for (let attempt = 0; attempt <= API_MAX_RETRIES; attempt += 1) {
+    try {
+      const response = await requestOnce(url, init);
+      if (!isRetryableResponseStatus(response.status) || attempt === API_MAX_RETRIES) {
+        return response;
+      }
+    } catch (error) {
+      lastError = error;
+      if (attempt === API_MAX_RETRIES || !isTransientApiError(error)) {
+        throw error;
+      }
+    }
+
+    await sleep(API_RETRY_DELAYS_MS[attempt] ?? 750);
+  }
+
+  if (lastError instanceof Error) {
+    throw lastError;
+  }
+
+  throw new ApiClientError('İstek başarısız oldu.', 0);
+}
+
+function throwApiClientError(message: string, statusCode: number): never {
+  throw new ApiClientError(normalizeApiErrorMessage(new ApiClientError(message, statusCode), message), statusCode);
+}
+
 export async function apiPost<T>(path: string, body: unknown): Promise<T> {
   const response = await request(`${API_BASE_URL}${path}`, {
     method: 'POST',
@@ -75,7 +114,7 @@ export async function apiPost<T>(path: string, body: unknown): Promise<T> {
 
   if (!response.ok) {
     const message = await readErrorMessage(response);
-    throw new ApiClientError(message, response.status);
+    throwApiClientError(message, response.status);
   }
 
   const envelope = (await response.json()) as ApiResponse<T>;
@@ -90,7 +129,7 @@ export async function apiGet<T>(path: string): Promise<T> {
 
   if (!response.ok) {
     const message = await readErrorMessage(response);
-    throw new ApiClientError(message, response.status);
+    throwApiClientError(message, response.status);
   }
 
   const envelope = (await response.json()) as ApiResponse<T>;
@@ -105,7 +144,7 @@ export async function apiGetPaginated<T>(path: string): Promise<PaginatedRespons
 
   if (!response.ok) {
     const message = await readErrorMessage(response);
-    throw new ApiClientError(message, response.status);
+    throwApiClientError(message, response.status);
   }
 
   return response.json() as Promise<PaginatedResponse<T>>;

@@ -26,6 +26,7 @@ import { isDraftPhaseMismatchMessage } from '@/lib/lobby-phase-routes';
 import { clearLobbySession, readLobbySession } from '@/lib/lobby-session';
 import { DRAFT_REFRESH_EVENTS } from '@/lib/lobby-stage-events';
 import { applyIfChanged } from '@/lib/stable-state';
+import { useBackgroundLoadErrors } from '@/lib/use-background-load-errors';
 import { useDraftPickOptionsCache } from '@/lib/use-draft-pick-options-cache';
 import { useLobbyStageSync } from '@/lib/use-lobby-stage-sync';
 import { usePhaseRedirect } from '@/lib/use-phase-redirect';
@@ -69,6 +70,7 @@ export default function DraftRoomPage(): React.ReactElement {
   const skipPollBoardUpdateRef = useRef(false);
   const activeSlotIndexRef = useRef<number | null>(null);
   const redirectForPhase = usePhaseRedirect(code);
+  const backgroundErrors = useBackgroundLoadErrors();
 
   const redirectIfAdvancedPhase = useCallback(
     (phase: RoomPhaseDto): boolean => {
@@ -116,6 +118,7 @@ export default function DraftRoomPage(): React.ReactElement {
 
             return applyIfChanged(current, nextBoard);
           });
+          backgroundErrors.onLoadSuccess();
           setError(null);
         });
 
@@ -147,10 +150,13 @@ export default function DraftRoomPage(): React.ReactElement {
           }
         }
 
-        setError('Draft ekranı yüklenemedi.');
+        const message = backgroundErrors.resolvePollError(loadError, 'Draft ekranı yüklenemedi.');
+        if (message !== null) {
+          setError(message);
+        }
       }
     },
-    [code, redirectIfAdvancedPhase, session],
+    [backgroundErrors, code, redirectIfAdvancedPhase, session],
   );
 
   useLobbyStageSync({

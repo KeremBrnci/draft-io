@@ -65,6 +65,7 @@ export interface MatchStatisticsSnapshot {
   readonly awayRedCards: number;
   readonly homeDangerousAttacks: number;
   readonly awayDangerousAttacks: number;
+  readonly initialPlayerRatings: Readonly<Record<string, number>>;
   readonly playerRatings: Readonly<Record<string, number>>;
 }
 
