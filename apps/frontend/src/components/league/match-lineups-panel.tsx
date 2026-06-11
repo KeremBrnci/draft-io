@@ -44,8 +44,8 @@ function TeamLineup({ lineup }: { readonly lineup: MatchTeamLineupDto }): React.
         ))}
       </ol>
       <footer className="match-lineup__stats">
-        <span>OVR {(lineup.teamAverageOverall ?? 0).toFixed(1)}</span>
-        <span>Kimya {lineup.teamChemistry ?? 0}</span>
+        <span>OVR {lineup.teamAverageOverall.toFixed(1)}</span>
+        <span>Kimya {lineup.teamChemistry}</span>
       </footer>
     </section>
   );

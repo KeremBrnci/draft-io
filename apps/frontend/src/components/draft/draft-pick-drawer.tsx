@@ -4,10 +4,9 @@ import type { DraftPickOptionDto } from '@draft-io/shared-types';
 import { memo, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 
+import { DraftPlayerChemistryBadge } from './draft-player-chemistry-badge';
 import { mapCardTypeToVariant } from './map-card-type-to-variant';
 import { mapDraftCardFace } from './map-draft-card-face';
-
-import { DraftPlayerChemistryBadge } from './draft-player-chemistry-badge';
 
 import { FootballCard } from '@/components/cards/football-card';
 import { useBodyScrollLock } from '@/lib/use-body-scroll-lock';
