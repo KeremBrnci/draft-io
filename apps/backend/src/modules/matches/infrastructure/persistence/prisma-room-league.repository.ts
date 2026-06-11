@@ -344,12 +344,24 @@ export class PrismaRoomLeagueRepository implements RoomLeagueRepository {
   }): Promise<boolean> {
     const match = await this.prisma.roomMatch.findUniqueOrThrow({
       where: { id: input.matchId },
-      select: { leagueId: true },
+      select: { leagueId: true, status: true },
     });
+
+    if (match.status === 'FULL_TIME') {
+      const remaining = await this.prisma.roomFixture.count({
+        where: { leagueId: match.leagueId, matchId: null },
+      });
+      return remaining === 0;
+    }
 
     await this.prisma.roomMatch.update({
       where: { id: input.matchId },
-      data: { status: 'FULL_TIME', finishedAt: new Date() },
+      data: {
+        status: 'FULL_TIME',
+        finishedAt: new Date(),
+        homeScore: input.homeScore,
+        awayScore: input.awayScore,
+      },
     });
 
     const homeStanding = await this.prisma.roomLeagueStanding.findFirst({

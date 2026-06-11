@@ -33,6 +33,30 @@ import '../../../play.css';
 
 const POLL_INTERVAL_MS = 3000;
 
+const LIVE_MATCH_STATUSES = new Set<NonNullable<RoomLeagueStateDto['currentMatch']>['status']>([
+  'PRE_MATCH',
+  'LIVE',
+  'HALF_TIME',
+  'PAUSED',
+]);
+
+function isLiveMatchInProgress(league: RoomLeagueStateDto): boolean {
+  return (
+    league.currentMatch !== null && LIVE_MATCH_STATUSES.has(league.currentMatch.status)
+  );
+}
+
+function mergeLeagueState(
+  current: RoomLeagueStateDto | null,
+  next: RoomLeagueStateDto,
+): RoomLeagueStateDto {
+  if (current !== null && isLiveMatchInProgress(next)) {
+    return applyIfChanged(current, { ...next, standings: current.standings });
+  }
+
+  return applyIfChanged(current, next);
+}
+
 function isSeasonComplete(league: RoomLeagueStateDto): boolean {
   if (league.status === 'COMPLETED') {
     return true;
@@ -80,7 +104,7 @@ export default function LeaguePage(): React.ReactElement {
       }
 
       startTransition(() => {
-        setLeague((current) => applyIfChanged(current, next));
+        setLeague((current) => mergeLeagueState(current, next));
         setError(null);
       });
     } catch (loadError) {
@@ -103,7 +127,7 @@ export default function LeaguePage(): React.ReactElement {
       autoNextQueuedRef.current = true;
       try {
         const next = await startNextMatch(code);
-        setLeague(next);
+        setLeague((current) => mergeLeagueState(current, next));
         setError(null);
       } catch {
         setError('Sonraki maç başlatılamadı.');

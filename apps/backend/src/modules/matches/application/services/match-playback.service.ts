@@ -309,8 +309,7 @@ export class MatchPlaybackService implements MatchPlaybackPort, OnModuleDestroy 
 
     const updated = await this.roomLeagueRepository.updateMatchProgress({
       matchId: input.matchId,
-      status:
-        advanceMinute && input.nextMinute >= input.milestones.matchEnd ? 'FULL_TIME' : input.status,
+      status: input.status,
       currentMinute: advanceMinute
         ? Math.min(input.nextMinute, input.milestones.matchEnd)
         : input.match.currentMinute,
@@ -352,18 +351,6 @@ export class MatchPlaybackService implements MatchPlaybackPort, OnModuleDestroy 
       }
     }
 
-    if (advanceMinute) {
-      await this.handleMinuteMilestones(
-        input.matchId,
-        input.leagueId,
-        input.lobbyCode,
-        input.match,
-        input.nextMinute,
-        updated,
-        input.milestones,
-      );
-    }
-
     return updated;
   }
 
@@ -386,6 +373,12 @@ export class MatchPlaybackService implements MatchPlaybackPort, OnModuleDestroy 
     }
 
     if (nextMinute >= milestones.matchEnd) {
+      const latest = await this.roomLeagueRepository.findMatchById(matchId);
+      if (latest === null || latest.status === 'FULL_TIME') {
+        this.stop(matchId);
+        return;
+      }
+
       const leagueCompleted = await this.roomLeagueRepository.finalizeMatch({
         matchId,
         homeScore: updated.homeScore,
