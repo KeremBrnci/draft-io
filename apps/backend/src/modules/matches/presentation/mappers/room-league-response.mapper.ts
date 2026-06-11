@@ -155,11 +155,7 @@ function resolveDisplayedPlayerRatings(
     (player) => player.cardId,
   );
 
-  return computeLivePlayerRatings(
-    statistics.initialPlayerRatings,
-    events,
-    playerCardIds,
-  );
+  return computeLivePlayerRatings(statistics.initialPlayerRatings, events, playerCardIds);
 }
 
 function toTeamLineup(

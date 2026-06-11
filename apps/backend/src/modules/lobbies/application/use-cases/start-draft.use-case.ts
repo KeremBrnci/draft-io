@@ -44,9 +44,7 @@ export class StartDraftUseCase {
         participantIds,
         config: {
           ...DEFAULT_DRAFT_BALANCE_CONFIG,
-          ...(lobby.draftLeagueIds.length > 0
-            ? { poolLeagueIds: lobby.draftLeagueIds }
-            : {}),
+          ...(lobby.draftLeagueIds.length > 0 ? { poolLeagueIds: lobby.draftLeagueIds } : {}),
         },
       });
       draftSessionId = draftSession.id;

@@ -46,9 +46,7 @@ const LIVE_MATCH_STATUSES = new Set<NonNullable<RoomLeagueStateDto['currentMatch
 ]);
 
 function isLiveMatchInProgress(league: RoomLeagueStateDto): boolean {
-  return (
-    league.currentMatch !== null && LIVE_MATCH_STATUSES.has(league.currentMatch.status)
-  );
+  return league.currentMatch !== null && LIVE_MATCH_STATUSES.has(league.currentMatch.status);
 }
 
 function mergeLeagueState(
@@ -289,240 +287,241 @@ export default function LeaguePage(): React.ReactElement {
         ) : (
           <div className="play-arena league-layout league-layout--with-chat">
             <div className="league-layout__main">
-            <div className="play-arena__header">
-              <div>
-                <p className="play-arena__eyebrow">
-                  {leagueFinished ? 'Sezon bitti · şampiyon belli' : 'Canlı maç · lig heyecanı'}
-                </p>
-                <h1 className="play-title play-title--lobby">
-                  {league.completedMatchCount}/{league.totalMatchCount} maç
-                </h1>
-              </div>
-            </div>
-
-            {match !== null && !hideLiveMatchPanel ? (
-              <section
-                className={`league-live${goalCelebration !== null ? ' league-live--goal' : ''}${isWarmup ? ' league-live--warmup' : ''}`}
-                aria-live="polite"
-              >
-                {isWarmup ? <MatchWarmupOverlay /> : null}
-                {goalCelebration !== null ? (
-                  <GoalCelebrationOverlay celebration={goalCelebration} />
-                ) : null}
-                <div
-                  className={`league-live__scoreboard${goalCelebration !== null ? ' league-live__scoreboard--goal' : ''}`}
-                >
-                  <div
-                    className={`league-live__team${goalCelebration?.teamSide === 'HOME' ? ' league-live__team--scored' : ''}`}
-                  >
-                    {liveAlert?.teamSide === 'HOME' ? (
-                      <div className="league-live__alert" role="status" aria-live="assertive">
-                        {liveAlert.label}
-                      </div>
-                    ) : null}
-                    <h2>{match.homeDisplayName}</h2>
-                    <div className="league-live__score">{liveScores.homeScore}</div>
-                  </div>
-                  <div className="league-live__minute">
-                    {isLivePlay ? (
-                      <span className="league-live__live-badge">Canlı</span>
-                    ) : isWarmup ? (
-                      <span className="league-live__warmup-badge">Isınma</span>
-                    ) : null}
-                    <div
-                      className={`league-live__clock${isStoppageMinute ? ' league-live__clock--stoppage' : ''}`}
-                      aria-label={`Maç dakikası ${displayMinute}`}
-                    >
-                      <span className="league-live__clock-icon" aria-hidden>
-                        🕐
-                      </span>
-                      <span className="league-live__clock-minute">{displayMinute}&apos;</span>
-                    </div>
-                    <div className="league-live__status-label">
-                      {isWarmup
-                        ? 'Takımlar sahaya çıkıyor'
-                        : match.status === 'HALF_TIME'
-                          ? '⏸️ Devre arası'
-                          : match.status === 'FULL_TIME'
-                            ? '🏁 Maç sonu'
-                            : isStoppageMinute
-                              ? `⏱️ İlave dakika (+${displayMinute.startsWith('45+') ? match.firstHalfStoppageMinutes : match.secondHalfStoppageMinutes})`
-                              : isLivePlay
-                                ? 'Maç devam ediyor'
-                                : match.status}
-                    </div>
-                  </div>
-                  <div
-                    className={`league-live__team${goalCelebration?.teamSide === 'AWAY' ? ' league-live__team--scored' : ''}`}
-                  >
-                    {liveAlert?.teamSide === 'AWAY' ? (
-                      <div className="league-live__alert" role="status" aria-live="assertive">
-                        {liveAlert.label}
-                      </div>
-                    ) : null}
-                    <h2>{match.awayDisplayName}</h2>
-                    <div className="league-live__score">{liveScores.awayScore}</div>
-                  </div>
+              <div className="play-arena__header">
+                <div>
+                  <p className="play-arena__eyebrow">
+                    {leagueFinished ? 'Sezon bitti · şampiyon belli' : 'Canlı maç · lig heyecanı'}
+                  </p>
+                  <h1 className="play-title play-title--lobby">
+                    {league.completedMatchCount}/{league.totalMatchCount} maç
+                  </h1>
                 </div>
+              </div>
 
-                {!isWarmup ? (
-                  <MatchGoalScorersPanel
-                    events={match.events}
-                    homeName={match.homeDisplayName}
-                    awayName={match.awayDisplayName}
-                    stoppage={{
-                      firstHalfMinutes: match.firstHalfStoppageMinutes,
-                      secondHalfMinutes: match.secondHalfStoppageMinutes,
-                    }}
-                  />
-                ) : null}
+              {match !== null && !hideLiveMatchPanel ? (
+                <section
+                  className={`league-live${goalCelebration !== null ? ' league-live--goal' : ''}${isWarmup ? ' league-live--warmup' : ''}`}
+                  aria-live="polite"
+                >
+                  {isWarmup ? <MatchWarmupOverlay /> : null}
+                  {goalCelebration !== null ? (
+                    <GoalCelebrationOverlay celebration={goalCelebration} />
+                  ) : null}
+                  <div
+                    className={`league-live__scoreboard${goalCelebration !== null ? ' league-live__scoreboard--goal' : ''}`}
+                  >
+                    <div
+                      className={`league-live__team${goalCelebration?.teamSide === 'HOME' ? ' league-live__team--scored' : ''}`}
+                    >
+                      {liveAlert?.teamSide === 'HOME' ? (
+                        <div className="league-live__alert" role="status" aria-live="assertive">
+                          {liveAlert.label}
+                        </div>
+                      ) : null}
+                      <h2>{match.homeDisplayName}</h2>
+                      <div className="league-live__score">{liveScores.homeScore}</div>
+                    </div>
+                    <div className="league-live__minute">
+                      {isLivePlay ? (
+                        <span className="league-live__live-badge">Canlı</span>
+                      ) : isWarmup ? (
+                        <span className="league-live__warmup-badge">Isınma</span>
+                      ) : null}
+                      <div
+                        className={`league-live__clock${isStoppageMinute ? ' league-live__clock--stoppage' : ''}`}
+                        aria-label={`Maç dakikası ${displayMinute}`}
+                      >
+                        <span className="league-live__clock-icon" aria-hidden>
+                          🕐
+                        </span>
+                        <span className="league-live__clock-minute">{displayMinute}&apos;</span>
+                      </div>
+                      <div className="league-live__status-label">
+                        {isWarmup
+                          ? 'Takımlar sahaya çıkıyor'
+                          : match.status === 'HALF_TIME'
+                            ? '⏸️ Devre arası'
+                            : match.status === 'FULL_TIME'
+                              ? '🏁 Maç sonu'
+                              : isStoppageMinute
+                                ? `⏱️ İlave dakika (+${displayMinute.startsWith('45+') ? match.firstHalfStoppageMinutes : match.secondHalfStoppageMinutes})`
+                                : isLivePlay
+                                  ? 'Maç devam ediyor'
+                                  : match.status}
+                      </div>
+                    </div>
+                    <div
+                      className={`league-live__team${goalCelebration?.teamSide === 'AWAY' ? ' league-live__team--scored' : ''}`}
+                    >
+                      {liveAlert?.teamSide === 'AWAY' ? (
+                        <div className="league-live__alert" role="status" aria-live="assertive">
+                          {liveAlert.label}
+                        </div>
+                      ) : null}
+                      <h2>{match.awayDisplayName}</h2>
+                      <div className="league-live__score">{liveScores.awayScore}</div>
+                    </div>
+                  </div>
 
-                {!isWarmup && liveStats !== null ? (
-                  <MatchLiveStatsPanel
-                    homeName={match.homeDisplayName}
-                    awayName={match.awayDisplayName}
-                    stats={liveStats}
-                  />
-                ) : null}
-
-                <MatchLineupsPanel
-                  homeLineup={match.homeLineup}
-                  awayLineup={match.awayLineup}
-                />
-
-                {match.status === 'FULL_TIME' && match.manOfTheMatchPlayerName !== null ? (
-                  <p className="league-motm">
-                    Maçın oyuncusu: <strong>{match.manOfTheMatchPlayerName}</strong>
-                  </p>
-                ) : null}
-
-                {isWarmup ? (
-                  <p className="league-warmup-hint">
-                    Maç başladığında canlı anlatım burada görünecek.
-                  </p>
-                ) : (
-                  <>
-                    <h3 className="league-section-title">Canlı anlatım</h3>
-                    <MatchCommentaryFeed
+                  {!isWarmup ? (
+                    <MatchGoalScorersPanel
                       events={match.events}
-                      homeDisplayName={match.homeDisplayName}
-                      awayDisplayName={match.awayDisplayName}
+                      homeName={match.homeDisplayName}
+                      awayName={match.awayDisplayName}
                       stoppage={{
                         firstHalfMinutes: match.firstHalfStoppageMinutes,
                         secondHalfMinutes: match.secondHalfStoppageMinutes,
                       }}
                     />
-                  </>
-                )}
-              </section>
-            ) : showVictoryOverlay ? (
-              <p className="play-subtitle">Sezon tamamlandı — şampiyon kutlaması açık.</p>
-            ) : matchInReview ? (
-              <p className="play-subtitle">Maç sona erdi — sonuç ekranından devam edin.</p>
-            ) : leagueFinished ? (
-              <p className="play-subtitle">Tüm maçlar oynandı. Şampiyon kutlaması açıldı.</p>
-            ) : league.completedMatchCount === 0 ? (
-              <p className="play-subtitle">İlk maç başlamak üzere.</p>
-            ) : (
-              <p className="play-subtitle">Sonraki maç için sonuç ekranından devam edin.</p>
-            )}
+                  ) : null}
 
-            {league.completedMatchCount === 0 && !leagueFinished ? (
-              <PlayButton
-                type="button"
-                className="play-btn--primary"
-                loading={startingNext}
-                loadingLabel="Başlatılıyor…"
-                onClick={() => {
-                  void handleStartNext();
-                }}
-              >
-                İlk Maçı Başlat
-              </PlayButton>
-            ) : null}
+                  {!isWarmup && liveStats !== null ? (
+                    <MatchLiveStatsPanel
+                      homeName={match.homeDisplayName}
+                      awayName={match.awayDisplayName}
+                      stats={liveStats}
+                    />
+                  ) : null}
 
-            <section>
-              <h2 className="play-subtitle">Fikstür</h2>
-              <ul className="league-fixtures">
-                {league.fixtures.map((fixture) => {
-                  const isCurrent =
-                    match !== null && fixture.matchId === match.id && match.status !== 'FULL_TIME';
-                  const isDone =
-                    fixture.matchStatus === 'FULL_TIME' &&
-                    fixture.homeScore !== null &&
-                    fixture.awayScore !== null;
-                  const scoreLabel = isDone
-                    ? `${fixture.homeScore} - ${fixture.awayScore}`
-                    : isCurrent
-                      ? match.status === 'PRE_MATCH'
-                        ? 'Isınma'
-                        : 'Canlı'
-                      : null;
-                  return (
-                    <li
-                      key={fixture.id}
-                      className={`league-fixture${isCurrent ? ' league-fixture--live' : ''}${isDone ? ' league-fixture--done' : ''}`}
-                    >
-                      <span className="league-fixture__round">T{fixture.scheduleRound}</span>
-                      <span className="league-fixture__teams">
-                        {fixture.homeDisplayName} vs {fixture.awayDisplayName}
-                      </span>
-                      {scoreLabel !== null ? (
-                        <span
-                          className={`league-fixture__score${isCurrent ? ' league-fixture__score--live' : ''}`}
-                        >
-                          {scoreLabel}
-                        </span>
-                      ) : null}
-                    </li>
-                  );
-                })}
-              </ul>
-            </section>
+                  <MatchLineupsPanel homeLineup={match.homeLineup} awayLineup={match.awayLineup} />
 
-            <section>
-              <h2 className="play-subtitle">Puan durumu</h2>
-              <p className="league-points-legend">Galibiyet 3 · Beraberlik 1 · Mağlubiyet 0 puan</p>
-              <div className="league-table-wrap">
-                <table className="league-table">
-                  <thead>
-                    <tr>
-                      <th>#</th>
-                      <th>Oyuncu</th>
-                      <th>O</th>
-                      <th>G</th>
-                      <th>B</th>
-                      <th>M</th>
-                      <th>A</th>
-                      <th>Y</th>
-                      <th>Av</th>
-                      <th>P</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {league.standings.map((row) => (
-                      <tr
-                        key={row.participantId}
-                        className={
-                          row.rank === 1 && leagueFinished ? 'league-table__champion' : undefined
-                        }
+                  {match.status === 'FULL_TIME' && match.manOfTheMatchPlayerName !== null ? (
+                    <p className="league-motm">
+                      Maçın oyuncusu: <strong>{match.manOfTheMatchPlayerName}</strong>
+                    </p>
+                  ) : null}
+
+                  {isWarmup ? (
+                    <p className="league-warmup-hint">
+                      Maç başladığında canlı anlatım burada görünecek.
+                    </p>
+                  ) : (
+                    <>
+                      <h3 className="league-section-title">Canlı anlatım</h3>
+                      <MatchCommentaryFeed
+                        events={match.events}
+                        homeDisplayName={match.homeDisplayName}
+                        awayDisplayName={match.awayDisplayName}
+                        stoppage={{
+                          firstHalfMinutes: match.firstHalfStoppageMinutes,
+                          secondHalfMinutes: match.secondHalfStoppageMinutes,
+                        }}
+                      />
+                    </>
+                  )}
+                </section>
+              ) : showVictoryOverlay ? (
+                <p className="play-subtitle">Sezon tamamlandı — şampiyon kutlaması açık.</p>
+              ) : matchInReview ? (
+                <p className="play-subtitle">Maç sona erdi — sonuç ekranından devam edin.</p>
+              ) : leagueFinished ? (
+                <p className="play-subtitle">Tüm maçlar oynandı. Şampiyon kutlaması açıldı.</p>
+              ) : league.completedMatchCount === 0 ? (
+                <p className="play-subtitle">İlk maç başlamak üzere.</p>
+              ) : (
+                <p className="play-subtitle">Sonraki maç için sonuç ekranından devam edin.</p>
+              )}
+
+              {league.completedMatchCount === 0 && !leagueFinished ? (
+                <PlayButton
+                  type="button"
+                  className="play-btn--primary"
+                  loading={startingNext}
+                  loadingLabel="Başlatılıyor…"
+                  onClick={() => {
+                    void handleStartNext();
+                  }}
+                >
+                  İlk Maçı Başlat
+                </PlayButton>
+              ) : null}
+
+              <section>
+                <h2 className="play-subtitle">Fikstür</h2>
+                <ul className="league-fixtures">
+                  {league.fixtures.map((fixture) => {
+                    const isCurrent =
+                      match !== null &&
+                      fixture.matchId === match.id &&
+                      match.status !== 'FULL_TIME';
+                    const isDone =
+                      fixture.matchStatus === 'FULL_TIME' &&
+                      fixture.homeScore !== null &&
+                      fixture.awayScore !== null;
+                    const scoreLabel = isDone
+                      ? `${fixture.homeScore} - ${fixture.awayScore}`
+                      : isCurrent
+                        ? match.status === 'PRE_MATCH'
+                          ? 'Isınma'
+                          : 'Canlı'
+                        : null;
+                    return (
+                      <li
+                        key={fixture.id}
+                        className={`league-fixture${isCurrent ? ' league-fixture--live' : ''}${isDone ? ' league-fixture--done' : ''}`}
                       >
-                        <td>{row.rank === 1 && leagueFinished ? '👑' : row.rank}</td>
-                        <td>{row.displayName}</td>
-                        <td>{row.played}</td>
-                        <td>{row.won}</td>
-                        <td>{row.drawn}</td>
-                        <td>{row.lost}</td>
-                        <td>{row.goalsFor}</td>
-                        <td>{row.goalsAgainst}</td>
-                        <td>{row.goalDifference}</td>
-                        <td>{row.points}</td>
+                        <span className="league-fixture__round">T{fixture.scheduleRound}</span>
+                        <span className="league-fixture__teams">
+                          {fixture.homeDisplayName} vs {fixture.awayDisplayName}
+                        </span>
+                        {scoreLabel !== null ? (
+                          <span
+                            className={`league-fixture__score${isCurrent ? ' league-fixture__score--live' : ''}`}
+                          >
+                            {scoreLabel}
+                          </span>
+                        ) : null}
+                      </li>
+                    );
+                  })}
+                </ul>
+              </section>
+
+              <section>
+                <h2 className="play-subtitle">Puan durumu</h2>
+                <p className="league-points-legend">
+                  Galibiyet 3 · Beraberlik 1 · Mağlubiyet 0 puan
+                </p>
+                <div className="league-table-wrap">
+                  <table className="league-table">
+                    <thead>
+                      <tr>
+                        <th>#</th>
+                        <th>Oyuncu</th>
+                        <th>O</th>
+                        <th>G</th>
+                        <th>B</th>
+                        <th>M</th>
+                        <th>A</th>
+                        <th>Y</th>
+                        <th>Av</th>
+                        <th>P</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </section>
+                    </thead>
+                    <tbody>
+                      {league.standings.map((row) => (
+                        <tr
+                          key={row.participantId}
+                          className={
+                            row.rank === 1 && leagueFinished ? 'league-table__champion' : undefined
+                          }
+                        >
+                          <td>{row.rank === 1 && leagueFinished ? '👑' : row.rank}</td>
+                          <td>{row.displayName}</td>
+                          <td>{row.played}</td>
+                          <td>{row.won}</td>
+                          <td>{row.drawn}</td>
+                          <td>{row.lost}</td>
+                          <td>{row.goalsFor}</td>
+                          <td>{row.goalsAgainst}</td>
+                          <td>{row.goalDifference}</td>
+                          <td>{row.points}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </section>
             </div>
 
             <RoomChatPanel

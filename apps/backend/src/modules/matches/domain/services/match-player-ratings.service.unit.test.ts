@@ -1,9 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import {
-  computeLivePlayerRatings,
-  MATCH_GOAL_RATING_BUMP,
-} from './match-player-ratings.service';
+import { computeLivePlayerRatings, MATCH_GOAL_RATING_BUMP } from './match-player-ratings.service';
 
 describe('computeLivePlayerRatings', () => {
   it('starts from initial ratings and bumps scorers on revealed goals only', () => {

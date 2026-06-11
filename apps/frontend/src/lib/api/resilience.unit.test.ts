@@ -1,10 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { ApiClientError } from './client';
-import {
-  isTransientApiError,
-  normalizeApiErrorMessage,
-} from './resilience';
+import { isTransientApiError, normalizeApiErrorMessage } from './resilience';
 
 describe('api resilience', () => {
   it('detects transient API failures', () => {

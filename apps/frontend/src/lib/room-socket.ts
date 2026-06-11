@@ -8,10 +8,7 @@ const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
 
 export type RoomSocketEventName = RoomEventNameDto | 'CHAT_MESSAGE';
 
-export type RoomSocketHandler = (
-  event: RoomSocketEventName,
-  payload: unknown,
-) => void;
+export type RoomSocketHandler = (event: RoomSocketEventName, payload: unknown) => void;
 
 interface RoomSocketEntry {
   socket: Socket;

@@ -98,7 +98,10 @@ async function request(url: string, init?: RequestInit): Promise<Response> {
 }
 
 function throwApiClientError(message: string, statusCode: number): never {
-  throw new ApiClientError(normalizeApiErrorMessage(new ApiClientError(message, statusCode), message), statusCode);
+  throw new ApiClientError(
+    normalizeApiErrorMessage(new ApiClientError(message, statusCode), message),
+    statusCode,
+  );
 }
 
 export async function apiPost<T>(path: string, body: unknown): Promise<T> {

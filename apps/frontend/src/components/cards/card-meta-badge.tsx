@@ -20,7 +20,12 @@ function TeamPlaceholder(): React.ReactElement {
         strokeWidth="1.5"
         strokeLinejoin="round"
       />
-      <path d="M12 8.25v7.5M9 11.25h6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      <path
+        d="M12 8.25v7.5M9 11.25h6"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }
@@ -71,7 +76,11 @@ export function CardMetaBadge({
   }
 
   return (
-    <div className={`${className} fc-card__badge--placeholder`} title={title ?? undefined} aria-hidden="true">
+    <div
+      className={`${className} fc-card__badge--placeholder`}
+      title={title ?? undefined}
+      aria-hidden="true"
+    >
       {kind === 'team' ? <TeamPlaceholder /> : <LeaguePlaceholder />}
     </div>
   );

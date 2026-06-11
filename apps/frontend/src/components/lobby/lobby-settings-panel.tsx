@@ -85,9 +85,7 @@ export function LobbySettingsPanel({
 
   const toggleLeague = useCallback((leagueId: string): void => {
     setSelectedLeagueIds((current) =>
-      current.includes(leagueId)
-        ? current.filter((id) => id !== leagueId)
-        : [...current, leagueId],
+      current.includes(leagueId) ? current.filter((id) => id !== leagueId) : [...current, leagueId],
     );
     setSaved(false);
   }, []);
@@ -165,7 +163,9 @@ export function LobbySettingsPanel({
                 const checked = selectedLeagueIds.includes(league.id);
                 return (
                   <li key={league.id}>
-                    <label className={`lobby-settings__league${checked ? ' lobby-settings__league--active' : ''}`}>
+                    <label
+                      className={`lobby-settings__league${checked ? ' lobby-settings__league--active' : ''}`}
+                    >
                       <input
                         type="checkbox"
                         checked={checked}
@@ -188,7 +188,9 @@ export function LobbySettingsPanel({
       )}
 
       {!editable ? (
-        <p className="lobby-settings__hint">Ayarlar yalnızca oyun başlamadan önce kurucu tarafından değiştirilebilir.</p>
+        <p className="lobby-settings__hint">
+          Ayarlar yalnızca oyun başlamadan önce kurucu tarafından değiştirilebilir.
+        </p>
       ) : null}
 
       {error !== null ? (

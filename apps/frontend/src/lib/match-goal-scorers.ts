@@ -17,10 +17,7 @@ export interface MatchGoalsByTeam {
   readonly away: readonly MatchGoalEntry[];
 }
 
-function toGoalEntry(
-  event: MatchEventDto,
-  stoppage: MatchStoppageTimeDto,
-): MatchGoalEntry {
+function toGoalEntry(event: MatchEventDto, stoppage: MatchStoppageTimeDto): MatchGoalEntry {
   const internalMinute = mapEventToInternalMinute(event.minute, event.eventType, stoppage);
 
   return {

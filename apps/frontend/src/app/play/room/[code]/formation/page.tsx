@@ -63,10 +63,7 @@ export default function FormationSelectionPage(): React.ReactElement {
         return;
       }
 
-      const message = backgroundErrors.resolvePollError(
-        loadError,
-        'Formasyon seçimi yüklenemedi.',
-      );
+      const message = backgroundErrors.resolvePollError(loadError, 'Formasyon seçimi yüklenemedi.');
       if (message !== null) {
         setError(message);
       }

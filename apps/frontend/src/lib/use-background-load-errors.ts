@@ -28,28 +28,25 @@ export function useBackgroundLoadErrors(): {
     transientFailuresRef.current = 0;
   }, []);
 
-  const resolvePollError = useCallback(
-    (error: unknown, fallbackMessage: string): string | null => {
-      if (isLobbyGoneError(error)) {
-        return null;
-      }
-
-      if (!hasDataRef.current) {
-        return normalizeApiErrorMessage(error, fallbackMessage);
-      }
-
-      if (isTransientApiError(error)) {
-        transientFailuresRef.current += 1;
-        if (transientFailuresRef.current >= TRANSIENT_FAILURE_WARNING_THRESHOLD) {
-          return 'Bağlantı kararsız. Otomatik yeniden deneniyor…';
-        }
-        return null;
-      }
-
+  const resolvePollError = useCallback((error: unknown, fallbackMessage: string): string | null => {
+    if (isLobbyGoneError(error)) {
       return null;
-    },
-    [],
-  );
+    }
+
+    if (!hasDataRef.current) {
+      return normalizeApiErrorMessage(error, fallbackMessage);
+    }
+
+    if (isTransientApiError(error)) {
+      transientFailuresRef.current += 1;
+      if (transientFailuresRef.current >= TRANSIENT_FAILURE_WARNING_THRESHOLD) {
+        return 'Bağlantı kararsız. Otomatik yeniden deneniyor…';
+      }
+      return null;
+    }
+
+    return null;
+  }, []);
 
   return { onLoadSuccess, resolvePollError, reset };
 }

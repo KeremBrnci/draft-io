@@ -1,6 +1,3 @@
-export function isLeagueSeasonComplete(
-  fixtureCount: number,
-  completedMatchCount: number,
-): boolean {
+export function isLeagueSeasonComplete(fixtureCount: number, completedMatchCount: number): boolean {
   return fixtureCount > 0 && completedMatchCount >= fixtureCount;
 }
