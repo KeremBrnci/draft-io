@@ -44,11 +44,11 @@
 
 .draft-pitch-board {
   position: relative;
-  width: min(100%, 36rem);
+  width: min(100%, 38rem);
   max-width: none;
   margin: 0 auto;
-  aspect-ratio: 3 / 4;
-  min-height: 24rem;
+  aspect-ratio: 3 / 5;
+  min-height: 28rem;
   border-radius: 18px;
   overflow: hidden;
   border: 1px solid color-mix(in srgb, #22c55e 30%, var(--border));
@@ -105,9 +105,9 @@
 }
 
 .draft-pitch-slot__card {
-  width: 7.75rem;
+  width: 7.5rem;
   max-width: none;
-  transform: scale(0.76);
+  transform: scale(0.72);
   transform-origin: center center;
   pointer-events: none;
 }
@@ -518,7 +518,7 @@
   }
 
   .draft-pitch-board {
-    min-height: 26rem;
+    min-height: 30rem;
   }
 
   .draft-empty-card {
@@ -526,8 +526,8 @@
   }
 
   .draft-pitch-slot__card {
-    width: 8.25rem;
-    transform: scale(0.78);
+    width: 8rem;
+    transform: scale(0.74);
   }
 }
 
@@ -538,8 +538,8 @@
   }
 
   .draft-pitch-board {
-    width: min(100%, 42rem);
-    min-height: 32rem;
+    width: min(100%, 44rem);
+    min-height: 36rem;
   }
 
   .draft-empty-card {
@@ -547,8 +547,8 @@
   }
 
   .draft-pitch-slot__card {
-    width: 8.75rem;
-    transform: scale(0.8);
+    width: 8.5rem;
+    transform: scale(0.76);
   }
 }
 

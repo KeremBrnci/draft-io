@@ -16,3 +16,7 @@ export function routeForRoomPhase(code: string, phase: RoomPhaseDto): string | n
 
   return `/play/room/${code}${suffix}`;
 }
+
+export function isDraftPhaseMismatchMessage(message: string): boolean {
+  return message.toLowerCase().includes('draft phase');
+}

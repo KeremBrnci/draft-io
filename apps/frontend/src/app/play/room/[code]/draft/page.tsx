@@ -4,6 +4,7 @@ import type {
   DraftBoardStateDto,
   DraftPickOptionDto,
   DraftPickOptionsDto,
+  RoomPhaseDto,
 } from '@draft-io/shared-types';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
@@ -20,8 +21,9 @@ import { PlayStageRail } from '@/components/play/play-stage-rail';
 import { runDelayedAction, waitForActionFeedback } from '@/lib/action-feedback-delay';
 import { ApiClientError } from '@/lib/api/client';
 import { applyDraftPick, getDraftBoard } from '@/lib/api/draft';
-import { setParticipantReady } from '@/lib/api/lobbies';
+import { getLobbyByCode, setParticipantReady } from '@/lib/api/lobbies';
 import { clearLobbySession, readLobbySession } from '@/lib/lobby-session';
+import { isDraftPhaseMismatchMessage } from '@/lib/lobby-phase-routes';
 import { DRAFT_REFRESH_EVENTS } from '@/lib/lobby-stage-events';
 import { applyIfChanged } from '@/lib/stable-state';
 import { useDraftPickOptionsCache } from '@/lib/use-draft-pick-options-cache';
@@ -68,6 +70,18 @@ export default function DraftRoomPage(): React.ReactElement {
   const activeSlotIndexRef = useRef<number | null>(null);
   const redirectForPhase = usePhaseRedirect(code);
 
+  const redirectIfAdvancedPhase = useCallback(
+    (phase: RoomPhaseDto): boolean => {
+      if (phase === 'DRAFT') {
+        return false;
+      }
+
+      redirectForPhase(phase);
+      return true;
+    },
+    [redirectForPhase],
+  );
+
   const {
     getCached,
     fetchOptions,
@@ -105,18 +119,8 @@ export default function DraftRoomPage(): React.ReactElement {
           setError(null);
         });
 
-        if (nextBoard.phase === 'COACH_SELECTION') {
-          redirectForPhase('COACH_SELECTION');
+        if (redirectIfAdvancedPhase(nextBoard.phase)) {
           return;
-        }
-
-        if (nextBoard.phase === 'TEAM_REVIEW') {
-          redirectForPhase('TEAM_REVIEW');
-          return;
-        }
-
-        if (nextBoard.phase === 'MATCHES') {
-          redirectForPhase('MATCHES');
         }
       } catch (loadError) {
         if (
@@ -128,10 +132,25 @@ export default function DraftRoomPage(): React.ReactElement {
           return;
         }
 
+        if (
+          loadError instanceof ApiClientError &&
+          loadError.statusCode === 400 &&
+          isDraftPhaseMismatchMessage(loadError.message)
+        ) {
+          try {
+            const lobby = await getLobbyByCode(code);
+            if (redirectIfAdvancedPhase(lobby.phase)) {
+              return;
+            }
+          } catch {
+            // Fall through to generic error below.
+          }
+        }
+
         setError('Draft ekranı yüklenemedi.');
       }
     },
-    [code, redirectForPhase, session],
+    [code, redirectIfAdvancedPhase, session],
   );
 
   useLobbyStageSync({
@@ -151,10 +170,13 @@ export default function DraftRoomPage(): React.ReactElement {
       setActionError(null);
 
       try {
-        await setParticipantReady(code, {
+        const lobby = await setParticipantReady(code, {
           sessionToken: session.sessionToken,
           isReady: !board.viewerIsReady,
         });
+        if (redirectIfAdvancedPhase(lobby.phase)) {
+          return;
+        }
         await loadBoard(true);
       } catch (readyError) {
         if (readyError instanceof ApiClientError) {

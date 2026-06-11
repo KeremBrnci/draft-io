@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest';
 
-import { mapDraftPitchDisplayX, mapPitchDisplayPercent } from './map-pitch-display-percent';
+import {
+  mapDraftPitchDisplayX,
+  mapDraftPitchDisplayY,
+  mapPitchDisplayPercent,
+} from './map-pitch-display-percent';
 
 describe('mapPitchDisplayPercent', () => {
   it('keeps center and edges inside the visible pitch', () => {
@@ -26,5 +30,20 @@ describe('mapDraftPitchDisplayX', () => {
 
   it('leaves center pivots on the halfway line', () => {
     expect(mapDraftPitchDisplayX(50)).toBe(50);
+  });
+});
+
+describe('mapDraftPitchDisplayY', () => {
+  it('spreads defensive and midfield lines further apart than the default mapper', () => {
+    const defaultGap = mapPitchDisplayPercent(72) - mapPitchDisplayPercent(52);
+    const draftGap = mapDraftPitchDisplayY(72) - mapDraftPitchDisplayY(52);
+
+    expect(draftGap).toBeGreaterThan(defaultGap);
+    expect(draftGap).toBeGreaterThanOrEqual(20);
+  });
+
+  it('keeps attack at the top and goalkeeper at the bottom', () => {
+    expect(mapDraftPitchDisplayY(14)).toBeLessThan(mapDraftPitchDisplayY(52));
+    expect(mapDraftPitchDisplayY(90)).toBeGreaterThan(mapDraftPitchDisplayY(72));
   });
 });

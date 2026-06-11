@@ -44,7 +44,10 @@ export class SetParticipantReadyUseCase {
         participantCount: lobby.participants.length,
       } satisfies RoomEventPayload);
 
-      await this.checkDraftCompletionUseCase.execute({ code: command.code });
+      const advanced = await this.checkDraftCompletionUseCase.execute({ code: command.code });
+      if (advanced) {
+        return this.lifecycle.requireActiveLobby(LobbyCode.create(command.code));
+      }
     }
 
     return lobby;
