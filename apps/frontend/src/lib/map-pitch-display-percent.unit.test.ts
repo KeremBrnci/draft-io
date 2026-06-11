@@ -1,9 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import {
-  mapDraftPitchDisplayX,
-  mapPitchDisplayPercent,
-} from './map-pitch-display-percent';
+import { mapDraftPitchDisplayX, mapPitchDisplayPercent } from './map-pitch-display-percent';
 
 describe('mapPitchDisplayPercent', () => {
   it('keeps center and edges inside the visible pitch', () => {

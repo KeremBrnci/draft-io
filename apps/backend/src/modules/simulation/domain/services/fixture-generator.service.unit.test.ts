@@ -1,9 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import {
-  decodeScheduleRound,
-  generateDoubleRoundRobinFixtures,
-} from './fixture-generator.service';
+import { decodeScheduleRound, generateDoubleRoundRobinFixtures } from './fixture-generator.service';
 
 function opponentInFixture(
   fixtures: ReturnType<typeof generateDoubleRoundRobinFixtures>,
@@ -32,9 +29,7 @@ function fixturesForPlayer(
 ): number[] {
   return fixtures
     .map((fixture, index) =>
-      fixture.homeParticipantId === playerId || fixture.awayParticipantId === playerId
-        ? index
-        : -1,
+      fixture.homeParticipantId === playerId || fixture.awayParticipantId === playerId ? index : -1,
     )
     .filter((index) => index >= 0);
 }
@@ -43,9 +38,9 @@ describe('generateDoubleRoundRobinFixtures', () => {
   it('creates home-and-away fixtures for each pair', () => {
     expect(generateDoubleRoundRobinFixtures(['a', 'b']).length).toBe(2);
     expect(generateDoubleRoundRobinFixtures(['a', 'b', 'c', 'd']).length).toBe(12);
-    expect(generateDoubleRoundRobinFixtures(Array.from({ length: 12 }, (_, i) => `p${i}`)).length).toBe(
-      132,
-    );
+    expect(
+      generateDoubleRoundRobinFixtures(Array.from({ length: 12 }, (_, i) => `p${i}`)).length,
+    ).toBe(132);
   });
 
   it('schedules only one match per player in each tournament round', () => {

@@ -195,10 +195,7 @@ export class MatchSimulationEngine {
       const shotType = this.pickShotType(rng);
       const shooter = this.pickShooter(attackingTeam, shotType, rng);
       const xg = this.xgForShot(shotType, shooter.overall, defendingTeam.matchPower);
-      const goalChance = Math.min(
-        0.94,
-        xg * (1.42 + rng.next() * 0.48) * goalChanceMultiplier,
-      );
+      const goalChance = Math.min(0.94, xg * (1.42 + rng.next() * 0.48) * goalChanceMultiplier);
 
       if (attackingSide === 'HOME') {
         stats.homeShots += 1;
@@ -449,7 +446,11 @@ export class MatchSimulationEngine {
     if (roll < this.config.goalDistribution.scorelessMatchRate) {
       return 'scoreless';
     }
-    if (roll < this.config.goalDistribution.scorelessMatchRate + this.config.goalDistribution.thrillerMatchRate) {
+    if (
+      roll <
+      this.config.goalDistribution.scorelessMatchRate +
+        this.config.goalDistribution.thrillerMatchRate
+    ) {
       return 'thriller';
     }
     return 'lively';
@@ -775,8 +776,7 @@ export class MatchSimulationEngine {
 
     return events.some(
       (event) =>
-        event.minute === minute &&
-        (event.eventType === 'GOAL' || event.eventType === 'PENALTY'),
+        event.minute === minute && (event.eventType === 'GOAL' || event.eventType === 'PENALTY'),
     );
   }
 

@@ -10,16 +10,19 @@ export function useCoalescedCallback<T extends (...args: never[]) => void | Prom
   const callbackRef = useRef(callback);
   callbackRef.current = callback;
 
-  return useCallback((async (...args) => {
-    if (inFlightRef.current) {
-      return;
-    }
+  return useCallback(
+    (async (...args) => {
+      if (inFlightRef.current) {
+        return;
+      }
 
-    inFlightRef.current = true;
-    try {
-      await callbackRef.current(...args);
-    } finally {
-      inFlightRef.current = false;
-    }
-  }) as T, []);
+      inFlightRef.current = true;
+      try {
+        await callbackRef.current(...args);
+      } finally {
+        inFlightRef.current = false;
+      }
+    }) as T,
+    [],
+  );
 }

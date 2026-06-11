@@ -97,7 +97,11 @@ export default function CoachSelectionPage(): React.ReactElement {
         coachId,
       });
       setState(nextState);
-      if (nextState.phase === 'MATCHES' || nextState.phase === 'TEAM_REVIEW' || nextState.allCoachesSelected) {
+      if (
+        nextState.phase === 'MATCHES' ||
+        nextState.phase === 'TEAM_REVIEW' ||
+        nextState.allCoachesSelected
+      ) {
         redirectForPhase('MATCHES');
       }
     } catch {

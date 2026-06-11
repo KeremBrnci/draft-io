@@ -68,7 +68,11 @@ export default function DraftRoomPage(): React.ReactElement {
   const activeSlotIndexRef = useRef<number | null>(null);
   const redirectForPhase = usePhaseRedirect(code);
 
-  const { getCached, fetchOptions, invalidate: invalidatePickOptions } = useDraftPickOptionsCache({
+  const {
+    getCached,
+    fetchOptions,
+    invalidate: invalidatePickOptions,
+  } = useDraftPickOptionsCache({
     code,
     sessionToken: session?.sessionToken ?? null,
   });

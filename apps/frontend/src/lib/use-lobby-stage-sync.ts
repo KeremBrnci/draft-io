@@ -28,9 +28,13 @@ export function useLobbyStageSync({
     void coalescedRefresh();
   }, [coalescedRefresh]);
 
-  useVisibleInterval(() => {
-    void coalescedRefresh();
-  }, pollIntervalMs, enabled);
+  useVisibleInterval(
+    () => {
+      void coalescedRefresh();
+    },
+    pollIntervalMs,
+    enabled,
+  );
 
   useRoomSocket(lobbyCode, (event) => {
     if (refreshEvents !== undefined && !refreshEvents.has(event)) {

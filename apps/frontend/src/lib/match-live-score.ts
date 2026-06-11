@@ -4,10 +4,7 @@ function isScoredGoalEvent(event: MatchEventDto): boolean {
   return event.isGoal && event.eventType === 'GOAL';
 }
 
-export function countLiveGoals(
-  events: readonly MatchEventDto[],
-  side: 'HOME' | 'AWAY',
-): number {
+export function countLiveGoals(events: readonly MatchEventDto[], side: 'HOME' | 'AWAY'): number {
   return events.filter((event) => isScoredGoalEvent(event) && event.teamSide === side).length;
 }
 

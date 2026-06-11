@@ -65,10 +65,7 @@ const DraftPitchSlot = memo(function DraftPitchSlot({
   };
 
   return (
-    <div
-      className={`draft-pitch-slot${isActive ? ' draft-pitch-slot--active' : ''}`}
-      style={style}
-    >
+    <div className={`draft-pitch-slot${isActive ? ' draft-pitch-slot--active' : ''}`} style={style}>
       {slot.card === null ? (
         locked ? (
           <DraftEmptyCard label={slot.label} active={isActive} locked />

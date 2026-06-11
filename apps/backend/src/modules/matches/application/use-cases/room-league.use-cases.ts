@@ -9,7 +9,10 @@ import type { FormationRepository } from '../../../formations/domain/repositorie
 import { LobbyLifecycleService } from '../../../lobbies/application/services/lobby-lifecycle.service';
 import type { RoomEventsPublisher } from '../../../lobbies/application/services/room-events.publisher';
 import { RoomPhase } from '../../../lobbies/domain/enums/room-phase.enum';
-import { InvalidLobbySessionError, LobbyNotFoundError } from '../../../lobbies/domain/errors/lobby.errors';
+import {
+  InvalidLobbySessionError,
+  LobbyNotFoundError,
+} from '../../../lobbies/domain/errors/lobby.errors';
 import { RoomEventName } from '../../../lobbies/domain/events/room.events';
 import type { LobbyRepository } from '../../../lobbies/domain/repositories/lobby.repository';
 import { CoachPoolService } from '../../../lobbies/domain/services/coach-pool.service';

@@ -152,9 +152,7 @@ export class PickOptionGenerator {
 
     if (window.maxOverall !== null) {
       const expandedMaxOverall = window.maxOverall + 1;
-      candidates = eligible.filter((card) =>
-        inWindow(card, window.minOverall, expandedMaxOverall),
-      );
+      candidates = eligible.filter((card) => inWindow(card, window.minOverall, expandedMaxOverall));
       if (candidates.length >= target) {
         return [...candidates];
       }

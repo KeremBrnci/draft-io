@@ -344,7 +344,9 @@ export default function LeaguePage(): React.ReactElement {
                 ) : null}
 
                 {isWarmup ? (
-                  <p className="league-warmup-hint">Maç başladığında canlı anlatım burada görünecek.</p>
+                  <p className="league-warmup-hint">
+                    Maç başladığında canlı anlatım burada görünecek.
+                  </p>
                 ) : (
                   <>
                     <h3 className="league-section-title">Canlı anlatım</h3>

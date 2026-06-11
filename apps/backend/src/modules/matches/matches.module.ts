@@ -19,7 +19,6 @@ import { SimulationModule } from '../simulation/simulation.module';
 
 import { MATCH_PLAYBACK_PORT } from './application/ports/match-playback.port';
 import { MatchPlaybackService } from './application/services/match-playback.service';
-import { StartNextMatchScheduler } from './application/services/start-next-match-scheduler.service';
 import { PlayAgainUseCase } from './application/use-cases/play-again.use-case';
 import {
   CheckDraftCompletionUseCase,
@@ -43,7 +42,6 @@ import { PrismaRoomLeagueRepository } from './infrastructure/persistence/prisma-
   ],
   providers: [
     MatchPlaybackService,
-    StartNextMatchScheduler,
     {
       provide: MATCH_PLAYBACK_PORT,
       useExisting: MatchPlaybackService,

@@ -32,10 +32,23 @@ async function readErrorMessage(response: Response): Promise<string> {
   return response.statusText || 'İstek başarısız oldu';
 }
 
+const API_REQUEST_TIMEOUT_MS = 30_000;
+
 async function request(url: string, init?: RequestInit): Promise<Response> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => {
+    controller.abort();
+  }, API_REQUEST_TIMEOUT_MS);
+
   try {
-    return await fetch(url, init);
+    return await fetch(url, {
+      ...init,
+      signal: controller.signal,
+    });
   } catch (error) {
+    if (error instanceof DOMException && error.name === 'AbortError') {
+      throw new ApiClientError('Sunucu yanıt vermedi. Biraz bekleyip tekrar dene.', 0);
+    }
     if (error instanceof TypeError) {
       throw new ApiClientError(
         'API bağlantısı kurulamadı. Terminalde `pnpm dev` çalıştığından emin olun.',
@@ -44,6 +57,8 @@ async function request(url: string, init?: RequestInit): Promise<Response> {
     }
 
     throw error;
+  } finally {
+    clearTimeout(timeoutId);
   }
 }
 

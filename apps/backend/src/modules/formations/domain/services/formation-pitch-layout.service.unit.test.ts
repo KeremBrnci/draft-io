@@ -14,9 +14,7 @@ function hasHorizontalMirror(
 ): boolean {
   const mirrorX = 100 - pitchX;
   return layout.some(
-    (point) =>
-      point.pitchX === mirrorX &&
-      Math.abs(point.pitchY - pitchY) <= ROW_Y_TOLERANCE,
+    (point) => point.pitchX === mirrorX && Math.abs(point.pitchY - pitchY) <= ROW_Y_TOLERANCE,
   );
 }
 

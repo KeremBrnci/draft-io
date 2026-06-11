@@ -1,4 +1,5 @@
 import { Inject, Injectable, OnModuleDestroy } from '@nestjs/common';
+import { ModuleRef } from '@nestjs/core';
 
 import {
   ROOM_EVENTS_PUBLISHER,
@@ -16,8 +17,6 @@ import {
   resolveMatchStoppageContext,
 } from '../../domain/services/match-stoppage-time.service';
 import type { MatchPlaybackPort } from '../ports/match-playback.port';
-
-import { StartNextMatchScheduler } from './start-next-match-scheduler.service';
 
 interface ActivePlayback {
   readonly matchId: string;
@@ -67,7 +66,7 @@ export class MatchPlaybackService implements MatchPlaybackPort, OnModuleDestroy 
     private readonly roomLeagueRepository: RoomLeagueRepository,
     @Inject(ROOM_EVENTS_PUBLISHER)
     private readonly roomEventsPublisher: RoomEventsPublisher,
-    private readonly startNextMatchScheduler: StartNextMatchScheduler,
+    private readonly moduleRef: ModuleRef,
   ) {}
 
   onModuleDestroy(): void {
@@ -300,9 +299,7 @@ export class MatchPlaybackService implements MatchPlaybackPort, OnModuleDestroy 
     readonly eventsToReveal: readonly RoomMatchEventRecord[];
     readonly allEvents: readonly RoomMatchEventRecord[];
     readonly advanceMinute?: boolean;
-    readonly milestones: ReturnType<
-      typeof resolveMatchStoppageContext
-    >['milestones'];
+    readonly milestones: ReturnType<typeof resolveMatchStoppageContext>['milestones'];
   }): Promise<NonNullable<Awaited<ReturnType<RoomLeagueRepository['findMatchById']>>>> {
     const advanceMinute = input.advanceMinute ?? true;
     const alreadyRevealed = input.allEvents.filter((event) => event.revealedAt !== null);
@@ -436,7 +433,10 @@ export class MatchPlaybackService implements MatchPlaybackPort, OnModuleDestroy 
 
     const timer = setTimeout(() => {
       this.autoStartTimers.delete(matchId);
-      this.startNextMatchScheduler.runNext(lobbyCode);
+      void import('../use-cases/start-next-match.use-case').then(({ StartNextMatchUseCase }) => {
+        const startNextMatch = this.moduleRef.get(StartNextMatchUseCase, { strict: false });
+        void startNextMatch?.execute({ code: lobbyCode });
+      });
     }, DEFAULT_MATCH_SIMULATION_CONFIG.nextMatchDelayMs);
 
     this.autoStartTimers.set(matchId, timer);

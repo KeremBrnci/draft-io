@@ -99,9 +99,7 @@ function abbreviateGivenNameForCard(given: string): string {
     return `${given.charAt(0)}.`;
   }
 
-  return parts
-    .map((part) => (part.length > 2 ? `${part.charAt(0)}.` : part))
-    .join(' ');
+  return parts.map((part) => (part.length > 2 ? `${part.charAt(0)}.` : part)).join(' ');
 }
 
 /** Prefer split lines for multi-word names so surnames stay readable on narrow cards. */
