@@ -62,16 +62,16 @@ export function formatMatchMinuteLabel(
   const milestones = getMatchMinuteMilestones(stoppage);
 
   if (internalMinute <= 45) {
-    return `${internalMinute}`;
+    return String(internalMinute);
   }
 
   if (internalMinute <= milestones.firstHalfEnd) {
-    return `45+${internalMinute - 45}`;
+    return `45+${String(internalMinute - 45)}`;
   }
 
   if (internalMinute <= milestones.secondHalfRegularEnd) {
-    return `${internalMinute - stoppage.firstHalfMinutes}`;
+    return String(internalMinute - stoppage.firstHalfMinutes);
   }
 
-  return `90+${internalMinute - milestones.secondHalfRegularEnd}`;
+  return `90+${String(internalMinute - milestones.secondHalfRegularEnd)}`;
 }

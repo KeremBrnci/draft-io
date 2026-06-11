@@ -20,10 +20,10 @@ function rotateRight<T>(items: readonly T[]): T[] {
   return [last, ...items.slice(0, items.length - 1)];
 }
 
-type RoundPairing = {
+interface RoundPairing {
   readonly homeParticipantId: string;
   readonly awayParticipantId: string;
-};
+}
 
 function buildCircleRoundPairings(participantIds: readonly string[]): RoundPairing[][] {
   const ids = [...participantIds];

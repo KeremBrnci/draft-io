@@ -5,7 +5,7 @@ import type { CoachRepository } from '../../../coaches/domain/repositories/coach
 import { CoachId } from '../../../coaches/domain/value-objects/coach-id.vo';
 import type { LeagueRepository } from '../../../leagues/domain/repositories/league.repository';
 import { LeagueId } from '../../../leagues/domain/value-objects/league-id.vo';
-import type { StartNextMatchUseCase } from '../../../matches/application/use-cases/room-league.use-cases';
+import type { StartNextMatchUseCase } from '../../../matches/application/use-cases/start-next-match.use-case';
 import type { RoomLeagueRepository } from '../../../matches/domain/repositories/room-league.repository';
 import type { TeamRepository } from '../../../teams/domain/repositories/team.repository';
 import { TeamId } from '../../../teams/domain/value-objects/team-id.vo';

@@ -1,5 +1,4 @@
 import { Inject, Injectable, OnModuleDestroy } from '@nestjs/common';
-import { ModuleRef } from '@nestjs/core';
 
 import {
   ROOM_EVENTS_PUBLISHER,
@@ -7,16 +6,18 @@ import {
 } from '../../../lobbies/application/services/room-events.publisher';
 import { RoomEventName } from '../../../lobbies/domain/events/room.events';
 import { DEFAULT_MATCH_SIMULATION_CONFIG } from '../../../simulation/domain/models/match-simulation.types';
-import { StartNextMatchUseCase } from '../use-cases/room-league.use-cases';
-import {
-  eventsForInternalMinute,
-  resolveMatchStoppageContext,
-} from '../../domain/services/match-stoppage-time.service';
 import type { RoomMatchEventRecord } from '../../domain/repositories/room-league.repository';
 import {
   ROOM_LEAGUE_REPOSITORY,
   type RoomLeagueRepository,
 } from '../../domain/repositories/room-league.repository';
+import {
+  eventsForInternalMinute,
+  resolveMatchStoppageContext,
+} from '../../domain/services/match-stoppage-time.service';
+import type { MatchPlaybackPort } from '../ports/match-playback.port';
+
+import { StartNextMatchScheduler } from './start-next-match-scheduler.service';
 
 interface ActivePlayback {
   readonly matchId: string;
@@ -56,7 +57,7 @@ function countScoredGoals(
 }
 
 @Injectable()
-export class MatchPlaybackService implements OnModuleDestroy {
+export class MatchPlaybackService implements MatchPlaybackPort, OnModuleDestroy {
   private readonly active = new Map<string, ActivePlayback>();
   private readonly pendingReveals = new Map<string, ReturnType<typeof setTimeout>>();
   private readonly autoStartTimers = new Map<string, ReturnType<typeof setTimeout>>();
@@ -66,7 +67,7 @@ export class MatchPlaybackService implements OnModuleDestroy {
     private readonly roomLeagueRepository: RoomLeagueRepository,
     @Inject(ROOM_EVENTS_PUBLISHER)
     private readonly roomEventsPublisher: RoomEventsPublisher,
-    private readonly moduleRef: ModuleRef,
+    private readonly startNextMatchScheduler: StartNextMatchScheduler,
   ) {}
 
   onModuleDestroy(): void {
@@ -435,8 +436,7 @@ export class MatchPlaybackService implements OnModuleDestroy {
 
     const timer = setTimeout(() => {
       this.autoStartTimers.delete(matchId);
-      const startNextMatch = this.moduleRef.get(StartNextMatchUseCase, { strict: false });
-      void startNextMatch.execute({ code: lobbyCode });
+      this.startNextMatchScheduler.runNext(lobbyCode);
     }, DEFAULT_MATCH_SIMULATION_CONFIG.nextMatchDelayMs);
 
     this.autoStartTimers.set(matchId, timer);

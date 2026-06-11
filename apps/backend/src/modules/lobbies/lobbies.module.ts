@@ -16,8 +16,8 @@ import { LEAGUE_REPOSITORY } from '../leagues/domain/repositories/league.reposit
 import { LeaguesModule } from '../leagues/leagues.module';
 import {
   CheckDraftCompletionUseCase,
-  StartNextMatchUseCase,
 } from '../matches/application/use-cases/room-league.use-cases';
+import { StartNextMatchUseCase } from '../matches/application/use-cases/start-next-match.use-case';
 import { ROOM_LEAGUE_REPOSITORY } from '../matches/domain/repositories/room-league.repository';
 import { MatchesModule } from '../matches/matches.module';
 import { TEAM_REPOSITORY } from '../teams/domain/repositories/team.repository';

@@ -7,8 +7,8 @@ import {
   GetMatchStateUseCase,
   GetTeamReviewUseCase,
   StartLeagueUseCase,
-  StartNextMatchUseCase,
 } from '../../../matches/application/use-cases/room-league.use-cases';
+import { StartNextMatchUseCase } from '../../../matches/application/use-cases/start-next-match.use-case';
 import { toMatchStateDto } from '../../../matches/presentation/mappers/room-league-response.mapper';
 import {
   GetCoachSelectionUseCase,

@@ -17,7 +17,9 @@ import { RoomEventsModule } from '../lobbies/room-events.module';
 import { MatchSimulationEngine } from '../simulation/domain/services/match-simulation-engine.service';
 import { SimulationModule } from '../simulation/simulation.module';
 
+import { MATCH_PLAYBACK_PORT } from './application/ports/match-playback.port';
 import { MatchPlaybackService } from './application/services/match-playback.service';
+import { StartNextMatchScheduler } from './application/services/start-next-match-scheduler.service';
 import { PlayAgainUseCase } from './application/use-cases/play-again.use-case';
 import {
   CheckDraftCompletionUseCase,
@@ -25,8 +27,8 @@ import {
   GetMatchStateUseCase,
   GetTeamReviewUseCase,
   StartLeagueUseCase,
-  StartNextMatchUseCase,
 } from './application/use-cases/room-league.use-cases';
+import { StartNextMatchUseCase } from './application/use-cases/start-next-match.use-case';
 import { ROOM_LEAGUE_REPOSITORY } from './domain/repositories/room-league.repository';
 import { PrismaRoomLeagueRepository } from './infrastructure/persistence/prisma-room-league.repository';
 
@@ -41,6 +43,11 @@ import { PrismaRoomLeagueRepository } from './infrastructure/persistence/prisma-
   ],
   providers: [
     MatchPlaybackService,
+    StartNextMatchScheduler,
+    {
+      provide: MATCH_PLAYBACK_PORT,
+      useExisting: MatchPlaybackService,
+    },
     {
       provide: ROOM_LEAGUE_REPOSITORY,
       useClass: PrismaRoomLeagueRepository,
@@ -66,7 +73,7 @@ import { PrismaRoomLeagueRepository } from './infrastructure/persistence/prisma-
       CalculateTeamStrengthUseCase,
       ROOM_LEAGUE_REPOSITORY,
       MatchSimulationEngine,
-      MatchPlaybackService,
+      MATCH_PLAYBACK_PORT,
     ]),
     provideUseCase(GetMatchStateUseCase, [ROOM_LEAGUE_REPOSITORY]),
     provideUseCase(CheckDraftCompletionUseCase, [
