@@ -791,16 +791,11 @@ function readEventVisualization(visualization: RoomMatchEventRecord['visualizati
   return {
     ballZone,
     previousBallZone:
-      typeof visualization.previousBallZone === 'string'
-        ? visualization.previousBallZone
-        : null,
-    homeMomentum:
-      typeof visualization.homeMomentum === 'number' ? visualization.homeMomentum : 0.5,
-    awayMomentum:
-      typeof visualization.awayMomentum === 'number' ? visualization.awayMomentum : 0.5,
+      typeof visualization.previousBallZone === 'string' ? visualization.previousBallZone : null,
+    homeMomentum: typeof visualization.homeMomentum === 'number' ? visualization.homeMomentum : 0.5,
+    awayMomentum: typeof visualization.awayMomentum === 'number' ? visualization.awayMomentum : 0.5,
     attackChainId:
       typeof visualization.attackChainId === 'string' ? visualization.attackChainId : null,
-    attackPhase:
-      typeof visualization.attackPhase === 'string' ? visualization.attackPhase : null,
+    attackPhase: typeof visualization.attackPhase === 'string' ? visualization.attackPhase : null,
   };
 }
