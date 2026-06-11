@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 
 import { provideUseCase } from '../../common/nest/provide-use-case';
+import { CoachesModule } from '../coaches/coaches.module';
+import { COACH_REPOSITORY } from '../coaches/domain/repositories/coach.repository';
 
 import { ApplyDraftPickUseCase } from './application/use-cases/apply-draft-pick.use-case';
 import { CalculateTeamStrengthUseCase } from './application/use-cases/calculate-team-strength.use-case';
@@ -17,6 +19,7 @@ import { MathRandomSource } from './infrastructure/random/math-random-source';
 import { DraftBalanceController } from './presentation/controllers/draft-balance.controller';
 
 @Module({
+  imports: [CoachesModule],
   controllers: [DraftBalanceController],
   providers: [
     { provide: RANDOM_SOURCE, useClass: MathRandomSource },
@@ -30,7 +33,7 @@ import { DraftBalanceController } from './presentation/controllers/draft-balance
       RANDOM_SOURCE,
     ]),
     provideUseCase(ApplyDraftPickUseCase, [DRAFT_SESSION_REPOSITORY, DRAFT_POOL_REPOSITORY]),
-    provideUseCase(CalculateTeamStrengthUseCase, [DRAFT_POOL_REPOSITORY]),
+    provideUseCase(CalculateTeamStrengthUseCase, [DRAFT_POOL_REPOSITORY, COACH_REPOSITORY]),
     provideUseCase(SimulateDraftFairnessUseCase, []),
   ],
   exports: [

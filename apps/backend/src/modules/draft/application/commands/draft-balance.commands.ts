@@ -19,6 +19,7 @@ export interface ApplyDraftPickCommand {
 
 export interface CalculateTeamStrengthCommand {
   readonly cardIds: readonly string[];
+  readonly coachId?: string | null;
 }
 
 export interface SimulateDraftFairnessCommand {

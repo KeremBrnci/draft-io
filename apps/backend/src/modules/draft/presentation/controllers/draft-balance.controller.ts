@@ -80,6 +80,7 @@ export class DraftBalanceController {
   async calculateTeamStrength(@Body() body: CalculateTeamStrengthDto) {
     const result = await this.calculateTeamStrengthUseCase.execute({
       cardIds: body.cardIds,
+      ...(body.coachId !== undefined ? { coachId: body.coachId } : {}),
     });
 
     return { data: toTeamStrengthDto(result) };

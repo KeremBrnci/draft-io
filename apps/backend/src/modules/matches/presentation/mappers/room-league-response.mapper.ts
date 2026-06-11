@@ -6,6 +6,7 @@ import {
   type RoomLeagueStateDto,
   type TeamReviewStateDto,
 } from '@draft-io/shared-types';
+import { sortLineupPlayersByPosition } from '@draft-io/shared-utils';
 
 import type { Lobby } from '../../../lobbies/domain/entities/lobby.entity';
 import { RoomPhase } from '../../../lobbies/domain/enums/room-phase.enum';
@@ -166,7 +167,9 @@ function toTeamLineup(
     participantId: snapshot.participantId,
     displayName: snapshot.displayName,
     formationCode: snapshot.formationCode,
-    players: snapshot.players.map((player) => ({
+    teamAverageOverall: snapshot.teamAverageOverall,
+    teamChemistry: snapshot.teamChemistry,
+    players: sortLineupPlayersByPosition(snapshot.players).map((player) => ({
       cardId: player.cardId,
       displayName: player.displayName,
       positionCode: player.positionCode,

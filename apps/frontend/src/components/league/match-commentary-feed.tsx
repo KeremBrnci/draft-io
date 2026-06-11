@@ -6,6 +6,7 @@ import {
   type MatchEventDto,
   type MatchStoppageTimeDto,
 } from '@draft-io/shared-types';
+import { isImportantMatchEvent } from '@draft-io/shared-utils';
 import { memo, useMemo } from 'react';
 
 import { getMatchEventUi } from '@/lib/match-event-ui';
@@ -26,7 +27,7 @@ export const MatchCommentaryFeed = memo(function MatchCommentaryFeed({
   const visibleEvents = useMemo(
     () =>
       [...events]
-        .filter((event) => event.eventType !== 'GOAL_CHANCE')
+        .filter((event) => isImportantMatchEvent(event.eventType))
         .reverse()
         .slice(0, 40),
     [events],

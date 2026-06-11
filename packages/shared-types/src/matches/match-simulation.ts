@@ -56,6 +56,8 @@ export interface MatchTeamLineupDto {
   readonly participantId: string;
   readonly displayName: string;
   readonly formationCode: string;
+  readonly teamAverageOverall: number;
+  readonly teamChemistry: number;
   readonly players: readonly MatchLineupPlayerDto[];
 }
 

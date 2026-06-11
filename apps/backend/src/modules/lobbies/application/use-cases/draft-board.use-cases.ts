@@ -124,7 +124,10 @@ export class GetDraftBoardUseCase {
               matchPower: 0,
             },
           }
-        : await this.calculateTeamStrengthUseCase.execute({ cardIds: draftState.draftedCardIds });
+        : await this.calculateTeamStrengthUseCase.execute({
+            cardIds: draftState.draftedCardIds,
+            coachId: participant.selectedCoachId,
+          });
 
     const slotIndexes = formation.slots.map((slot) => slot.index);
     const nextSlotIndex = findNextEmptySlotIndex(slotIndexes, draftState.slotAssignments);

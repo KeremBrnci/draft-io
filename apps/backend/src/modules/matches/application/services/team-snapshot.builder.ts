@@ -16,6 +16,7 @@ export async function buildParticipantTeamSnapshot(input: {
   const cardById = new Map(cards.map((card) => [card.cardId, card]));
   const strength = await input.calculateTeamStrengthUseCase.execute({
     cardIds: input.draftState.draftedCardIds,
+    coachId: input.participant.selectedCoachId,
   });
 
   const players = input.draftState.slotAssignments.map((assignment) => {

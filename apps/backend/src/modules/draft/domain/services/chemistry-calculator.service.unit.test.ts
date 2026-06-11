@@ -20,12 +20,32 @@ describe('ChemistryCalculator', () => {
       ],
     );
 
-    expect(result.chemistry).toBe(3);
+    expect(result.chemistry).toBe(5);
     expect(result.sources).toContain('club');
     expect(result.sources).toContain('nation');
   });
 
-  it('caps team chemistry at 33', () => {
+  it('adds coach compatibility bonuses for matching team, nation and league', () => {
+    const cards = [
+      {
+        cardId: 'card-1',
+        teamId: 'team-1',
+        leagueId: 'league-1',
+        nationality: 'TR',
+      },
+    ];
+
+    const result = calculator.calculateTeamChemistry(cards, {
+      teamId: 'team-1',
+      leagueId: 'league-1',
+      nationality: 'TR',
+    });
+
+    expect(result.players[0]?.chemistry).toBe(5);
+    expect(result.teamChemistry).toBe(5);
+  });
+
+  it('caps team chemistry at configured maximum', () => {
     const cards = Array.from({ length: 11 }, (_, index) => ({
       cardId: `card-${index}`,
       teamId: 'team-1',
@@ -33,8 +53,13 @@ describe('ChemistryCalculator', () => {
       nationality: 'TR',
     }));
 
-    const result = calculator.calculateTeamChemistry(cards);
-    expect(result.teamChemistry).toBeLessThanOrEqual(33);
+    const result = calculator.calculateTeamChemistry(cards, {
+      teamId: 'team-1',
+      leagueId: 'league-1',
+      nationality: 'TR',
+    });
+
+    expect(result.teamChemistry).toBeLessThanOrEqual(66);
     expect(result.players).toHaveLength(11);
   });
 });

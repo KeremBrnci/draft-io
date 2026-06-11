@@ -6,6 +6,8 @@ const emptyLineup = {
   participantId: 'p1',
   displayName: 'Team',
   formationCode: '4-3-3',
+  teamAverageOverall: 0,
+  teamChemistry: 0,
   players: [],
 };
 

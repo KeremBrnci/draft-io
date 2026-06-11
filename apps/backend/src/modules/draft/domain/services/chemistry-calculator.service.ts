@@ -1,5 +1,6 @@
 import type { ChemistryConfig } from '../config/default-draft-balance.config';
 import type {
+  CoachIdentityLink,
   PlayerChemistry,
   PlayerIdentityLink,
   TeamChemistryResult,
@@ -58,13 +59,56 @@ export class ChemistryCalculator {
     };
   }
 
-  calculateTeamChemistry(cards: readonly PlayerIdentityLink[]): TeamChemistryResult {
-    const players = cards.map((card) =>
-      this.calculatePlayerChemistry(
+  calculateCoachPlayerChemistry(
+    player: PlayerIdentityLink,
+    coach: CoachIdentityLink,
+  ): PlayerChemistry {
+    let chemistry = 0;
+    const sources = new Set<'club' | 'nation' | 'league'>();
+
+    if (coach.teamId !== null && player.teamId !== null && coach.teamId === player.teamId) {
+      chemistry += this.config.sameClubBonus;
+      sources.add('club');
+    }
+
+    if (player.nationality === coach.nationality) {
+      chemistry += this.config.sameNationBonus;
+      sources.add('nation');
+    }
+
+    if (coach.leagueId !== null && player.leagueId !== null && coach.leagueId === player.leagueId) {
+      chemistry += this.config.sameLeagueBonus;
+      sources.add('league');
+    }
+
+    return {
+      cardId: player.cardId,
+      chemistry: Math.min(this.config.maxChemistryPerPlayer, chemistry),
+      sources: [...sources],
+    };
+  }
+
+  calculateTeamChemistry(
+    cards: readonly PlayerIdentityLink[],
+    coach: CoachIdentityLink | null = null,
+  ): TeamChemistryResult {
+    const players = cards.map((card) => {
+      const peerChemistry = this.calculatePlayerChemistry(
         card,
         cards.filter((other) => other.cardId !== card.cardId),
-      ),
-    );
+      );
+      const coachChemistry =
+        coach === null ? null : this.calculateCoachPlayerChemistry(card, coach);
+
+      const chemistry = peerChemistry.chemistry + (coachChemistry?.chemistry ?? 0);
+      const sources = new Set([...peerChemistry.sources, ...(coachChemistry?.sources ?? [])]);
+
+      return {
+        cardId: card.cardId,
+        chemistry,
+        sources: [...sources],
+      };
+    });
 
     const breakdown = { club: 0, nation: 0, league: 0 };
 

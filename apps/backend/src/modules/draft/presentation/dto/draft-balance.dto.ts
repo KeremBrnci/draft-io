@@ -32,6 +32,10 @@ export class CalculateTeamStrengthDto {
   @IsArray()
   @IsUUID('4', { each: true })
   cardIds!: string[];
+
+  @IsOptional()
+  @IsUUID('4')
+  coachId?: string;
 }
 
 export class SimulateDraftFairnessDto {

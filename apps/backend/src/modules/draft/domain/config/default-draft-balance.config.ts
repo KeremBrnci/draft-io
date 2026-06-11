@@ -20,11 +20,11 @@ export const DEFAULT_DRAFT_TIERS: readonly DraftTierConfig[] = [
 ] as const;
 
 export const DEFAULT_CHEMISTRY_CONFIG: ChemistryConfig = {
-  sameClubBonus: 2,
+  sameClubBonus: 3,
   sameNationBonus: 1,
   sameLeagueBonus: 1,
-  maxChemistryPerPlayer: 3,
-  maxTeamChemistry: 33,
+  maxChemistryPerPlayer: 5,
+  maxTeamChemistry: 66,
 };
 
 export const DEFAULT_MATCH_POWER_CONFIG: MatchPowerConfig = {

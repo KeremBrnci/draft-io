@@ -22,3 +22,9 @@ export interface PlayerIdentityLink {
   readonly leagueId: string | null;
   readonly nationality: string;
 }
+
+export interface CoachIdentityLink {
+  readonly teamId: string | null;
+  readonly leagueId: string | null;
+  readonly nationality: string;
+}

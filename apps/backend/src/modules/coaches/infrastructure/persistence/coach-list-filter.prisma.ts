@@ -18,6 +18,9 @@ export function toPrismaCoachWhere(filter: CoachListFilter): Prisma.CoachWhereIn
       : {}),
     ...(filter.teamId !== undefined ? { teamId: filter.teamId } : {}),
     ...(filter.leagueId !== undefined ? { leagueId: filter.leagueId } : {}),
+    ...(filter.leagueIds !== undefined && filter.leagueIds.length > 0
+      ? { leagueId: { in: [...filter.leagueIds] } }
+      : {}),
     ...(filter.nationality !== undefined
       ? { nationality: { contains: filter.nationality, mode: 'insensitive' } }
       : {}),

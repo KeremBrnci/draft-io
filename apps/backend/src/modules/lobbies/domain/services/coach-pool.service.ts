@@ -1,5 +1,5 @@
 /** Number of coaches offered to each player after draft. */
-export const COACH_POOL_SIZE = 4;
+export const COACH_POOL_SIZE = 6;
 
 export interface CoachPoolEntry {
   readonly id: string;
@@ -16,14 +16,25 @@ export class CoachPoolService {
       throw new Error('Not enough coaches in catalog to build personal pools');
     }
 
+    const catalog = shuffleDeterministic(allCoaches, `${lobbyId}:coach-catalog`);
     const pools = new Map<string, readonly string[]>();
+    const participantCount = participantIds.length;
 
-    for (const participantId of participantIds) {
-      const shuffled = shuffleDeterministic(allCoaches, `${lobbyId}:${participantId}:coach`);
-      pools.set(
-        participantId,
-        shuffled.slice(0, poolSize).map((coach) => coach.id),
-      );
+    for (let index = 0; index < participantIds.length; index += 1) {
+      const participantId = participantIds[index]!;
+      const offset = Math.floor((index * catalog.length) / Math.max(1, participantCount));
+      const picked: string[] = [];
+      const used = new Set<string>();
+
+      for (let step = 0; picked.length < poolSize && step < catalog.length; step += 1) {
+        const coach = catalog[(offset + step) % catalog.length]!;
+        if (!used.has(coach.id)) {
+          used.add(coach.id);
+          picked.push(coach.id);
+        }
+      }
+
+      pools.set(participantId, picked);
     }
 
     return pools;

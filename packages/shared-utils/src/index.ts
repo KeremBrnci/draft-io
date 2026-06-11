@@ -10,6 +10,8 @@ export {
   translatePositionCode,
   translateTeamName,
 } from './tr-football-display.js';
+export { isImportantMatchEvent } from './match-event-display.js';
+export { lineupPositionRank, sortLineupPlayersByPosition } from './lineup-position-order.js';
 export {
   canonicalizePositionCode,
   collapseEquivalentPositionCodes,

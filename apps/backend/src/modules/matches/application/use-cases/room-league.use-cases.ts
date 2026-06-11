@@ -1,5 +1,6 @@
 import type { RoomLeagueStateDto, TeamReviewStateDto } from '@draft-io/shared-types';
 
+import type { Coach } from '../../../coaches/domain/entities/coach.entity';
 import type { CoachRepository } from '../../../coaches/domain/repositories/coach.repository';
 import { CoachId } from '../../../coaches/domain/value-objects/coach-id.vo';
 import { type CalculateTeamStrengthUseCase } from '../../../draft/application/use-cases/calculate-team-strength.use-case';
@@ -15,7 +16,10 @@ import {
 } from '../../../lobbies/domain/errors/lobby.errors';
 import { RoomEventName } from '../../../lobbies/domain/events/room.events';
 import type { LobbyRepository } from '../../../lobbies/domain/repositories/lobby.repository';
-import { CoachPoolService } from '../../../lobbies/domain/services/coach-pool.service';
+import {
+  COACH_POOL_SIZE,
+  CoachPoolService,
+} from '../../../lobbies/domain/services/coach-pool.service';
 import { LobbyCode } from '../../../lobbies/domain/value-objects/lobby-code.vo';
 import { SessionToken } from '../../../lobbies/domain/value-objects/session-token.vo';
 import type { RoomLeagueRepository } from '../../domain/repositories/room-league.repository';
@@ -79,6 +83,7 @@ export class GetTeamReviewUseCase {
               }
             : await this.calculateTeamStrengthUseCase.execute({
                 cardIds: draftState.draftedCardIds,
+                coachId: entry.selectedCoachId,
               });
 
         return {
@@ -271,15 +276,11 @@ export class CheckDraftCompletionUseCase {
       return false;
     }
 
-    const coachPage = await this.coachRepository.findPaginated(
-      { hasImage: true },
-      { field: 'name', direction: 'asc' },
-      { page: 1, pageSize: 120 },
-    );
+    const coachCatalog = await this.loadCoachCatalog(lobby.draftLeagueIds);
     const pools = this.coachPoolService.assignPersonalPools(
       lobby.id.value,
       lobby.participants.map((participant) => participant.id),
-      coachPage.items.map((coach) => ({ id: coach.id.value })),
+      coachCatalog.map((coach) => ({ id: coach.id.value })),
     );
 
     lobby.advanceToCoachSelection(pools);
@@ -297,5 +298,29 @@ export class CheckDraftCompletionUseCase {
     });
 
     return true;
+  }
+
+  private async loadCoachCatalog(leagueIds: readonly string[]): Promise<readonly Coach[]> {
+    const baseFilter = { hasImage: true } as const;
+
+    if (leagueIds.length > 0) {
+      const scoped = await this.coachRepository.findPaginated(
+        { ...baseFilter, leagueIds: [...leagueIds] },
+        { field: 'createdAt', direction: 'desc' },
+        { page: 1, pageSize: 500 },
+      );
+
+      if (scoped.items.length >= COACH_POOL_SIZE) {
+        return scoped.items;
+      }
+    }
+
+    const catalog = await this.coachRepository.findPaginated(
+      baseFilter,
+      { field: 'createdAt', direction: 'desc' },
+      { page: 1, pageSize: 500 },
+    );
+
+    return catalog.items;
   }
 }

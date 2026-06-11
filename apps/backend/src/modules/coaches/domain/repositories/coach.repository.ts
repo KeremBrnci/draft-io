@@ -12,6 +12,7 @@ export interface CoachListFilter {
   readonly role?: string;
   readonly teamId?: string;
   readonly leagueId?: string;
+  readonly leagueIds?: readonly string[];
   readonly nationality?: string;
   readonly hasImage?: boolean;
   readonly hasAge?: boolean;
