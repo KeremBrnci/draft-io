@@ -1,20 +1,20 @@
 import type { DraftCardFaceDto, DraftPickOptionsDto } from '@draft-io/shared-types';
 
 import { type ApplyDraftPickUseCase } from '../../../draft/application/use-cases/apply-draft-pick.use-case';
-import { type SwapDraftSlotAssignmentsUseCase } from '../../../draft/application/use-cases/swap-draft-slot-assignments.use-case';
 import { type CalculateTeamStrengthUseCase } from '../../../draft/application/use-cases/calculate-team-strength.use-case';
 import { type GeneratePickOptionsUseCase } from '../../../draft/application/use-cases/generate-pick-options.use-case';
 import { type GetDraftSessionByLobbyUseCase } from '../../../draft/application/use-cases/get-draft-session-by-lobby.use-case';
-import { InvalidDraftPickError } from '../../../draft/domain/errors/draft.errors';
+import { type SwapDraftSlotAssignmentsUseCase } from '../../../draft/application/use-cases/swap-draft-slot-assignments.use-case';
 import type { PositionWeightConfig } from '../../../draft/domain/config/default-draft-balance.config';
+import { InvalidDraftPickError } from '../../../draft/domain/errors/draft.errors';
 import type { DraftPoolCard } from '../../../draft/domain/models/draft-pool-card';
-import { expandDraftEligiblePositionCodes } from '../../../draft/domain/services/expand-draft-position-codes';
-import { PositionCompatibilityService } from '../../../draft/domain/services/position-compatibility.service';
 import {
   findNextEmptySlotIndex,
   picksRemaining,
 } from '../../../draft/domain/models/participant-draft-state';
 import type { DraftPoolRepository } from '../../../draft/domain/repositories/draft-pool.repository';
+import { expandDraftEligiblePositionCodes } from '../../../draft/domain/services/expand-draft-position-codes';
+import { PositionCompatibilityService } from '../../../draft/domain/services/position-compatibility.service';
 import { toDraftCardFace } from '../../../draft/infrastructure/mappers/draft-card-face.mapper';
 import type { Formation } from '../../../formations/domain/entities/formation.entity';
 import type { FormationRepository } from '../../../formations/domain/repositories/formation.repository';

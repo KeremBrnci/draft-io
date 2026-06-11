@@ -5,12 +5,12 @@ import { CoachesModule } from '../coaches/coaches.module';
 import { COACH_REPOSITORY } from '../coaches/domain/repositories/coach.repository';
 
 import { ApplyDraftPickUseCase } from './application/use-cases/apply-draft-pick.use-case';
-import { SwapDraftSlotAssignmentsUseCase } from './application/use-cases/swap-draft-slot-assignments.use-case';
 import { CalculateTeamStrengthUseCase } from './application/use-cases/calculate-team-strength.use-case';
 import { GeneratePickOptionsUseCase } from './application/use-cases/generate-pick-options.use-case';
 import { GetDraftSessionByLobbyUseCase } from './application/use-cases/get-draft-session-by-lobby.use-case';
 import { InitializeDraftSessionUseCase } from './application/use-cases/initialize-draft-session.use-case';
 import { SimulateDraftFairnessUseCase } from './application/use-cases/simulate-draft-fairness.use-case';
+import { SwapDraftSlotAssignmentsUseCase } from './application/use-cases/swap-draft-slot-assignments.use-case';
 import { RANDOM_SOURCE } from './domain/ports/random-source.port';
 import { DRAFT_POOL_REPOSITORY } from './domain/repositories/draft-pool.repository';
 import { DRAFT_SESSION_REPOSITORY } from './domain/repositories/draft-session.repository';
