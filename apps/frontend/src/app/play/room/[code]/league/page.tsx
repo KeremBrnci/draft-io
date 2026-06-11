@@ -247,7 +247,8 @@ export default function LeaguePage(): React.ReactElement {
   }, [match?.id, match?.status]);
 
   const isWarmup = match?.status === 'PRE_MATCH';
-  const isLivePlay = match?.status === 'LIVE' || match?.status === 'HALF_TIME';
+  const isHalfTime = match?.status === 'HALF_TIME';
+  const isLivePlay = match?.status === 'LIVE' || isHalfTime;
   const displayMinute = isWarmup ? '0' : (match?.displayMinute ?? '0');
   const isStoppageMinute = displayMinute.includes('+');
 
@@ -322,7 +323,11 @@ export default function LeaguePage(): React.ReactElement {
                       <div className="league-live__score">{liveScores.homeScore}</div>
                     </div>
                     <div className="league-live__minute">
-                      {isLivePlay ? (
+                      {isHalfTime ? (
+                        <span className="league-live__live-badge league-live__live-badge--half">
+                          Devre arası
+                        </span>
+                      ) : isLivePlay ? (
                         <span className="league-live__live-badge">Canlı</span>
                       ) : isWarmup ? (
                         <span className="league-live__warmup-badge">Isınma</span>
@@ -339,8 +344,8 @@ export default function LeaguePage(): React.ReactElement {
                       <div className="league-live__status-label">
                         {isWarmup
                           ? 'Takımlar sahaya çıkıyor'
-                          : match.status === 'HALF_TIME'
-                            ? '⏸️ Devre arası'
+                          : isHalfTime
+                            ? '⏸️ İkinci yarı başlıyor…'
                             : match.status === 'FULL_TIME'
                               ? '🏁 Maç sonu'
                               : isStoppageMinute

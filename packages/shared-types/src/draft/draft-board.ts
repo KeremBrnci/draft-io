@@ -19,6 +19,7 @@ export interface DraftCardFaceDto {
   readonly imageUrl: string | null;
   readonly rating: number | null;
   readonly subtitle: string;
+  readonly playablePositionCodes: readonly string[];
   readonly nationalityFlagUrl: string | null;
   readonly nationalityLabel?: string;
   readonly teamName: string | null;
@@ -34,6 +35,9 @@ export interface DraftSlotStateDto {
   readonly pitchY: number;
   readonly allowedPositions: readonly string[];
   readonly card: DraftCardFaceDto | null;
+  /** Squad chemistry for the placed card (updates as more players are drafted). */
+  readonly playerChemistry: number;
+  readonly playerChemistrySources: readonly ('club' | 'nation' | 'league')[];
 }
 
 export interface DraftParticipantReadinessDto {

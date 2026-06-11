@@ -1,5 +1,7 @@
 import type { DraftBoardStateDto } from '@draft-io/shared-types';
-import { memo } from 'react';
+import { memo, useMemo } from 'react';
+
+import { DraftPlayerChemistryBadge } from './draft-player-chemistry-badge';
 
 interface DraftStatsPanelProps {
   readonly board: DraftBoardStateDto;
@@ -8,6 +10,20 @@ interface DraftStatsPanelProps {
 export const DraftStatsPanel = memo(function DraftStatsPanel({
   board,
 }: DraftStatsPanelProps): React.ReactElement {
+  const draftedSlots = useMemo(
+    () =>
+      board.slots
+        .filter((slot) => slot.card !== null)
+        .sort((left, right) => {
+          if (right.playerChemistry !== left.playerChemistry) {
+            return right.playerChemistry - left.playerChemistry;
+          }
+
+          return (right.card?.rating ?? 0) - (left.card?.rating ?? 0);
+        }),
+    [board.slots],
+  );
+
   return (
     <aside className="draft-stats-panel" aria-label="Takım istatistikleri">
       <div className="draft-stats-panel__grid">
@@ -48,6 +64,25 @@ export const DraftStatsPanel = memo(function DraftStatsPanel({
           </li>
         </ul>
       </div>
+
+      {draftedSlots.length > 0 ? (
+        <div className="draft-stats-panel__roster-chem">
+          <span>Oyuncu kimyaları</span>
+          <ul>
+            {draftedSlots.map((slot) => (
+              <li key={slot.slotIndex}>
+                <span className="draft-stats-panel__roster-name" title={slot.card?.displayName}>
+                  {slot.card?.displayName}
+                </span>
+                <DraftPlayerChemistryBadge
+                  chemistry={slot.playerChemistry}
+                  sources={slot.playerChemistrySources}
+                />
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
     </aside>
   );
 });

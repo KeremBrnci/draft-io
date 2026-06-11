@@ -1,10 +1,15 @@
 import type { DraftCardFaceDto, DraftPickOptionsDto } from '@draft-io/shared-types';
 
 import { type ApplyDraftPickUseCase } from '../../../draft/application/use-cases/apply-draft-pick.use-case';
+import { type SwapDraftSlotAssignmentsUseCase } from '../../../draft/application/use-cases/swap-draft-slot-assignments.use-case';
 import { type CalculateTeamStrengthUseCase } from '../../../draft/application/use-cases/calculate-team-strength.use-case';
 import { type GeneratePickOptionsUseCase } from '../../../draft/application/use-cases/generate-pick-options.use-case';
 import { type GetDraftSessionByLobbyUseCase } from '../../../draft/application/use-cases/get-draft-session-by-lobby.use-case';
 import { InvalidDraftPickError } from '../../../draft/domain/errors/draft.errors';
+import type { PositionWeightConfig } from '../../../draft/domain/config/default-draft-balance.config';
+import type { DraftPoolCard } from '../../../draft/domain/models/draft-pool-card';
+import { expandDraftEligiblePositionCodes } from '../../../draft/domain/services/expand-draft-position-codes';
+import { PositionCompatibilityService } from '../../../draft/domain/services/position-compatibility.service';
 import {
   findNextEmptySlotIndex,
   picksRemaining,
@@ -368,14 +373,172 @@ export class ApplyLobbyDraftPickUseCase {
   }
 }
 
+export interface SwapLobbyDraftSlotsCommand {
+  readonly code: string;
+  readonly sessionToken: string;
+  readonly fromSlotIndex: number;
+  readonly toSlotIndex: number;
+}
+
+export class SwapLobbyDraftSlotsUseCase {
+  private readonly lifecycle: LobbyLifecycleService;
+
+  constructor(
+    private readonly lobbyRepository: LobbyRepository,
+    private readonly formationRepository: FormationRepository,
+    private readonly draftPoolRepository: DraftPoolRepository,
+    private readonly swapDraftSlotAssignmentsUseCase: SwapDraftSlotAssignmentsUseCase,
+    private readonly getDraftSessionByLobbyUseCase: GetDraftSessionByLobbyUseCase,
+  ) {
+    this.lifecycle = new LobbyLifecycleService(lobbyRepository);
+  }
+
+  async execute(command: SwapLobbyDraftSlotsCommand): Promise<void> {
+    const lobby = await this.lifecycle.requireActiveLobby(LobbyCode.create(command.code));
+    if (lobby.phase !== RoomPhase.DRAFT) {
+      throw new InvalidDraftPickError('Lobby is not in draft phase');
+    }
+
+    const participant = lobby.findParticipantBySessionToken(
+      SessionToken.reconstitute(command.sessionToken),
+    );
+    if (participant === null) {
+      throw new InvalidLobbySessionError();
+    }
+
+    if (participant.selectedFormationId === null) {
+      throw new InvalidDraftPickError('Participant has no selected formation');
+    }
+
+    const formation = await this.formationRepository.findById(participant.selectedFormationId);
+    if (formation === null) {
+      throw new LobbyNotFoundError(participant.selectedFormationId);
+    }
+
+    const fromSlot = formation.slots.find((entry) => entry.index === command.fromSlotIndex);
+    const toSlot = formation.slots.find((entry) => entry.index === command.toSlotIndex);
+    if (fromSlot === undefined || toSlot === undefined) {
+      throw new InvalidDraftPickError('Invalid formation slot');
+    }
+
+    if (command.fromSlotIndex === command.toSlotIndex) {
+      throw new InvalidDraftPickError('Cannot swap a slot with itself');
+    }
+
+    const session = await this.getDraftSessionByLobbyUseCase.execute({ lobbyId: lobby.id.value });
+    if (session === null) {
+      throw new InvalidDraftPickError('Draft session not found');
+    }
+
+    const draftState = session.participants.find((entry) => entry.participantId === participant.id);
+    if (draftState === undefined) {
+      throw new InvalidDraftPickError('Participant draft state not found');
+    }
+
+    if (picksRemaining(draftState, session.rosterSize) > 0) {
+      throw new InvalidDraftPickError('Roster must be complete before swapping positions');
+    }
+
+    const fromAssignment = draftState.slotAssignments.find(
+      (assignment) => assignment.slotIndex === command.fromSlotIndex,
+    );
+    const toAssignment = draftState.slotAssignments.find(
+      (assignment) => assignment.slotIndex === command.toSlotIndex,
+    );
+    if (fromAssignment === undefined || toAssignment === undefined) {
+      throw new InvalidDraftPickError('Both formation slots must be filled to swap players');
+    }
+
+    const cards = await this.draftPoolRepository.findByIds([
+      fromAssignment.cardId,
+      toAssignment.cardId,
+    ]);
+    const cardById = new Map(cards.map((card) => [card.cardId, card]));
+    const fromCard = cardById.get(fromAssignment.cardId);
+    const toCard = cardById.get(toAssignment.cardId);
+    if (fromCard === undefined || toCard === undefined) {
+      throw new InvalidDraftPickError('Drafted card not found');
+    }
+
+    assertSwapEligible({
+      fromCard,
+      toCard,
+      fromSlot,
+      toSlot,
+      positionWeights: session.config.positionWeights,
+    });
+
+    await this.swapDraftSlotAssignmentsUseCase.execute({
+      lobbyId: lobby.id.value,
+      participantId: participant.id,
+      fromSlotIndex: command.fromSlotIndex,
+      toSlotIndex: command.toSlotIndex,
+      toSlotMetadata: {
+        positionCode: toSlot.label,
+        slotLabel: toSlot.label,
+      },
+      fromSlotMetadata: {
+        positionCode: fromSlot.label,
+        slotLabel: fromSlot.label,
+      },
+    });
+
+    if (participant.isReady) {
+      participant.setReady(false);
+      this.lifecycle.touch(lobby);
+      await this.lobbyRepository.save(lobby);
+    }
+  }
+}
+
+function assertSwapEligible(input: {
+  readonly fromCard: DraftPoolCard;
+  readonly toCard: DraftPoolCard;
+  readonly fromSlot: Formation['slots'][number];
+  readonly toSlot: Formation['slots'][number];
+  readonly positionWeights: PositionWeightConfig;
+}): void {
+  const positionCompatibility = new PositionCompatibilityService(input.positionWeights);
+
+  const fromSlotCodes =
+    input.fromSlot.allowedPositions.length > 0
+      ? [...input.fromSlot.allowedPositions]
+      : [input.fromSlot.label];
+  const toSlotCodes =
+    input.toSlot.allowedPositions.length > 0
+      ? [...input.toSlot.allowedPositions]
+      : [input.toSlot.label];
+
+  const toEligibleCodes = expandDraftEligiblePositionCodes(toSlotCodes);
+  const fromEligibleCodes = expandDraftEligiblePositionCodes(fromSlotCodes);
+
+  const fromCanPlayTarget = toEligibleCodes.some((code) =>
+    positionCompatibility.isEligible(input.fromCard, code),
+  );
+  const toCanPlaySource = fromEligibleCodes.some((code) =>
+    positionCompatibility.isEligible(input.toCard, code),
+  );
+
+  if (!fromCanPlayTarget || !toCanPlaySource) {
+    throw new InvalidDraftPickError('Players are not eligible for the swapped positions');
+  }
+}
+
 export function buildDraftBoardSlots(
   formation: Formation,
   assignments: DraftBoardState['slotAssignments'],
   cardFacesById: ReadonlyMap<string, DraftCardFaceDto>,
+  playerChemistryByCardId: ReadonlyMap<
+    string,
+    { readonly chemistry: number; readonly sources: readonly ('club' | 'nation' | 'league')[] }
+  >,
 ) {
   return formation.slots.map((slot) => {
     const coordinates = computePitchCoordinates(formation.code.value, slot.index, slot.label);
     const assignment = assignments.find((entry) => entry.slotIndex === slot.index);
+    const chemistry =
+      assignment === undefined ? undefined : playerChemistryByCardId.get(assignment.cardId);
+
     return {
       slotIndex: slot.index,
       label: slot.label,
@@ -383,6 +546,8 @@ export function buildDraftBoardSlots(
       pitchY: coordinates.pitchY,
       allowedPositions: [...slot.allowedPositions],
       card: assignment === undefined ? null : (cardFacesById.get(assignment.cardId) ?? null),
+      playerChemistry: chemistry?.chemistry ?? 0,
+      playerChemistrySources: chemistry?.sources ?? [],
     };
   });
 }

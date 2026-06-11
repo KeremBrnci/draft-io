@@ -4,6 +4,7 @@ import { provideUseCase } from '../../common/nest/provide-use-case';
 import { CoachesModule } from '../coaches/coaches.module';
 import { COACH_REPOSITORY } from '../coaches/domain/repositories/coach.repository';
 import { ApplyDraftPickUseCase } from '../draft/application/use-cases/apply-draft-pick.use-case';
+import { SwapDraftSlotAssignmentsUseCase } from '../draft/application/use-cases/swap-draft-slot-assignments.use-case';
 import { CalculateTeamStrengthUseCase } from '../draft/application/use-cases/calculate-team-strength.use-case';
 import { GeneratePickOptionsUseCase } from '../draft/application/use-cases/generate-pick-options.use-case';
 import { GetDraftSessionByLobbyUseCase } from '../draft/application/use-cases/get-draft-session-by-lobby.use-case';
@@ -32,6 +33,7 @@ import {
   ApplyLobbyDraftPickUseCase,
   GetDraftBoardUseCase,
   GetDraftPickOptionsForSlotUseCase,
+  SwapLobbyDraftSlotsUseCase,
 } from './application/use-cases/draft-board.use-cases';
 import {
   GetFormationSelectionUseCase,
@@ -112,6 +114,13 @@ import { RoomEventsModule } from './room-events.module';
       ApplyDraftPickUseCase,
       GetDraftSessionByLobbyUseCase,
       CheckDraftCompletionUseCase,
+    ]),
+    provideUseCase(SwapLobbyDraftSlotsUseCase, [
+      LOBBY_REPOSITORY,
+      FORMATION_REPOSITORY,
+      DRAFT_POOL_REPOSITORY,
+      SwapDraftSlotAssignmentsUseCase,
+      GetDraftSessionByLobbyUseCase,
     ]),
     provideUseCase(GetCoachSelectionUseCase, [
       LOBBY_REPOSITORY,

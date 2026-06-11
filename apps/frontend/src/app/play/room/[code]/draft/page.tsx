@@ -20,7 +20,7 @@ import { PlayLoadingState } from '@/components/play/play-loading-state';
 import { PlayStageRail } from '@/components/play/play-stage-rail';
 import { runDelayedAction, waitForActionFeedback } from '@/lib/action-feedback-delay';
 import { ApiClientError } from '@/lib/api/client';
-import { applyDraftPick, getDraftBoard } from '@/lib/api/draft';
+import { applyDraftPick, getDraftBoard, swapDraftSlots } from '@/lib/api/draft';
 import { getLobbyByCode, setParticipantReady } from '@/lib/api/lobbies';
 import { isDraftPhaseMismatchMessage } from '@/lib/lobby-phase-routes';
 import { clearLobbySession, readLobbySession } from '@/lib/lobby-session';
@@ -34,6 +34,49 @@ import { usePhaseRedirect } from '@/lib/use-phase-redirect';
 import '../../../play.css';
 
 const POLL_INTERVAL_MS = 6000;
+
+function applyOptimisticSlotSwap(
+  board: DraftBoardStateDto,
+  fromSlotIndex: number,
+  toSlotIndex: number,
+): DraftBoardStateDto {
+  const fromSlot = board.slots.find((slot) => slot.slotIndex === fromSlotIndex);
+  const toSlot = board.slots.find((slot) => slot.slotIndex === toSlotIndex);
+  if (fromSlot?.card === null || fromSlot?.card === undefined) {
+    return board;
+  }
+  if (toSlot?.card === null || toSlot?.card === undefined) {
+    return board;
+  }
+
+  const nextSlots = board.slots.map((slot) => {
+    if (slot.slotIndex === fromSlotIndex && toSlot.card !== null) {
+      return {
+        ...slot,
+        card: { ...toSlot.card, subtitle: slot.label },
+        playerChemistry: toSlot.playerChemistry,
+        playerChemistrySources: toSlot.playerChemistrySources,
+      };
+    }
+
+    if (slot.slotIndex === toSlotIndex && fromSlot.card !== null) {
+      return {
+        ...slot,
+        card: { ...fromSlot.card, subtitle: slot.label },
+        playerChemistry: fromSlot.playerChemistry,
+        playerChemistrySources: fromSlot.playerChemistrySources,
+      };
+    }
+
+    return slot;
+  });
+
+  return {
+    ...board,
+    slots: nextSlots,
+    viewerIsReady: false,
+  };
+}
 
 function applyOptimisticPick(
   board: DraftBoardStateDto,
@@ -67,6 +110,7 @@ export default function DraftRoomPage(): React.ReactElement {
   const [optionsLoading, setOptionsLoading] = useState(false);
   const [pickingCardId, setPickingCardId] = useState<string | null>(null);
   const [readyLoading, setReadyLoading] = useState(false);
+  const [swappingSlots, setSwappingSlots] = useState<readonly [number, number] | null>(null);
   const skipPollBoardUpdateRef = useRef(false);
   const activeSlotIndexRef = useRef<number | null>(null);
   const redirectForPhase = usePhaseRedirect(code);
@@ -325,6 +369,37 @@ export default function DraftRoomPage(): React.ReactElement {
     setPickOptions(null);
   }, []);
 
+  const handleSwapSlots = useCallback(
+    async (fromSlotIndex: number, toSlotIndex: number): Promise<void> => {
+      if (session === null || board === null || swappingSlots !== null) {
+        return;
+      }
+
+      setSwappingSlots([fromSlotIndex, toSlotIndex]);
+      setActionError(null);
+      setBoard(applyOptimisticSlotSwap(board, fromSlotIndex, toSlotIndex));
+
+      try {
+        const nextBoard = await swapDraftSlots(code, {
+          sessionToken: session.sessionToken,
+          fromSlotIndex,
+          toSlotIndex,
+        });
+        setBoard(nextBoard);
+      } catch (swapError) {
+        await loadBoard(true);
+        if (swapError instanceof ApiClientError) {
+          setActionError(swapError.message);
+        } else {
+          setActionError('Oyuncular yer değiştirilemedi.');
+        }
+      } finally {
+        setSwappingSlots(null);
+      }
+    },
+    [board, code, loadBoard, session, swappingSlots],
+  );
+
   const activeSlotLabel =
     board?.slots.find((slot) => slot.slotIndex === activeSlotIndex)?.label ?? 'Mevki';
   const pickDrawerDismissible =
@@ -371,7 +446,7 @@ export default function DraftRoomPage(): React.ReactElement {
                   ? 'Herkes hazır — teknik direktör seçimine geçiliyor.'
                   : board.viewerIsReady
                     ? 'Hazırsın. Diğer oyuncular bekleniyor…'
-                    : 'İlk 11 tamamlandı. Kadronu onaylamak için hazır ol.'
+                    : 'İlk 11 tamamlandı. Uygun mevkilerde sürükle-bırak ile yer değiştir, ardından hazır ol.'
                 : 'Boş bir mevkiye tıkla, 5 karttan birini seç ve kadrona yerleştir.'}
             </p>
 
@@ -442,6 +517,11 @@ export default function DraftRoomPage(): React.ReactElement {
                   board={board}
                   activeSlotIndex={activeSlotIndex}
                   onSelectSlot={handleSelectSlot}
+                  reorderable={board.isRosterComplete}
+                  swappingSlotIndex={swappingSlots?.[0] ?? swappingSlots?.[1] ?? null}
+                  onSwapSlots={(fromSlotIndex, toSlotIndex) => {
+                    void handleSwapSlots(fromSlotIndex, toSlotIndex);
+                  }}
                 />
               </div>
               <DraftStatsPanel board={board} />

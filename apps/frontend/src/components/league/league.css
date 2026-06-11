@@ -540,6 +540,12 @@
   background: #fff;
 }
 
+.league-live__live-badge--half {
+  color: #fef3c7;
+  background: rgb(180 83 9 / 88%);
+  animation: none;
+}
+
 @keyframes league-live-pulse {
   0%,
   100% {

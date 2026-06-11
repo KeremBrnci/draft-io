@@ -113,6 +113,7 @@ export interface MatchSimulationConfig {
   readonly targetEventCountMax: number;
   readonly msPerMinute: number;
   readonly warmupDelayMs: number;
+  readonly halfTimeDelayMs: number;
   readonly nextMatchDelayMs: number;
   readonly goalCooldownMinutes: number;
   readonly penaltyMatchRate: number;
@@ -133,6 +134,7 @@ export const DEFAULT_MATCH_SIMULATION_CONFIG: MatchSimulationConfig = {
   targetEventCountMax: 28,
   msPerMinute: 260,
   warmupDelayMs: 3250,
+  halfTimeDelayMs: 3900,
   nextMatchDelayMs: 5200,
   goalCooldownMinutes: 1,
   penaltyMatchRate: 0.25,

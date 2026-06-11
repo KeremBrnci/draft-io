@@ -18,6 +18,7 @@ export interface DraftCardFace {
   readonly imageUrl: string | null;
   readonly rating: number;
   readonly subtitle: string;
+  readonly playablePositionCodes: readonly string[];
   readonly nationalityFlagUrl: string | null;
   readonly nationalityLabel: string;
   readonly teamName: string | null;
@@ -35,6 +36,7 @@ export function toDraftCardFace(card: DraftPoolCard, positionCode: string): Draf
     imageUrl: card.imageUrl,
     rating: card.overall,
     subtitle: positionCode,
+    playablePositionCodes: card.positions.map((position) => position.positionCode),
     nationalityFlagUrl: card.nationalityFlagUrl,
     nationalityLabel: translateNationality(card.nationality),
     teamName: card.teamName,

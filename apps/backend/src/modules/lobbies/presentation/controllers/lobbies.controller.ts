@@ -19,6 +19,7 @@ import {
   ApplyLobbyDraftPickUseCase,
   GetDraftBoardUseCase,
   GetDraftPickOptionsForSlotUseCase,
+  SwapLobbyDraftSlotsUseCase,
 } from '../../application/use-cases/draft-board.use-cases';
 import {
   GetFormationSelectionUseCase,
@@ -40,6 +41,7 @@ import {
   ApplyLobbyDraftPickDto,
   DraftBoardQueryDto,
   DraftPickOptionsQueryDto,
+  SwapLobbyDraftSlotsDto,
 } from '../dto/draft-board.dto';
 import { FormationSelectionQueryDto, SelectFormationDto } from '../dto/formation-selection.dto';
 import { JoinLobbyDto } from '../dto/join-lobby.dto';
@@ -69,6 +71,7 @@ export class LobbiesController {
     private readonly getDraftBoardUseCase: GetDraftBoardUseCase,
     private readonly getDraftPickOptionsForSlotUseCase: GetDraftPickOptionsForSlotUseCase,
     private readonly applyLobbyDraftPickUseCase: ApplyLobbyDraftPickUseCase,
+    private readonly swapLobbyDraftSlotsUseCase: SwapLobbyDraftSlotsUseCase,
     private readonly getTeamReviewUseCase: GetTeamReviewUseCase,
     private readonly startLeagueUseCase: StartLeagueUseCase,
     private readonly getLeagueStateUseCase: GetLeagueStateUseCase,
@@ -262,6 +265,26 @@ export class LobbiesController {
       sessionToken: dto.sessionToken,
       slotIndex: dto.slotIndex,
       cardId: dto.cardId,
+    });
+
+    const state = await this.getDraftBoardUseCase.execute({
+      code: code.toUpperCase(),
+      sessionToken: dto.sessionToken,
+    });
+
+    return { data: toDraftBoardStateDto(state) };
+  }
+
+  @Post('code/:code/draft/swap-slots')
+  async swapDraftSlots(
+    @Param('code') code: string,
+    @Body() dto: SwapLobbyDraftSlotsDto,
+  ): Promise<ApiResponse<ReturnType<typeof toDraftBoardStateDto>>> {
+    await this.swapLobbyDraftSlotsUseCase.execute({
+      code: code.toUpperCase(),
+      sessionToken: dto.sessionToken,
+      fromSlotIndex: dto.fromSlotIndex,
+      toSlotIndex: dto.toSlotIndex,
     });
 
     const state = await this.getDraftBoardUseCase.execute({

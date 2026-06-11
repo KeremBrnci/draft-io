@@ -29,3 +29,21 @@ export class ApplyLobbyDraftPickDto {
   @IsUUID()
   cardId!: string;
 }
+
+export class SwapLobbyDraftSlotsDto {
+  @IsString()
+  @IsNotEmpty()
+  sessionToken!: string;
+
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @Max(11)
+  fromSlotIndex!: number;
+
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @Max(11)
+  toSlotIndex!: number;
+}

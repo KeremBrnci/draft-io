@@ -17,7 +17,17 @@ export function toDraftBoardStateDto(state: DraftBoardState): DraftBoardStateDto
     lobbyCode: state.lobby.code.value,
     phase: state.lobby.phase,
     formation: toFormationSummaryDto(state.formation),
-    slots: buildDraftBoardSlots(state.formation, state.slotAssignments, state.cardFacesById),
+    slots: buildDraftBoardSlots(
+      state.formation,
+      state.slotAssignments,
+      state.cardFacesById,
+      new Map(
+        state.chemistry.players.map((player) => [
+          player.cardId,
+          { chemistry: player.chemistry, sources: player.sources },
+        ]),
+      ),
+    ),
     nextSlotIndex: state.nextSlotIndex,
     rosterSize: state.rosterSize,
     pickCount: state.pickCount,

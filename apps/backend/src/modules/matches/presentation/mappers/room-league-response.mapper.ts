@@ -3,6 +3,7 @@ import {
   formatMatchMinuteLabel,
   type MatchStateDto,
   type MatchTeamLineupDto,
+  type MatchTeamSnapshotDto,
   type RoomLeagueStateDto,
   type TeamReviewStateDto,
 } from '@draft-io/shared-types';
@@ -159,17 +160,37 @@ function resolveDisplayedPlayerRatings(
   return computeLivePlayerRatings(statistics.initialPlayerRatings, events, playerCardIds);
 }
 
-function toTeamLineup(
-  snapshot: RoomMatchRecord['homeSnapshot'],
-  playerRatings: Readonly<Record<string, number>>,
-): MatchTeamLineupDto {
+function normalizeTeamSnapshot(snapshot: RoomMatchRecord['homeSnapshot']): MatchTeamSnapshotDto {
+  const players = snapshot.players ?? [];
+  const computedAverage =
+    players.length === 0
+      ? 0
+      : players.reduce((sum, player) => sum + player.overall, 0) / players.length;
+
   return {
     participantId: snapshot.participantId,
     displayName: snapshot.displayName,
     formationCode: snapshot.formationCode,
-    teamAverageOverall: snapshot.teamAverageOverall,
-    teamChemistry: snapshot.teamChemistry,
-    players: sortLineupPlayersByPosition(snapshot.players).map((player) => ({
+    teamAverageOverall: snapshot.teamAverageOverall ?? computedAverage,
+    teamChemistry: snapshot.teamChemistry ?? 0,
+    matchPower: snapshot.matchPower ?? snapshot.teamAverageOverall ?? computedAverage,
+    players,
+  };
+}
+
+function toTeamLineup(
+  snapshot: RoomMatchRecord['homeSnapshot'],
+  playerRatings: Readonly<Record<string, number>>,
+): MatchTeamLineupDto {
+  const normalized = normalizeTeamSnapshot(snapshot);
+
+  return {
+    participantId: normalized.participantId,
+    displayName: normalized.displayName,
+    formationCode: normalized.formationCode,
+    teamAverageOverall: normalized.teamAverageOverall,
+    teamChemistry: normalized.teamChemistry,
+    players: sortLineupPlayersByPosition(normalized.players).map((player) => ({
       cardId: player.cardId,
       displayName: player.displayName,
       positionCode: player.positionCode,

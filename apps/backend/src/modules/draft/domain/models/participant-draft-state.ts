@@ -96,6 +96,54 @@ export function averageDraftedOverall(
   return sum / drafted.length;
 }
 
+export function swapSlotAssignments(
+  state: ParticipantDraftState,
+  input: {
+    readonly fromSlotIndex: number;
+    readonly toSlotIndex: number;
+    readonly toSlotMetadata: { readonly positionCode: string; readonly slotLabel: string };
+    readonly fromSlotMetadata: { readonly positionCode: string; readonly slotLabel: string };
+  },
+): ParticipantDraftState {
+  const fromAssignment = state.slotAssignments.find(
+    (assignment) => assignment.slotIndex === input.fromSlotIndex,
+  );
+  const toAssignment = state.slotAssignments.find(
+    (assignment) => assignment.slotIndex === input.toSlotIndex,
+  );
+
+  if (fromAssignment === undefined || toAssignment === undefined) {
+    return state;
+  }
+
+  const slotAssignments = state.slotAssignments.map((assignment) => {
+    if (assignment.slotIndex === input.fromSlotIndex) {
+      return {
+        ...assignment,
+        slotIndex: input.toSlotIndex,
+        positionCode: input.toSlotMetadata.positionCode,
+        slotLabel: input.toSlotMetadata.slotLabel,
+      };
+    }
+
+    if (assignment.slotIndex === input.toSlotIndex) {
+      return {
+        ...assignment,
+        slotIndex: input.fromSlotIndex,
+        positionCode: input.fromSlotMetadata.positionCode,
+        slotLabel: input.fromSlotMetadata.slotLabel,
+      };
+    }
+
+    return assignment;
+  });
+
+  return {
+    ...state,
+    slotAssignments,
+  };
+}
+
 export function findNextEmptySlotIndex(
   slotIndexes: readonly number[],
   assignments: readonly DraftSlotAssignment[],

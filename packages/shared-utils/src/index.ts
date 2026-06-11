@@ -11,6 +11,11 @@ export {
   translateTeamName,
 } from './tr-football-display.js';
 export { isImportantMatchEvent } from './match-event-display.js';
+export {
+  canPlayerFillFormationSlot,
+  canSwapDraftSlots,
+  expandFormationSlotPositionCodes,
+} from './formation-slot-eligibility.js';
 export { lineupPositionRank, sortLineupPlayersByPosition } from './lineup-position-order.js';
 export {
   canonicalizePositionCode,

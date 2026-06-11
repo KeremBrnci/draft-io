@@ -7,6 +7,8 @@ import { createPortal } from 'react-dom';
 import { mapCardTypeToVariant } from './map-card-type-to-variant';
 import { mapDraftCardFace } from './map-draft-card-face';
 
+import { DraftPlayerChemistryBadge } from './draft-player-chemistry-badge';
+
 import { FootballCard } from '@/components/cards/football-card';
 import { useBodyScrollLock } from '@/lib/use-body-scroll-lock';
 
@@ -156,9 +158,12 @@ const DraftPickOption = memo(function DraftPickOption({
       </p>
       <div className="draft-pick-drawer__option-footer">
         <div className="draft-pick-drawer__chips">
-          <span className="draft-pick-drawer__chip draft-pick-drawer__chip--chem">
-            +{option.projectedChemistry} kimya
-          </span>
+          <DraftPlayerChemistryBadge
+            chemistry={option.projectedChemistry}
+            showZero
+            suffix="kimya"
+            className="draft-pick-drawer__chip draft-pick-drawer__chip--chem"
+          />
         </div>
         <span className="draft-pick-drawer__pick-hint">Seç</span>
       </div>

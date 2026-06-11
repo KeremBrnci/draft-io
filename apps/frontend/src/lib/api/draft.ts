@@ -32,3 +32,17 @@ export function applyDraftPick(
     body,
   );
 }
+
+export function swapDraftSlots(
+  code: string,
+  body: {
+    readonly sessionToken: string;
+    readonly fromSlotIndex: number;
+    readonly toSlotIndex: number;
+  },
+): Promise<DraftBoardStateDto> {
+  return apiPost<DraftBoardStateDto>(
+    `/lobbies/code/${encodeURIComponent(code.toUpperCase())}/draft/swap-slots`,
+    body,
+  );
+}
