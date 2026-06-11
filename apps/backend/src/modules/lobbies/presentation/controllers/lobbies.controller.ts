@@ -44,8 +44,8 @@ import {
 import { FormationSelectionQueryDto, SelectFormationDto } from '../dto/formation-selection.dto';
 import { JoinLobbyDto } from '../dto/join-lobby.dto';
 import { SetParticipantReadyDto, StartLobbyDto } from '../dto/lobby-ready.dto';
-import { UpdateLobbySettingsDto } from '../dto/update-lobby-settings.dto';
 import { RoomChatQueryDto, SendRoomChatMessageDto } from '../dto/room-chat.dto';
+import { UpdateLobbySettingsDto } from '../dto/update-lobby-settings.dto';
 import { toCoachSelectionState } from '../mappers/coach-selection-response.mapper';
 import { toDraftBoardStateDto } from '../mappers/draft-board-response.mapper';
 import { toFormationSelectionState } from '../mappers/formation-selection-response.mapper';

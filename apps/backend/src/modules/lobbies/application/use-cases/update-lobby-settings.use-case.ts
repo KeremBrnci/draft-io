@@ -1,11 +1,11 @@
-import { LobbyLifecycleService } from '../services/lobby-lifecycle.service';
+import type { LeagueRepository } from '../../../leagues/domain/repositories/league.repository';
+import { LeagueId } from '../../../leagues/domain/value-objects/league-id.vo';
 import type { Lobby } from '../../domain/entities/lobby.entity';
 import { InvalidLobbySessionError, NotLobbyHostError } from '../../domain/errors/lobby.errors';
 import type { LobbyRepository } from '../../domain/repositories/lobby.repository';
 import { LobbyCode } from '../../domain/value-objects/lobby-code.vo';
 import { SessionToken } from '../../domain/value-objects/session-token.vo';
-import type { LeagueRepository } from '../../../leagues/domain/repositories/league.repository';
-import { LeagueId } from '../../../leagues/domain/value-objects/league-id.vo';
+import { LobbyLifecycleService } from '../services/lobby-lifecycle.service';
 
 export class UpdateLobbySettingsUseCase {
   private readonly lifecycle: LobbyLifecycleService;

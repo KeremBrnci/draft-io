@@ -7,7 +7,6 @@ import {
   type TeamReviewStateDto,
 } from '@draft-io/shared-types';
 
-import { computeLivePlayerRatings } from '../../domain/services/match-player-ratings.service';
 import type { Lobby } from '../../../lobbies/domain/entities/lobby.entity';
 import { RoomPhase } from '../../../lobbies/domain/enums/room-phase.enum';
 import {
@@ -22,6 +21,7 @@ import type {
   RoomMatchStatisticRecord,
   RoomStandingRecord,
 } from '../../domain/repositories/room-league.repository';
+import { computeLivePlayerRatings } from '../../domain/services/match-player-ratings.service';
 
 export function toTeamReviewStateDto(
   lobby: Lobby,

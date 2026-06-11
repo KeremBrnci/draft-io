@@ -4,7 +4,7 @@ import type {
   LobbyParticipantCoachOption as PrismaCoachOption,
   LobbyParticipantFormationOption as PrismaFormationOption,
 } from '@prisma/client';
-import { Prisma } from '@prisma/client';
+import { type Prisma } from '@prisma/client';
 
 import { LobbyParticipant } from '../../domain/entities/lobby-participant.entity';
 import { Lobby } from '../../domain/entities/lobby.entity';
@@ -63,7 +63,7 @@ export function toLobbyPersistence(lobby: Lobby): {
       status: lobby.status,
       phase: lobby.phase,
       maxPlayers: lobby.maxPlayers,
-      draftLeagueIds: [...lobby.draftLeagueIds] as unknown as Prisma.InputJsonValue,
+      draftLeagueIds: [...lobby.draftLeagueIds],
       expiresAt: lobby.expiresAt,
       formationSelectionStartedAt: lobby.formationSelectionStartedAt,
       formationSelectionDeadline: lobby.formationSelectionDeadline,

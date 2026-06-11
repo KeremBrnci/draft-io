@@ -6,7 +6,6 @@ import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../../../infrastructure/database/prisma.service';
 import type { MatchTeamSnapshot } from '../../../simulation/domain/models/match-simulation.types';
 import { generateDoubleRoundRobinFixtures } from '../../../simulation/domain/services/fixture-generator.service';
-import { isLeagueSeasonComplete } from '../../domain/services/league-season.service';
 import type {
   CreateLeagueInput,
   CreateMatchInput,
@@ -17,6 +16,7 @@ import type {
   RoomMatchRecord,
   RoomStandingRecord,
 } from '../../domain/repositories/room-league.repository';
+import { isLeagueSeasonComplete } from '../../domain/services/league-season.service';
 
 @Injectable()
 export class PrismaRoomLeagueRepository implements RoomLeagueRepository {
