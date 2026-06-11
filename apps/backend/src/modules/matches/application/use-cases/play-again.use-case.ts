@@ -23,10 +23,7 @@ export class PlayAgainUseCase {
     this.lifecycle = new LobbyLifecycleService(lobbyRepository);
   }
 
-  async execute(command: {
-    readonly code: string;
-    readonly sessionToken: string;
-  }): Promise<Lobby> {
+  async execute(command: { readonly code: string; readonly sessionToken: string }): Promise<Lobby> {
     const lobby = await this.lifecycle.requireActiveLobby(LobbyCode.create(command.code));
     const participant = lobby.findParticipantBySessionToken(
       SessionToken.reconstitute(command.sessionToken),
