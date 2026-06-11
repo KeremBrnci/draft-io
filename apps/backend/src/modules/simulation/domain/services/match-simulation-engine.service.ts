@@ -1,8 +1,12 @@
+import { deriveMatchStoppageTime } from '@draft-io/shared-types';
+
 import type {
   GeneratedMatchEvent,
+  MatchGoalProfile,
   MatchPlayerSnapshot,
   MatchSimulationConfig,
   MatchStatisticsSnapshot,
+  MutableMatchStatCounters,
   MatchTeamSide,
   MatchTeamSnapshot,
   SimulatedMatchResult,
@@ -14,6 +18,26 @@ interface SeededRng {
   int(min: number, max: number): number;
   pick<T>(items: readonly T[]): T;
   shuffle<T>(items: readonly T[]): T[];
+}
+
+interface GoalCooldownTracker {
+  isBlocked(minute: number): boolean;
+  mark(minute: number): void;
+}
+
+function createGoalCooldownTracker(cooldownMinutes: number): GoalCooldownTracker {
+  const blockedMinutes = new Set<number>();
+
+  return {
+    isBlocked(minute: number): boolean {
+      return blockedMinutes.has(minute);
+    },
+    mark(minute: number): void {
+      for (let offset = 1; offset <= cooldownMinutes; offset += 1) {
+        blockedMinutes.add(minute + offset);
+      }
+    },
+  };
 }
 
 function createRng(seed: number): SeededRng {
@@ -70,31 +94,23 @@ export class MatchSimulationEngine {
     const rng = createRng(input.seed);
     const homeStrength = this.teamStrength(input.home, true);
     const awayStrength = this.teamStrength(input.away, false);
+    const goalProfile = this.sampleGoalProfile(rng);
+    const minimumGoals = this.minimumGoalsForProfile(goalProfile);
+    const goalChanceMultiplier = this.goalChanceMultiplierForProfile(goalProfile);
+    const scheduledPenalty = rng.next() < this.config.penaltyMatchRate;
 
     let homeMomentum = 0;
     let awayMomentum = 0;
     let homeScore = 0;
     let awayScore = 0;
+    let halfTimeHomeScore = 0;
+    let halfTimeAwayScore = 0;
     let homeXg = 0;
     let awayXg = 0;
 
-    const stats: {
-      homeShots: number;
-      awayShots: number;
-      homeShotsOnTarget: number;
-      awayShotsOnTarget: number;
-      homeCorners: number;
-      awayCorners: number;
-      homeFouls: number;
-      awayFouls: number;
-      homeYellowCards: number;
-      awayYellowCards: number;
-      homeRedCards: number;
-      awayRedCards: number;
-      homeDangerousAttacks: number;
-      awayDangerousAttacks: number;
-    } = this.emptyStats();
+    const stats: MutableMatchStatCounters = this.emptyStats();
     const events: GeneratedMatchEvent[] = [];
+    const goalCooldown = createGoalCooldownTracker(this.config.goalCooldownMinutes);
     const playerRatings = new Map<string, number>();
 
     for (const player of [...input.home.players, ...input.away.players]) {
@@ -179,7 +195,10 @@ export class MatchSimulationEngine {
       const shotType = this.pickShotType(rng);
       const shooter = this.pickShooter(attackingTeam, shotType, rng);
       const xg = this.xgForShot(shotType, shooter.overall, defendingTeam.matchPower);
-      const goalChance = Math.min(0.94, xg * (1.45 + rng.next() * 0.55));
+      const goalChance = Math.min(
+        0.94,
+        xg * (1.42 + rng.next() * 0.48) * goalChanceMultiplier,
+      );
 
       if (attackingSide === 'HOME') {
         stats.homeShots += 1;
@@ -209,9 +228,11 @@ export class MatchSimulationEngine {
           xgValue: xg,
           isGoal: false,
         });
+        goalCooldown.mark(minute);
       }
 
-      if (rng.next() < goalChance) {
+      const canScoreGoal = !goalCooldown.isBlocked(minute);
+      if (canScoreGoal && rng.next() < goalChance) {
         if (shotType !== 'PENALTY') {
           events.push(this.buildGoalChance(minute, attackingSide, attackingTeam));
         }
@@ -235,10 +256,16 @@ export class MatchSimulationEngine {
           homeScore += 1;
           homeMomentum += 0.15;
           awayMomentum -= 0.1;
+          if (minute <= 45) {
+            halfTimeHomeScore = homeScore;
+          }
         } else {
           awayScore += 1;
           awayMomentum += 0.15;
           homeMomentum -= 0.1;
+          if (minute <= 45) {
+            halfTimeAwayScore = awayScore;
+          }
         }
 
         this.bumpRating(playerRatings, shooter.cardId, 1.1);
@@ -260,6 +287,7 @@ export class MatchSimulationEngine {
           xgValue: xg,
           isGoal: true,
         });
+        goalCooldown.mark(minute);
         continue;
       }
 
@@ -313,6 +341,65 @@ export class MatchSimulationEngine {
       });
     }
 
+    if (scheduledPenalty) {
+      const penaltyResult = this.injectPenalty({
+        home: input.home,
+        away: input.away,
+        homeStrength,
+        awayStrength,
+        events,
+        stats,
+        playerRatings,
+        homeScore,
+        awayScore,
+        halfTimeHomeScore,
+        halfTimeAwayScore,
+        homeXg,
+        awayXg,
+        rng,
+        goalCooldown,
+        goalChanceMultiplier,
+      });
+      homeScore = penaltyResult.homeScore;
+      awayScore = penaltyResult.awayScore;
+      halfTimeHomeScore = penaltyResult.halfTimeHomeScore;
+      halfTimeAwayScore = penaltyResult.halfTimeAwayScore;
+      homeXg = penaltyResult.homeXg;
+      awayXg = penaltyResult.awayXg;
+    }
+
+    const goalsNeeded = Math.max(0, minimumGoals - (homeScore + awayScore));
+    if (goalsNeeded > 0) {
+      const injected = this.injectGoals({
+        count: goalsNeeded,
+        home: input.home,
+        away: input.away,
+        homeStrength,
+        awayStrength,
+        events,
+        stats,
+        playerRatings,
+        homeScore,
+        awayScore,
+        halfTimeHomeScore,
+        halfTimeAwayScore,
+        homeXg,
+        awayXg,
+        rng,
+        goalCooldown,
+      });
+      homeScore = injected.homeScore;
+      awayScore = injected.awayScore;
+      halfTimeHomeScore = injected.halfTimeHomeScore;
+      halfTimeAwayScore = injected.halfTimeAwayScore;
+      homeXg = injected.homeXg;
+      awayXg = injected.awayXg;
+    }
+
+    events.sort((left, right) => left.minute - right.minute);
+
+    const stoppage = deriveMatchStoppageTime(input.seed);
+
     events.push({
       minute: 45,
       eventType: 'HALF_TIME',
@@ -320,7 +407,7 @@ export class MatchSimulationEngine {
       playerName: null,
       secondaryPlayerName: null,
       cardId: null,
-      commentary: `İlk yarı sona erdi: ${input.home.displayName} ${homeScore} - ${awayScore} ${input.away.displayName}`,
+      commentary: `İlk yarı sona erdi (+${stoppage.firstHalfMinutes}): ${input.home.displayName} ${halfTimeHomeScore} - ${halfTimeAwayScore} ${input.away.displayName}`,
       xgValue: null,
       isGoal: false,
     });
@@ -332,7 +419,7 @@ export class MatchSimulationEngine {
       playerName: null,
       secondaryPlayerName: null,
       cardId: null,
-      commentary: `Maç bitti: ${input.home.displayName} ${homeScore} - ${awayScore} ${input.away.displayName}`,
+      commentary: `Maç bitti (+${stoppage.secondHalfMinutes}): ${input.home.displayName} ${homeScore} - ${awayScore} ${input.away.displayName}`,
       xgValue: null,
       isGoal: false,
     });
@@ -355,6 +442,346 @@ export class MatchSimulationEngine {
       manOfTheMatchCardId,
       seed: input.seed,
     };
+  }
+
+  private sampleGoalProfile(rng: SeededRng): MatchGoalProfile {
+    const roll = rng.next();
+    if (roll < this.config.goalDistribution.scorelessMatchRate) {
+      return 'scoreless';
+    }
+    if (roll < this.config.goalDistribution.scorelessMatchRate + this.config.goalDistribution.thrillerMatchRate) {
+      return 'thriller';
+    }
+    return 'lively';
+  }
+
+  private minimumGoalsForProfile(profile: MatchGoalProfile): number {
+    if (profile === 'scoreless') {
+      return 0;
+    }
+    if (profile === 'thriller') {
+      return 3;
+    }
+    return 1;
+  }
+
+  private goalChanceMultiplierForProfile(profile: MatchGoalProfile): number {
+    if (profile === 'scoreless') {
+      return 0;
+    }
+    if (profile === 'thriller') {
+      return this.config.goalDistribution.thrillerGoalChanceMultiplier;
+    }
+    return this.config.goalDistribution.livelyGoalChanceMultiplier;
+  }
+
+  private injectGoals(input: {
+    readonly count: number;
+    readonly home: MatchTeamSnapshot;
+    readonly away: MatchTeamSnapshot;
+    readonly homeStrength: number;
+    readonly awayStrength: number;
+    readonly events: GeneratedMatchEvent[];
+    stats: MutableMatchStatCounters;
+    readonly playerRatings: Map<string, number>;
+    readonly homeScore: number;
+    readonly awayScore: number;
+    readonly halfTimeHomeScore: number;
+    readonly halfTimeAwayScore: number;
+    readonly homeXg: number;
+    readonly awayXg: number;
+    readonly rng: SeededRng;
+    readonly goalCooldown: GoalCooldownTracker;
+  }): {
+    homeScore: number;
+    awayScore: number;
+    halfTimeHomeScore: number;
+    halfTimeAwayScore: number;
+    homeXg: number;
+    awayXg: number;
+  } {
+    const usedMinutes = new Set(input.events.map((event) => event.minute));
+    let homeScore = input.homeScore;
+    let awayScore = input.awayScore;
+    let halfTimeHomeScore = input.halfTimeHomeScore;
+    let halfTimeAwayScore = input.halfTimeAwayScore;
+    let homeXg = input.homeXg;
+    let awayXg = input.awayXg;
+
+    for (let index = 0; index < input.count; index += 1) {
+      const minute = this.pickOpenGoalMinute(
+        input.rng,
+        usedMinutes,
+        input.goalCooldown,
+        input.events,
+      );
+      if (minute === null) {
+        break;
+      }
+      usedMinutes.add(minute);
+
+      const attackingSide = this.pickAttackingSide(
+        input.homeStrength,
+        input.awayStrength,
+        0,
+        0,
+        input.rng,
+      );
+      const attackingTeam = attackingSide === 'HOME' ? input.home : input.away;
+      const defendingTeam = attackingSide === 'HOME' ? input.away : input.home;
+      const shotType = this.pickShotType(input.rng);
+      const shooter = this.pickShooter(attackingTeam, shotType, input.rng);
+      const xg = this.xgForShot(shotType, shooter.overall, defendingTeam.matchPower);
+      const assister = this.pickAssister(attackingTeam, shooter, input.rng);
+
+      input.events.push(this.buildGoalChance(minute, attackingSide, attackingTeam));
+      input.events.push({
+        minute,
+        eventType: 'GOAL',
+        teamSide: attackingSide,
+        playerName: shooter.displayName,
+        secondaryPlayerName: assister?.displayName ?? null,
+        cardId: shooter.cardId,
+        commentary: this.goalCommentary(
+          shooter.displayName,
+          attackingTeam.displayName,
+          shotType,
+          input.rng,
+          assister?.displayName ?? null,
+        ),
+        xgValue: xg,
+        isGoal: true,
+      });
+
+      if (attackingSide === 'HOME') {
+        homeScore += 1;
+        input.stats.homeShots += 1;
+        input.stats.homeShotsOnTarget += 1;
+        input.stats.homeDangerousAttacks += 1;
+        homeXg += xg;
+        if (minute <= 45) {
+          halfTimeHomeScore = homeScore;
+        }
+      } else {
+        awayScore += 1;
+        input.stats.awayShots += 1;
+        input.stats.awayShotsOnTarget += 1;
+        input.stats.awayDangerousAttacks += 1;
+        awayXg += xg;
+        if (minute <= 45) {
+          halfTimeAwayScore = awayScore;
+        }
+      }
+
+      this.bumpRating(input.playerRatings, shooter.cardId, 1.1);
+      input.goalCooldown.mark(minute);
+    }
+
+    return {
+      homeScore,
+      awayScore,
+      halfTimeHomeScore,
+      halfTimeAwayScore,
+      homeXg: round2(homeXg),
+      awayXg: round2(awayXg),
+    };
+  }
+
+  private injectPenalty(input: {
+    readonly home: MatchTeamSnapshot;
+    readonly away: MatchTeamSnapshot;
+    readonly homeStrength: number;
+    readonly awayStrength: number;
+    readonly events: GeneratedMatchEvent[];
+    stats: MutableMatchStatCounters;
+    readonly playerRatings: Map<string, number>;
+    readonly homeScore: number;
+    readonly awayScore: number;
+    readonly halfTimeHomeScore: number;
+    readonly halfTimeAwayScore: number;
+    readonly homeXg: number;
+    readonly awayXg: number;
+    readonly rng: SeededRng;
+    readonly goalCooldown: GoalCooldownTracker;
+    readonly goalChanceMultiplier: number;
+  }): {
+    homeScore: number;
+    awayScore: number;
+    halfTimeHomeScore: number;
+    halfTimeAwayScore: number;
+    homeXg: number;
+    awayXg: number;
+  } {
+    const usedMinutes = new Set(input.events.map((event) => event.minute));
+    const minute = this.pickOpenPenaltyMinute(input.rng, usedMinutes, input.events);
+    if (minute === null) {
+      return {
+        homeScore: input.homeScore,
+        awayScore: input.awayScore,
+        halfTimeHomeScore: input.halfTimeHomeScore,
+        halfTimeAwayScore: input.halfTimeAwayScore,
+        homeXg: input.homeXg,
+        awayXg: input.awayXg,
+      };
+    }
+
+    let homeScore = input.homeScore;
+    let awayScore = input.awayScore;
+    let halfTimeHomeScore = input.halfTimeHomeScore;
+    let halfTimeAwayScore = input.halfTimeAwayScore;
+    let homeXg = input.homeXg;
+    let awayXg = input.awayXg;
+
+    const attackingSide = this.pickAttackingSide(
+      input.homeStrength,
+      input.awayStrength,
+      0,
+      0,
+      input.rng,
+    );
+    const attackingTeam = attackingSide === 'HOME' ? input.home : input.away;
+    const defendingTeam = attackingSide === 'HOME' ? input.away : input.home;
+    const shooter = this.pickShooter(attackingTeam, 'PENALTY', input.rng);
+    const xg = this.xgForShot('PENALTY', shooter.overall, defendingTeam.matchPower);
+    const goalChance = Math.min(
+      0.94,
+      xg * (1.42 + input.rng.next() * 0.48) * input.goalChanceMultiplier,
+    );
+
+    input.events.push({
+      minute,
+      eventType: 'PENALTY',
+      teamSide: attackingSide,
+      playerName: shooter.displayName,
+      secondaryPlayerName: null,
+      cardId: shooter.cardId,
+      commentary: `Penaltı kararı! ${this.labelPlayer(shooter.displayName, attackingTeam.displayName)} topun başında.`,
+      xgValue: xg,
+      isGoal: false,
+    });
+    input.goalCooldown.mark(minute);
+
+    if (attackingSide === 'HOME') {
+      input.stats.homeShots += 1;
+      input.stats.homeShotsOnTarget += 1;
+      homeXg += xg;
+    } else {
+      input.stats.awayShots += 1;
+      input.stats.awayShotsOnTarget += 1;
+      awayXg += xg;
+    }
+
+    const canScoreGoal = !input.goalCooldown.isBlocked(minute);
+    if (canScoreGoal && input.rng.next() < goalChance) {
+      if (attackingSide === 'HOME') {
+        homeScore += 1;
+        if (minute <= 45) {
+          halfTimeHomeScore = homeScore;
+        }
+      } else {
+        awayScore += 1;
+        if (minute <= 45) {
+          halfTimeAwayScore = awayScore;
+        }
+      }
+
+      this.bumpRating(input.playerRatings, shooter.cardId, 1.1);
+      input.events.push({
+        minute,
+        eventType: 'GOAL',
+        teamSide: attackingSide,
+        playerName: shooter.displayName,
+        secondaryPlayerName: null,
+        cardId: shooter.cardId,
+        commentary: this.goalCommentary(
+          shooter.displayName,
+          attackingTeam.displayName,
+          'PENALTY',
+          input.rng,
+          null,
+        ),
+        xgValue: xg,
+        isGoal: true,
+      });
+      input.goalCooldown.mark(minute);
+    } else {
+      input.events.push({
+        minute,
+        eventType: 'MISSED_PENALTY',
+        teamSide: attackingSide,
+        playerName: shooter.displayName,
+        secondaryPlayerName: null,
+        cardId: shooter.cardId,
+        commentary: `Kurtarış! ${this.labelPlayer(shooter.displayName, attackingTeam.displayName)} penaltıyı kaçırdı.`,
+        xgValue: xg,
+        isGoal: false,
+      });
+    }
+
+    return {
+      homeScore,
+      awayScore,
+      halfTimeHomeScore,
+      halfTimeAwayScore,
+      homeXg: round2(homeXg),
+      awayXg: round2(awayXg),
+    };
+  }
+
+  private pickOpenPenaltyMinute(
+    rng: SeededRng,
+    usedMinutes: ReadonlySet<number>,
+    events: readonly GeneratedMatchEvent[],
+  ): number | null {
+    const candidates = Array.from({ length: 71 }, (_, index) => index + 15).filter(
+      (minute) =>
+        !usedMinutes.has(minute) &&
+        !this.hasScoringAtMinute(events, minute - 1) &&
+        !this.hasGoalAtMinute(events, minute + 1),
+    );
+
+    if (candidates.length === 0) {
+      return null;
+    }
+
+    return rng.pick(candidates);
+  }
+
+  private pickOpenGoalMinute(
+    rng: SeededRng,
+    usedMinutes: ReadonlySet<number>,
+    goalCooldown: GoalCooldownTracker,
+    events: readonly GeneratedMatchEvent[],
+  ): number | null {
+    const candidates = Array.from({ length: 79 }, (_, index) => index + 10).filter(
+      (minute) =>
+        !usedMinutes.has(minute) &&
+        !goalCooldown.isBlocked(minute) &&
+        !this.hasScoringAtMinute(events, minute - 1) &&
+        !this.hasGoalAtMinute(events, minute + 1),
+    );
+
+    if (candidates.length === 0) {
+      return null;
+    }
+
+    return rng.pick(candidates);
+  }
+
+  private hasScoringAtMinute(events: readonly GeneratedMatchEvent[], minute: number): boolean {
+    if (minute < 0) {
+      return false;
+    }
+
+    return events.some(
+      (event) =>
+        event.minute === minute &&
+        (event.eventType === 'GOAL' || event.eventType === 'PENALTY'),
+    );
+  }
+
+  private hasGoalAtMinute(events: readonly GeneratedMatchEvent[], minute: number): boolean {
+    return events.some((event) => event.minute === minute && event.eventType === 'GOAL');
   }
 
   private teamStrength(team: MatchTeamSnapshot, isHome: boolean): number {
@@ -381,7 +808,6 @@ export class MatchSimulationEngine {
 
   private pickShotType(rng: SeededRng): keyof typeof XG_BY_ATTACK {
     const roll = rng.next();
-    if (roll < 0.06) return 'PENALTY';
     if (roll < 0.16) return 'ONE_ON_ONE';
     if (roll < 0.34) return 'BOX_SHOT';
     if (roll < 0.5) return 'HEADER';
@@ -604,10 +1030,7 @@ export class MatchSimulationEngine {
     return rng.pick(lines);
   }
 
-  private emptyStats(): Omit<
-    MatchStatisticsSnapshot,
-    'homePossession' | 'awayPossession' | 'playerRatings'
-  > {
+  private emptyStats(): MutableMatchStatCounters {
     return {
       homeShots: 0,
       awayShots: 0,

@@ -4,6 +4,7 @@ import type { RoomFixtureDto, RoomLeagueStandingDto } from '@draft-io/shared-typ
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 
+import { PlayButton } from '@/components/play/play-button';
 import { useBodyScrollLock } from '@/lib/use-body-scroll-lock';
 
 import './match-results.css';
@@ -59,13 +60,15 @@ export function MatchResultsOverlay({
       aria-modal="true"
       aria-labelledby="league-results-title"
     >
-      <div className="league-results__panel">
+      <div className="app-overlay__backdrop league-results__backdrop" aria-hidden />
+      <div className="app-overlay__panel league-results__panel">
         <p className="league-results__eyebrow">Maç sonu</p>
         <h2 id="league-results-title" className="league-results__title">
           Lig sonuçları
         </h2>
         <p className="league-results__subtitle">
           Galibiyet 3 puan · Beraberlik 1 puan · Mağlubiyet 0 puan
+          {!isFinalMatch ? ' · Sonraki tur kısa süre içinde otomatik başlar' : ''}
         </p>
 
         <section className="league-results__section" aria-label="Oynanan maçlar">
@@ -78,7 +81,7 @@ export function MatchResultsOverlay({
                   key={fixture.id}
                   className={`league-results__fixture${isLatest ? ' league-results__fixture--latest' : ''}`}
                 >
-                  <span className="league-results__fixture-round">#{fixture.roundNumber}</span>
+                  <span className="league-results__fixture-round">T{fixture.scheduleRound}</span>
                   <span className="league-results__fixture-home">{fixture.homeDisplayName}</span>
                   <span className="league-results__fixture-score">
                     {formatFixtureScore(fixture)}
@@ -93,36 +96,39 @@ export function MatchResultsOverlay({
 
         <section className="league-results__section" aria-label="Güncel puan durumu">
           <h3 className="league-results__section-title">Puan durumu</h3>
-          <table className="league-results__table">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Takım</th>
-                <th>O</th>
-                <th>P</th>
-              </tr>
-            </thead>
-            <tbody>
-              {standings.map((row) => (
-                <tr key={row.participantId}>
-                  <td>{row.rank}</td>
-                  <td>{row.displayName}</td>
-                  <td>{row.played}</td>
-                  <td>{row.points}</td>
+          <div className="league-results__table-wrap">
+            <table className="league-results__table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Takım</th>
+                  <th>O</th>
+                  <th>P</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {standings.map((row) => (
+                  <tr key={row.participantId}>
+                    <td>{row.rank}</td>
+                    <td>{row.displayName}</td>
+                    <td>{row.played}</td>
+                    <td>{row.points}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </section>
 
-        <button
+        <PlayButton
           type="button"
-          className="play-btn play-btn--primary league-results__cta"
-          disabled={loading}
+          className="play-btn--primary league-results__cta"
+          loading={loading}
+          loadingLabel="Yükleniyor…"
           onClick={onContinue}
         >
-          {loading ? 'Başlatılıyor…' : isFinalMatch ? 'Şampiyonu Gör' : 'Sonraki Maça Devam'}
-        </button>
+          {isFinalMatch ? 'Şampiyonu Gör' : 'Sonraki Maça Devam'}
+        </PlayButton>
       </div>
     </div>,
     getPortalRoot(),

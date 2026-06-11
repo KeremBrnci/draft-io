@@ -2,28 +2,33 @@
 
 import type { TeamReviewStateDto } from '@draft-io/shared-types';
 import Link from 'next/link';
-import { useParams, useRouter } from 'next/navigation';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useParams } from 'next/navigation';
+import { useCallback, useMemo, useState, startTransition } from 'react';
 
 import '@/components/league/league.css';
+import { PlayButton } from '@/components/play/play-button';
 import { PlayGameBackdrop } from '@/components/play/play-game-backdrop';
 import { PlayLoadingState } from '@/components/play/play-loading-state';
 import { PlayStageRail } from '@/components/play/play-stage-rail';
+import { runDelayedAction } from '@/lib/action-feedback-delay';
 import { ApiClientError } from '@/lib/api/client';
 import { getTeamReview, startLeague } from '@/lib/api/league';
 import { clearLobbySession, readLobbySession } from '@/lib/lobby-session';
-import { useRoomSocket } from '@/lib/room-socket';
+import { TEAM_REVIEW_REFRESH_EVENTS } from '@/lib/lobby-stage-events';
+import { applyIfChanged } from '@/lib/stable-state';
+import { useLobbyStageSync } from '@/lib/use-lobby-stage-sync';
+import { usePhaseRedirect } from '@/lib/use-phase-redirect';
 
 import '../../../play.css';
 
 export default function TeamReviewPage(): React.ReactElement {
   const params = useParams<{ code: string }>();
-  const router = useRouter();
   const code = params.code.toUpperCase();
   const session = useMemo(() => readLobbySession(code), [code]);
   const [state, setState] = useState<TeamReviewStateDto | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const redirectForPhase = usePhaseRedirect(code);
 
   const load = useCallback(async (): Promise<void> => {
     if (session === null) {
@@ -33,15 +38,18 @@ export default function TeamReviewPage(): React.ReactElement {
 
     try {
       const next = await getTeamReview(code, session.sessionToken);
-      setState(next);
-      setError(null);
+      startTransition(() => {
+        setState((current) => applyIfChanged(current, next));
+        setError(null);
+      });
+
       if (next.phase === 'COACH_SELECTION') {
-        router.replace(`/play/room/${code}/coach-selection`);
+        redirectForPhase('COACH_SELECTION');
         return;
       }
 
       if (next.phase === 'MATCHES') {
-        router.replace(`/play/room/${code}/league`);
+        redirectForPhase('MATCHES');
       }
     } catch (loadError) {
       if (
@@ -54,31 +62,29 @@ export default function TeamReviewPage(): React.ReactElement {
       }
       setError('Takım inceleme ekranı yüklenemedi.');
     }
-  }, [code, router, session]);
+  }, [code, redirectForPhase, session]);
 
-  useEffect(() => {
-    void load();
-  }, [load]);
-
-  useRoomSocket(code, (event) => {
-    if (event === 'TEAMS_READY' || event === 'LEAGUE_READY' || event === 'MATCH_STARTED') {
-      void load();
-    }
+  useLobbyStageSync({
+    lobbyCode: code,
+    onRefresh: load,
+    pollIntervalMs: 4000,
+    enabled: !loading,
+    refreshEvents: TEAM_REVIEW_REFRESH_EVENTS,
   });
 
   async function handleStartLeague(): Promise<void> {
-    if (session === null) {
+    if (session === null || loading) {
       return;
     }
-    setLoading(true);
-    try {
-      await startLeague(code, session.sessionToken);
-      router.push(`/play/room/${code}/league`);
-    } catch {
-      setError('Lig başlatılamadı.');
-    } finally {
-      setLoading(false);
-    }
+
+    await runDelayedAction(setLoading, async () => {
+      try {
+        await startLeague(code, session.sessionToken);
+        redirectForPhase('MATCHES');
+      } catch {
+        setError('Lig başlatılamadı.');
+      }
+    });
   }
 
   const canStartLeague = state?.canStartLeague === true;
@@ -139,16 +145,17 @@ export default function TeamReviewPage(): React.ReactElement {
             </div>
 
             {canStartLeague ? (
-              <button
+              <PlayButton
                 type="button"
-                className="play-btn play-btn--primary"
-                disabled={loading}
+                className="play-btn--primary"
+                loading={loading}
+                loadingLabel="Başlatılıyor…"
                 onClick={() => {
                   void handleStartLeague();
                 }}
               >
-                {loading ? 'Başlatılıyor…' : '🏟️ Ligi Başlat'}
-              </button>
+                🏟️ Ligi Başlat
+              </PlayButton>
             ) : (
               <p className="play-subtitle">Kurucunun ligi başlatması bekleniyor…</p>
             )}

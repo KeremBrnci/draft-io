@@ -89,6 +89,21 @@ export function formatCardNameLines(displayName: string): CardNameLines {
   return { firstLine: given, secondLine: surname };
 }
 
+function abbreviateGivenNameForCard(given: string): string {
+  if (given.length <= 10) {
+    return given;
+  }
+
+  const parts = given.split(/\s+/);
+  if (parts.length === 1) {
+    return `${given.charAt(0)}.`;
+  }
+
+  return parts
+    .map((part) => (part.length > 2 ? `${part.charAt(0)}.` : part))
+    .join(' ');
+}
+
 /** Prefer split lines for multi-word names so surnames stay readable on narrow cards. */
 export function formatCardNameForDisplay(displayName: string): {
   readonly mode: 'single' | 'split';
@@ -97,12 +112,16 @@ export function formatCardNameForDisplay(displayName: string): {
 } {
   const trimmed = displayName.trim();
   const lines = formatCardNameLines(trimmed);
-  const useSplit = lines.firstLine.length > 0 && lines.secondLine.length > 0;
+  const cardLines: CardNameLines = {
+    firstLine: abbreviateGivenNameForCard(lines.firstLine),
+    secondLine: lines.secondLine,
+  };
+  const useSplit = cardLines.firstLine.length > 0 && cardLines.secondLine.length > 0;
 
   return {
     mode: useSplit ? 'split' : 'single',
     singleLine: trimmed,
-    lines,
+    lines: cardLines,
   };
 }
 

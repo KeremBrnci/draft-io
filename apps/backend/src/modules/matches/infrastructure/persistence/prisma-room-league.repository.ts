@@ -160,7 +160,7 @@ export class PrismaRoomLeagueRepository implements RoomLeagueRepository {
     const record = await this.prisma.roomMatch.findFirst({
       where: {
         leagueId,
-        status: { in: ['LIVE', 'HALF_TIME', 'PAUSED'] },
+        status: { in: ['PRE_MATCH', 'LIVE', 'HALF_TIME', 'PAUSED'] },
       },
       orderBy: { createdAt: 'desc' },
     });
@@ -349,7 +349,7 @@ export class PrismaRoomLeagueRepository implements RoomLeagueRepository {
 
     await this.prisma.roomMatch.update({
       where: { id: input.matchId },
-      data: { status: 'FULL_TIME', currentMinute: 90, finishedAt: new Date() },
+      data: { status: 'FULL_TIME', finishedAt: new Date() },
     });
 
     const homeStanding = await this.prisma.roomLeagueStanding.findFirst({

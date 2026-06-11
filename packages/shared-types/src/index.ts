@@ -78,10 +78,12 @@ export type {
 export type {
   MatchEventDto,
   MatchEventTypeDto,
+  MatchMinuteMilestones,
   MatchPlayerSnapshotDto,
   MatchStateDto,
   MatchStatisticsDto,
   MatchStatusDto,
+  MatchStoppageTimeDto,
   MatchTeamSideDto,
   MatchTeamSnapshotDto,
   RoomFixtureDto,
@@ -90,6 +92,12 @@ export type {
   RoomLeagueStatusDto,
   TeamReviewParticipantDto,
   TeamReviewStateDto,
+} from './matches/index.js';
+export {
+  deriveMatchStoppageTime,
+  formatMatchMinuteLabel,
+  getMatchMinuteMilestones,
+  mapEventToInternalMinute,
 } from './matches/index.js';
 export type {
   AdminDashboardMetricsDto,

@@ -29,6 +29,7 @@ interface DraftParticipantRecord {
   surpriseCredit: number;
   elitePicksTaken: number;
   draftedCardIds: unknown;
+  recentlyOfferedPlayerIds?: unknown;
   slotAssignments: unknown;
   pickCount: number;
 }
@@ -52,6 +53,7 @@ export function toParticipantDomain(record: DraftParticipantRecord): Participant
     : [];
 
   const slotAssignments = parseSlotAssignments(record.slotAssignments);
+  const recentlyOfferedPlayerIds = parseStringArray(record.recentlyOfferedPlayerIds);
 
   return {
     participantId: record.lobbyParticipantId,
@@ -61,6 +63,7 @@ export function toParticipantDomain(record: DraftParticipantRecord): Participant
     surpriseCredit: record.surpriseCredit,
     elitePicksTaken: record.elitePicksTaken,
     draftedCardIds,
+    recentlyOfferedPlayerIds,
     slotAssignments,
     pickCount: record.pickCount,
   };
@@ -86,6 +89,7 @@ export function toDraftSessionPersistence(session: DraftSession): {
     surpriseCredit: number;
     elitePicksTaken: number;
     draftedCardIds: Prisma.InputJsonValue;
+    recentlyOfferedPlayerIds: Prisma.InputJsonValue;
     slotAssignments: Prisma.InputJsonValue;
     pickCount: number;
   }[];
@@ -110,10 +114,19 @@ export function toDraftSessionPersistence(session: DraftSession): {
       surpriseCredit: participant.surpriseCredit,
       elitePicksTaken: participant.elitePicksTaken,
       draftedCardIds: [...participant.draftedCardIds],
+      recentlyOfferedPlayerIds: [...participant.recentlyOfferedPlayerIds],
       slotAssignments: [...participant.slotAssignments] as unknown as Prisma.InputJsonValue,
       pickCount: participant.pickCount,
     })),
   };
+}
+
+function parseStringArray(value: unknown): readonly string[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value.filter((entry): entry is string => typeof entry === 'string');
 }
 
 function parseSlotAssignments(value: unknown): readonly DraftSlotAssignment[] {

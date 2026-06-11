@@ -68,6 +68,23 @@ export interface MatchStatisticsSnapshot {
   readonly playerRatings: Readonly<Record<string, number>>;
 }
 
+export interface MutableMatchStatCounters {
+  homeShots: number;
+  awayShots: number;
+  homeShotsOnTarget: number;
+  awayShotsOnTarget: number;
+  homeCorners: number;
+  awayCorners: number;
+  homeFouls: number;
+  awayFouls: number;
+  homeYellowCards: number;
+  awayYellowCards: number;
+  homeRedCards: number;
+  awayRedCards: number;
+  homeDangerousAttacks: number;
+  awayDangerousAttacks: number;
+}
+
 export interface SimulatedMatchResult {
   readonly homeScore: number;
   readonly awayScore: number;
@@ -79,13 +96,34 @@ export interface SimulatedMatchResult {
   readonly seed: number;
 }
 
+export type MatchGoalProfile = 'scoreless' | 'lively' | 'thriller';
+
+export interface MatchGoalDistributionConfig {
+  readonly scorelessMatchRate: number;
+  readonly thrillerMatchRate: number;
+  readonly livelyGoalChanceMultiplier: number;
+  readonly thrillerGoalChanceMultiplier: number;
+}
+
 export interface MatchSimulationConfig {
   readonly homeAdvantagePercent: number;
   readonly chemistryImpactCap: number;
   readonly targetEventCountMin: number;
   readonly targetEventCountMax: number;
   readonly msPerMinute: number;
+  readonly warmupDelayMs: number;
+  readonly nextMatchDelayMs: number;
+  readonly goalCooldownMinutes: number;
+  readonly penaltyMatchRate: number;
+  readonly goalDistribution: MatchGoalDistributionConfig;
 }
+
+export const DEFAULT_MATCH_GOAL_DISTRIBUTION_CONFIG: MatchGoalDistributionConfig = {
+  scorelessMatchRate: 0.05,
+  thrillerMatchRate: 0.5,
+  livelyGoalChanceMultiplier: 0.42,
+  thrillerGoalChanceMultiplier: 0.72,
+};
 
 export const DEFAULT_MATCH_SIMULATION_CONFIG: MatchSimulationConfig = {
   homeAdvantagePercent: 5,
@@ -93,4 +131,9 @@ export const DEFAULT_MATCH_SIMULATION_CONFIG: MatchSimulationConfig = {
   targetEventCountMin: 28,
   targetEventCountMax: 42,
   msPerMinute: 400,
+  warmupDelayMs: 5000,
+  nextMatchDelayMs: 8000,
+  goalCooldownMinutes: 1,
+  penaltyMatchRate: 0.25,
+  goalDistribution: DEFAULT_MATCH_GOAL_DISTRIBUTION_CONFIG,
 };

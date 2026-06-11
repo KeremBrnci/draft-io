@@ -1,0 +1,403 @@
+/* Shared responsive rules for play flow — mobile through large desktop */
+
+.play {
+  max-width: 100%;
+  overflow-x: clip;
+}
+
+.play-main {
+  width: 100%;
+  min-width: 0;
+  padding-left: max(1rem, env(safe-area-inset-left, 0px));
+  padding-right: max(1rem, env(safe-area-inset-right, 0px));
+}
+
+.play-header {
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  padding-left: max(1rem, env(safe-area-inset-left, 0px));
+  padding-right: max(1rem, env(safe-area-inset-right, 0px));
+}
+
+.play-arena__header {
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.play-arena__header > div:first-child {
+  flex: 1 1 12rem;
+  min-width: 0;
+}
+
+.play-arena__meta,
+.play-status-pill {
+  flex-shrink: 0;
+}
+
+.play-code-panel {
+  flex-wrap: wrap;
+}
+
+.play-code-panel > div {
+  flex: 1 1 12rem;
+  min-width: 0;
+}
+
+.play-action-bar {
+  width: 100%;
+}
+
+.play-action-bar .play-btn,
+.play-action-bar .play-btn--primary,
+.play-action-bar .play-btn--ready,
+.play-action-bar .play-btn--start {
+  flex: 1 1 10rem;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.play-host-start {
+  width: 100%;
+  margin-left: 0;
+}
+
+.play-host-start .play-btn--start {
+  width: 100%;
+}
+
+.play-action-bar__hint {
+  flex: 1 1 100%;
+  text-align: left;
+}
+
+.play-roster__slot {
+  min-width: 0;
+}
+
+.play-roster__info {
+  min-width: 0;
+}
+
+.play-roster__name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.play-roster--compact .play-roster__slot {
+  padding: 0.65rem 0.8rem;
+  gap: 0.65rem;
+}
+
+.play-roster--compact .play-roster__avatar {
+  width: 2.1rem;
+  height: 2.1rem;
+  font-size: 0.75rem;
+}
+
+.play-roster--compact .play-roster__name {
+  font-size: 0.86rem;
+}
+
+.play-main--lobby,
+.play-main--formation,
+.play-main--draft {
+  max-width: min(100%, 56rem);
+}
+
+.play--formation .formation-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 11.5rem), 1fr));
+}
+
+.league-layout {
+  min-width: 0;
+}
+
+.league-live__scoreboard {
+  min-width: 0;
+}
+
+.league-live__team {
+  min-width: 0;
+}
+
+.league-live__team h2 {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: clamp(0.82rem, 3.2vw, 1.1rem);
+}
+
+.league-live__score {
+  font-size: clamp(1.65rem, 8vw, 2.4rem);
+}
+
+.league-live__minute {
+  min-width: 4.75rem;
+  font-size: 0.78rem;
+}
+
+.league-live__clock {
+  min-width: 4.75rem;
+  padding: 0.4rem 0.65rem;
+}
+
+.league-live__clock-minute {
+  font-size: clamp(1.15rem, 5.5vw, 1.45rem);
+}
+
+.league-duel-stats__teams span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 42%;
+}
+
+.league-duel-stat__label {
+  white-space: normal;
+  text-wrap: balance;
+  font-size: 0.72rem;
+}
+
+.league-fixture__teams {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.league-table-wrap {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  border-radius: 10px;
+}
+
+.league-table-wrap .league-table {
+  min-width: 100%;
+}
+
+.league-results__panel {
+  width: min(100%, 32rem);
+  max-height: min(92dvh, 92vh, 42rem);
+}
+
+.league-results__table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.draft-pick-drawer__header {
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.draft-pick-drawer__header-main {
+  flex: 1 1 14rem;
+  min-width: 0;
+}
+
+.draft-stats-panel__chemistry ul {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+@media (max-width: 900px) {
+  .play-main {
+    padding-top: 1.75rem;
+    padding-bottom: 2rem;
+  }
+
+  .play-main--lobby {
+    padding-top: 1.35rem;
+  }
+
+  .play-title--lobby,
+  .play-title--game {
+    font-size: clamp(1.35rem, 5vw, 1.85rem);
+  }
+
+  .coach-selection-grid {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 8.5rem), 1fr));
+  }
+
+  .team-review-grid {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr));
+  }
+}
+
+@media (max-width: 639px) {
+  .play-header {
+    padding-top: 0.9rem;
+    padding-bottom: 0.9rem;
+  }
+
+  .play-main {
+    padding-top: 1.25rem;
+    padding-bottom: 1.75rem;
+  }
+
+  .play-arena {
+    padding: 1rem;
+  }
+
+  .play-code-panel .play-btn {
+    width: 100%;
+  }
+
+  .play-stage-rail {
+    margin-bottom: 0.85rem;
+  }
+
+  .play-stage-rail__label {
+    font-size: 0.52rem;
+  }
+
+  .league-live__scoreboard {
+    gap: 0.45rem;
+  }
+
+  .league-live__minute {
+    min-width: 2.75rem;
+    padding: 0.2rem 0.35rem;
+  }
+
+  .league-commentary {
+    max-height: min(40dvh, 18rem);
+  }
+
+  .league-fixtures {
+    max-height: min(36dvh, 12rem);
+  }
+
+  .draft-pitch-board {
+    min-height: min(52dvh, 20rem);
+  }
+
+  .draft-stats-panel__chemistry ul {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .league-table th,
+  .league-table td {
+    padding: 0.45rem 0.3rem;
+    font-size: 0.78rem;
+  }
+
+  .league-table th:nth-child(4),
+  .league-table th:nth-child(5),
+  .league-table th:nth-child(6),
+  .league-table th:nth-child(7),
+  .league-table th:nth-child(8),
+  .league-table th:nth-child(9),
+  .league-table td:nth-child(4),
+  .league-table td:nth-child(5),
+  .league-table td:nth-child(6),
+  .league-table td:nth-child(7),
+  .league-table td:nth-child(8),
+  .league-table td:nth-child(9) {
+    display: none;
+  }
+
+  .league-results__fixture {
+    grid-template-columns: 1.6rem 1fr auto;
+    grid-template-rows: auto auto;
+  }
+
+  .league-results__fixture-home {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .league-results__fixture-score {
+    grid-column: 3;
+    grid-row: 1 / span 2;
+    align-self: center;
+  }
+
+  .league-results__fixture-away {
+    grid-column: 2;
+    grid-row: 2;
+    text-align: left;
+  }
+
+  .league-results__fixture-round {
+    grid-row: 1 / span 2;
+    align-self: center;
+  }
+}
+
+@media (max-width: 420px) {
+  .play-header__brand {
+    font-size: 1.05rem;
+  }
+
+  .play-lobby-badge {
+    font-size: 0.64rem;
+    padding: 0.28rem 0.5rem;
+  }
+
+  .play-btn {
+    font-size: 0.88rem;
+    padding: 0.7rem 0.9rem;
+  }
+
+  .draft-pick-drawer__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .draft-stats-panel__chemistry ul {
+    grid-template-columns: 1fr;
+  }
+
+  .coach-selection-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .league-victory__panel,
+  .league-results__panel {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+@media (min-width: 1200px) {
+  .play-main--draft {
+    max-width: min(100%, 68rem);
+  }
+
+  .play-draft-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.35fr) minmax(16rem, 0.65fr);
+    align-items: start;
+    gap: 1.25rem;
+  }
+
+  .play-draft-layout__pitch {
+    justify-content: stretch;
+  }
+
+  .league-layout {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.25rem;
+    align-items: start;
+  }
+
+  .league-layout > .play-arena__header,
+  .league-layout > .league-live,
+  .league-layout > .play-subtitle,
+  .league-layout > .play-btn {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (min-width: 1600px) {
+  .play-main--lobby,
+  .play-main--formation,
+  .play-main--draft {
+    max-width: min(100%, 72rem);
+  }
+}

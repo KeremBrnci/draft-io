@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 
+import { PlayButton } from '@/components/play/play-button';
 import { useBodyScrollLock } from '@/lib/use-body-scroll-lock';
 
 import './league-victory.css';
@@ -71,14 +72,15 @@ export function LeagueVictoryOverlay({
         <p className="league-victory__subtitle">
           Şampiyon belli oldu! Yeni bir draft ligi için lobiye dönün.
         </p>
-        <button
+        <PlayButton
           type="button"
-          className="play-btn play-btn--primary league-victory__cta"
-          disabled={loading}
+          className="play-btn--primary league-victory__cta"
+          loading={loading}
+          loadingLabel="Hazırlanıyor…"
           onClick={onPlayAgain}
         >
-          {loading ? 'Hazırlanıyor…' : 'Tekrar Oyna'}
-        </button>
+          Tekrar Oyna
+        </PlayButton>
       </div>
     </div>,
     getPortalRoot(),

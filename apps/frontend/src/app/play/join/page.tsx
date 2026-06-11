@@ -4,7 +4,9 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
+import { PlayButton } from '@/components/play/play-button';
 import { PlayGameBackdrop } from '@/components/play/play-game-backdrop';
+import { runDelayedAction } from '@/lib/action-feedback-delay';
 import { joinLobby } from '@/lib/api/lobbies';
 import { readLobbySession, readSavedDisplayName, saveLobbySession } from '@/lib/lobby-session';
 
@@ -31,28 +33,31 @@ export default function JoinLobbyPage(): React.ReactElement {
 
   async function handleSubmit(event: React.SubmitEvent<HTMLFormElement>): Promise<void> {
     event.preventDefault();
-    setLoading(true);
-    setError(null);
-
-    try {
-      const session = await joinLobby({
-        code: code.toUpperCase(),
-        displayName,
-      });
-
-      saveLobbySession({
-        lobbyCode: session.lobby.code,
-        participantId: session.participantId,
-        sessionToken: session.sessionToken,
-        displayName,
-      });
-
-      router.push(`/play/room/${session.lobby.code}`);
-    } catch {
-      setError('Odaya katılınamadı. Kodu ve adını kontrol edip tekrar dene.');
-    } finally {
-      setLoading(false);
+    if (loading) {
+      return;
     }
+
+    await runDelayedAction(setLoading, async () => {
+      setError(null);
+
+      try {
+        const session = await joinLobby({
+          code: code.toUpperCase(),
+          displayName,
+        });
+
+        saveLobbySession({
+          lobbyCode: session.lobby.code,
+          participantId: session.participantId,
+          sessionToken: session.sessionToken,
+          displayName,
+        });
+
+        router.push(`/play/room/${session.lobby.code}`);
+      } catch {
+        setError('Odaya katılınamadı. Kodu ve adını kontrol edip tekrar dene.');
+      }
+    });
   }
 
   return (
@@ -133,9 +138,9 @@ export default function JoinLobbyPage(): React.ReactElement {
               </p>
             ) : null}
 
-            <button className="play-btn" type="submit" disabled={loading}>
-              {loading ? 'Katılınıyor…' : '⚽ Odaya Katıl'}
-            </button>
+            <PlayButton type="submit" loading={loading} loadingLabel="Katılınıyor…">
+              ⚽ Odaya Katıl
+            </PlayButton>
           </form>
         </div>
       </main>

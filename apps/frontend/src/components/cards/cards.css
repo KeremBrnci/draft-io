@@ -18,6 +18,7 @@
   max-width: var(--fc-max-width);
   aspect-ratio: var(--fc-ratio);
   position: relative;
+  container-type: inline-size;
   user-select: none;
   -webkit-tap-highlight-color: transparent;
 }
@@ -59,11 +60,16 @@
 }
 
 .fc-card--pitch .fc-card__portrait-wrap {
-  top: 21%;
+  top: 18%;
   left: 9%;
   right: 9%;
-  height: 42%;
+  height: 36%;
   z-index: 3;
+}
+
+.fc-card--pitch .fc-card__identity {
+  top: 52%;
+  bottom: 24%;
 }
 
 .fc-card--pitch .fc-card__portrait-burst {
@@ -269,10 +275,10 @@
 /* Portrait — cutout blend on card material */
 .fc-card__portrait-wrap {
   position: absolute;
-  top: 13%;
-  left: 8%;
-  right: 8%;
-  height: 48%;
+  top: 14%;
+  left: 9%;
+  right: 9%;
+  height: 38%;
   z-index: 2;
   display: flex;
   align-items: flex-end;
@@ -363,14 +369,17 @@
 
 .fc-card__identity {
   position: absolute;
-  left: 11%;
-  right: 11%;
-  bottom: 22%;
+  left: 9%;
+  right: 9%;
+  top: 54%;
+  bottom: 26%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.2rem;
+  justify-content: center;
+  gap: 0.1rem;
   text-align: center;
+  overflow: hidden;
 }
 
 .fc-card__nameplate {
@@ -383,10 +392,10 @@
 .fc-card__name,
 .fc-card__name-last {
   display: block;
-  font-size: clamp(0.62rem, 3.2vw, 0.88rem);
+  font-size: clamp(0.5rem, 8.4cqw, 0.88rem);
   font-weight: 800;
   letter-spacing: 0.04em;
-  line-height: 1.12;
+  line-height: 1.06;
   max-width: 100%;
   overflow: hidden;
   text-wrap: balance;
@@ -395,18 +404,18 @@
 }
 
 .fc-card__name--single {
-  font-size: clamp(0.58rem, 3vw, 0.84rem);
+  font-size: clamp(0.48rem, 7.8cqw, 0.84rem);
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 3;
 }
 
 .fc-card__name-first {
-  font-size: clamp(0.46rem, 2.15vw, 0.56rem);
+  font-size: clamp(0.4rem, 5.1cqw, 0.56rem);
   font-weight: 600;
   letter-spacing: 0.08em;
   opacity: 0.86;
-  line-height: 1.12;
+  line-height: 1.04;
   max-width: 100%;
   overflow: hidden;
   text-wrap: balance;
@@ -414,11 +423,10 @@
   hyphens: auto;
   display: -webkit-box;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 1;
 }
 
 .fc-card__name-last {
-  margin-top: 0.04rem;
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
@@ -427,24 +435,23 @@
 .fc-card__nameplate--medium .fc-card__name,
 .fc-card__nameplate--medium .fc-card__name-last,
 .fc-card__nameplate--medium .fc-card__name--single {
-  font-size: clamp(0.56rem, 2.9vw, 0.8rem);
+  font-size: clamp(0.46rem, 7.4cqw, 0.8rem);
   letter-spacing: 0.03em;
 }
 
 .fc-card__nameplate--medium .fc-card__name-first {
-  font-size: clamp(0.42rem, 1.95vw, 0.5rem);
+  font-size: clamp(0.38rem, 4.6cqw, 0.5rem);
 }
 
 .fc-card__nameplate--long .fc-card__name,
 .fc-card__nameplate--long .fc-card__name-last,
 .fc-card__nameplate--long .fc-card__name--single {
-  font-size: clamp(0.5rem, 2.6vw, 0.72rem);
+  font-size: clamp(0.42rem, 6.6cqw, 0.72rem);
   letter-spacing: 0.02em;
 }
 
 .fc-card__nameplate--long .fc-card__name-first {
-  font-size: clamp(0.38rem, 1.75vw, 0.46rem);
-  -webkit-line-clamp: 1;
+  font-size: clamp(0.34rem, 4.1cqw, 0.46rem);
 }
 
 .fc-card__nameplate--long .fc-card__name-last {
@@ -452,7 +459,8 @@
 }
 
 .fc-card__position {
-  font-size: clamp(0.52rem, 2.55vw, 0.66rem);
+  flex-shrink: 0;
+  font-size: clamp(0.42rem, 5.8cqw, 0.66rem);
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -731,7 +739,14 @@
 }
 
 .fc-card--interactive .fc-card__portrait-wrap {
+  top: 15%;
+  height: 36%;
   contain: layout paint;
+}
+
+.fc-card--interactive .fc-card__identity {
+  top: 52%;
+  bottom: 25%;
 }
 
 .fc-card--interactive .fc-card__frame {
@@ -741,13 +756,13 @@
 .fc-card--interactive .fc-card__name,
 .fc-card--interactive .fc-card__name-last,
 .fc-card--interactive .fc-card__name--single {
-  -webkit-line-clamp: 3;
-}
-
-.fc-card--interactive .fc-card__name-first {
   -webkit-line-clamp: 2;
 }
 
+.fc-card--interactive .fc-card__name-first {
+  -webkit-line-clamp: 1;
+}
+
 .fc-card--interactive .fc-card__nameplate--long .fc-card__name-last {
-  -webkit-line-clamp: 4;
+  -webkit-line-clamp: 3;
 }

@@ -1,3 +1,5 @@
+import type { DraftPoolCard } from './draft-pool-card';
+
 export type DraftPickOptionKind = 'STRONG' | 'MEDIUM' | 'RISKY' | 'CHEMISTRY' | 'WILDCARD';
 
 export interface DraftPickOption {
@@ -19,6 +21,7 @@ export interface DraftPickOptionsResult {
   readonly positionCode: string;
   readonly participantId: string;
   readonly options: readonly DraftPickOption[];
+  readonly optionCards: readonly DraftPoolCard[];
   readonly remainingBudget: number;
   readonly picksRemaining: number;
 }

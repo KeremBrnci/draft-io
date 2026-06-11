@@ -1,4 +1,10 @@
-export type MatchStatusDto = 'SCHEDULED' | 'LIVE' | 'HALF_TIME' | 'FULL_TIME' | 'PAUSED';
+export type MatchStatusDto =
+  | 'SCHEDULED'
+  | 'PRE_MATCH'
+  | 'LIVE'
+  | 'HALF_TIME'
+  | 'FULL_TIME'
+  | 'PAUSED';
 
 export type MatchEventTypeDto =
   | 'DANGEROUS_ATTACK'
@@ -76,6 +82,9 @@ export interface MatchStateDto {
   readonly leagueId: string;
   readonly status: MatchStatusDto;
   readonly currentMinute: number;
+  readonly displayMinute: string;
+  readonly firstHalfStoppageMinutes: number;
+  readonly secondHalfStoppageMinutes: number;
   readonly homeScore: number;
   readonly awayScore: number;
   readonly homeXg: number;

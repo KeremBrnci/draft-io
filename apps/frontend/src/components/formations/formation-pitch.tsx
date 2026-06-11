@@ -1,5 +1,7 @@
 import type { FormationSlotDto } from '@draft-io/shared-types';
 
+import { mapPitchDisplayPercent } from '@/lib/map-pitch-display-percent';
+
 interface FormationPitchProps {
   readonly code: string;
   readonly slots: readonly FormationSlotDto[];
@@ -23,7 +25,10 @@ export function FormationPitch({
         <span
           key={`${code}-${slot.index}`}
           className="formation-pitch__marker"
-          style={{ left: `${slot.pitchX}%`, top: `${slot.pitchY}%` }}
+          style={{
+            left: `${mapPitchDisplayPercent(slot.pitchX)}%`,
+            top: `${mapPitchDisplayPercent(slot.pitchY)}%`,
+          }}
           title={slot.label}
         >
           {slot.label}

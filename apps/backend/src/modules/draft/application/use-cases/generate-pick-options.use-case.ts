@@ -2,8 +2,14 @@ import {
   DraftParticipantNotFoundError,
   DraftSessionNotFoundError,
 } from '../../domain/errors/draft.errors';
+import { DRAFT_PICK_POOL_FETCH_LIMIT } from '../../domain/constants/draft-pool.constants';
 import type { DraftPickOptionsResult } from '../../domain/models/draft-pick-option';
-import { picksRemaining, remainingBudget } from '../../domain/models/participant-draft-state';
+import type { DraftPoolCard } from '../../domain/models/draft-pool-card';
+import {
+  picksRemaining,
+  recordOfferedPlayers,
+  remainingBudget,
+} from '../../domain/models/participant-draft-state';
 import type { RandomSource } from '../../domain/ports/random-source.port';
 import type { DraftPoolRepository } from '../../domain/repositories/draft-pool.repository';
 import type { DraftSessionRepository } from '../../domain/repositories/draft-session.repository';
@@ -31,7 +37,10 @@ export class GeneratePickOptionsUseCase {
       throw new DraftParticipantNotFoundError(command.participantId);
     }
 
-    const draftedRoster = await this.draftPoolRepository.findByIds(participant.draftedCardIds);
+    const draftedRoster =
+      participant.draftedCardIds.length === 0
+        ? []
+        : await this.draftPoolRepository.findByIds(participant.draftedCardIds);
     const draftedPlayerIds = [...new Set(draftedRoster.map((card) => card.playerId))];
     const slotPositionCodes =
       command.positionCodes !== undefined && command.positionCodes.length > 0
@@ -44,6 +53,7 @@ export class GeneratePickOptionsUseCase {
       positionCodes: eligiblePositionCodes,
       excludeCardIds: participant.draftedCardIds,
       excludePlayerIds: draftedPlayerIds,
+      limit: DRAFT_PICK_POOL_FETCH_LIMIT,
     });
 
     const generator = new PickOptionGenerator(session.config, this.random);
@@ -55,10 +65,33 @@ export class GeneratePickOptionsUseCase {
       draftedRoster,
     });
 
+    const poolById = new Map(pool.map((card) => [card.cardId, card]));
+    const optionCards = options
+      .map((option) => poolById.get(option.cardId))
+      .filter((card): card is DraftPoolCard => card !== undefined);
+
+    const offeredPlayerIds = options.map((option) => option.playerId);
+    const participants = session.participants.map((entry) =>
+      entry.participantId === command.participantId
+        ? recordOfferedPlayers(entry, offeredPlayerIds)
+        : entry,
+    );
+
+    void this.draftSessionRepository
+      .save({
+        ...session,
+        participants,
+        updatedAt: new Date(),
+      })
+      .catch(() => {
+        // Recently-offered tracking is best-effort; pick options must return without blocking.
+      });
+
     return {
       positionCode: command.positionCode,
       participantId: command.participantId,
       options,
+      optionCards,
       remainingBudget: remainingBudget(participant),
       picksRemaining: picksRemaining(participant, session.rosterSize),
     };

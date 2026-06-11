@@ -1,4 +1,15 @@
-import type { MatchStateDto, RoomLeagueStateDto, TeamReviewStateDto } from '@draft-io/shared-types';
+import {
+  deriveMatchStoppageTime,
+  formatMatchMinuteLabel,
+  type MatchStateDto,
+  type RoomLeagueStateDto,
+  type TeamReviewStateDto,
+} from '@draft-io/shared-types';
+
+import {
+  decodeMatchInRound,
+  decodeScheduleRound,
+} from '../../../simulation/domain/services/fixture-generator.service';
 
 import type { Lobby } from '../../../lobbies/domain/entities/lobby.entity';
 import { RoomPhase } from '../../../lobbies/domain/enums/room-phase.enum';
@@ -45,6 +56,8 @@ export function toRoomLeagueStateDto(input: {
     fixtures: input.fixtures.map((fixture) => ({
       id: fixture.id,
       roundNumber: fixture.roundNumber,
+      scheduleRound: decodeScheduleRound(fixture.roundNumber),
+      matchInRound: decodeMatchInRound(fixture.roundNumber),
       homeParticipantId: fixture.homeParticipantId,
       awayParticipantId: fixture.awayParticipantId,
       homeDisplayName: input.participantNames.get(fixture.homeParticipantId) ?? 'Home',
@@ -101,18 +114,47 @@ function resolveLeagueWinner(
   };
 }
 
+function countRevealedGoals(
+  events: readonly RoomMatchEventRecord[],
+  teamSide: 'HOME' | 'AWAY',
+): number {
+  return events.filter(
+    (event) => event.isGoal && event.eventType === 'GOAL' && event.teamSide === teamSide,
+  ).length;
+}
+
+function resolveDisplayedMatchScores(
+  match: RoomMatchRecord,
+  events: readonly RoomMatchEventRecord[],
+): { readonly homeScore: number; readonly awayScore: number } {
+  if (match.status === 'FULL_TIME') {
+    return { homeScore: match.homeScore, awayScore: match.awayScore };
+  }
+
+  return {
+    homeScore: countRevealedGoals(events, 'HOME'),
+    awayScore: countRevealedGoals(events, 'AWAY'),
+  };
+}
+
 export function toMatchStateDto(
   match: RoomMatchRecord,
   events: readonly RoomMatchEventRecord[],
   statistics: RoomMatchStatisticRecord | null = null,
 ): MatchStateDto {
+  const scores = resolveDisplayedMatchScores(match, events);
+  const stoppage = deriveMatchStoppageTime(match.simulationSeed);
+
   return {
     id: match.id,
     leagueId: match.leagueId,
     status: match.status as MatchStateDto['status'],
     currentMinute: match.currentMinute,
-    homeScore: match.homeScore,
-    awayScore: match.awayScore,
+    displayMinute: formatMatchMinuteLabel(match.currentMinute, stoppage),
+    firstHalfStoppageMinutes: stoppage.firstHalfMinutes,
+    secondHalfStoppageMinutes: stoppage.secondHalfMinutes,
+    homeScore: scores.homeScore,
+    awayScore: scores.awayScore,
     homeXg: match.homeXg,
     awayXg: match.awayXg,
     homeParticipantId: match.homeParticipantId,

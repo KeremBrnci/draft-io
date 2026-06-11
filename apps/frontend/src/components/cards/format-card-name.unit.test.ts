@@ -74,7 +74,12 @@ describe('formatCardNameForDisplay', () => {
     const result = formatCardNameForDisplay('Christopher Very Long Surname Name');
     expect(result.mode).toBe('split');
     expect(result.lines.secondLine).toBe('Name');
-    expect(result.lines.firstLine).toBe('Christopher Very Long Surname');
+    expect(result.lines.firstLine).toBe('C. V. L. S.');
+  });
+
+  it('keeps short given names intact on the card', () => {
+    const result = formatCardNameForDisplay('Jamal Musiala');
+    expect(result.lines).toEqual({ firstLine: 'Jamal', secondLine: 'Musiala' });
   });
 });
 

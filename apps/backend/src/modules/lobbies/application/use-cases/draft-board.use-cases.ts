@@ -172,37 +172,55 @@ export interface DraftPickOptionsForSlotQuery {
 }
 
 export class GetDraftPickOptionsForSlotUseCase {
-  private readonly boardUseCase: GetDraftBoardUseCase;
+  private readonly lifecycle: LobbyLifecycleService;
 
   constructor(
     lobbyRepository: LobbyRepository,
-    formationRepository: FormationRepository,
-    private readonly draftPoolRepository: DraftPoolRepository,
+    private readonly formationRepository: FormationRepository,
     private readonly generatePickOptionsUseCase: GeneratePickOptionsUseCase,
-    getDraftSessionByLobbyUseCase: GetDraftSessionByLobbyUseCase,
-    calculateTeamStrengthUseCase: CalculateTeamStrengthUseCase,
+    private readonly getDraftSessionByLobbyUseCase: GetDraftSessionByLobbyUseCase,
   ) {
-    this.boardUseCase = new GetDraftBoardUseCase(
-      lobbyRepository,
-      formationRepository,
-      draftPoolRepository,
-      getDraftSessionByLobbyUseCase,
-      calculateTeamStrengthUseCase,
-    );
+    this.lifecycle = new LobbyLifecycleService(lobbyRepository);
   }
 
   async execute(query: DraftPickOptionsForSlotQuery): Promise<DraftPickOptionsDto> {
-    const board = await this.boardUseCase.execute({
-      code: query.code,
-      sessionToken: query.sessionToken,
-    });
+    const lobby = await this.lifecycle.requireActiveLobby(LobbyCode.create(query.code));
+    if (lobby.phase !== RoomPhase.DRAFT) {
+      throw new InvalidDraftPickError('Lobby is not in draft phase');
+    }
 
-    const slot = board.formation.slots.find((entry) => entry.index === query.slotIndex);
+    const participant = lobby.findParticipantBySessionToken(
+      SessionToken.reconstitute(query.sessionToken),
+    );
+    if (participant === null) {
+      throw new InvalidLobbySessionError();
+    }
+
+    if (participant.selectedFormationId === null) {
+      throw new InvalidDraftPickError('Participant has no selected formation');
+    }
+
+    const formation = await this.formationRepository.findById(participant.selectedFormationId);
+    if (formation === null) {
+      throw new LobbyNotFoundError(participant.selectedFormationId);
+    }
+
+    const slot = formation.slots.find((entry) => entry.index === query.slotIndex);
     if (slot === undefined) {
       throw new InvalidDraftPickError('Invalid formation slot');
     }
 
-    const alreadyFilled = board.slotAssignments.some(
+    const session = await this.getDraftSessionByLobbyUseCase.execute({ lobbyId: lobby.id.value });
+    if (session === null) {
+      throw new InvalidDraftPickError('Draft session not found');
+    }
+
+    const draftState = session.participants.find((entry) => entry.participantId === participant.id);
+    if (draftState === undefined) {
+      throw new InvalidDraftPickError('Participant draft state not found');
+    }
+
+    const alreadyFilled = draftState.slotAssignments.some(
       (assignment) => assignment.slotIndex === query.slotIndex,
     );
     if (alreadyFilled) {
@@ -213,16 +231,13 @@ export class GetDraftPickOptionsForSlotUseCase {
     const positionCodes =
       slot.allowedPositions.length > 0 ? [...slot.allowedPositions] : [positionCode];
     const result = await this.generatePickOptionsUseCase.execute({
-      lobbyId: board.lobby.id.value,
-      participantId: board.participant.id,
+      lobbyId: lobby.id.value,
+      participantId: participant.id,
       positionCode,
       positionCodes,
     });
 
-    const poolCards = await this.draftPoolRepository.findByIds(
-      result.options.map((option) => option.cardId),
-    );
-    const cardById = new Map(poolCards.map((card) => [card.cardId, card]));
+    const cardById = new Map(result.optionCards.map((card) => [card.cardId, card]));
 
     return {
       positionCode: result.positionCode,

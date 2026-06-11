@@ -1,6 +1,11 @@
 'use client';
 
-import type { MatchEventDto } from '@draft-io/shared-types';
+import {
+  formatMatchMinuteLabel,
+  mapEventToInternalMinute,
+  type MatchEventDto,
+  type MatchStoppageTimeDto,
+} from '@draft-io/shared-types';
 import { memo, useMemo } from 'react';
 
 import { getMatchEventUi } from '@/lib/match-event-ui';
@@ -9,12 +14,14 @@ interface MatchCommentaryFeedProps {
   readonly events: readonly MatchEventDto[];
   readonly homeDisplayName: string;
   readonly awayDisplayName: string;
+  readonly stoppage: MatchStoppageTimeDto;
 }
 
 export const MatchCommentaryFeed = memo(function MatchCommentaryFeed({
   events,
   homeDisplayName,
   awayDisplayName,
+  stoppage,
 }: MatchCommentaryFeedProps): React.ReactElement {
   const visibleEvents = useMemo(
     () =>
@@ -45,7 +52,13 @@ export const MatchCommentaryFeed = memo(function MatchCommentaryFeed({
               <span className="league-commentary__icon" aria-hidden>
                 {ui.icon}
               </span>
-              <span className="league-commentary__minute">{event.minute}&apos;</span>
+              <span className="league-commentary__minute">
+                {formatMatchMinuteLabel(
+                  mapEventToInternalMinute(event.minute, event.eventType, stoppage),
+                  stoppage,
+                )}
+                &apos;
+              </span>
               <span className="league-commentary__tag">{ui.label}</span>
               {teamName !== null ? (
                 <span className="league-commentary__team">{teamName}</span>

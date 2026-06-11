@@ -4,7 +4,9 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
+import { PlayButton } from '@/components/play/play-button';
 import { PlayGameBackdrop } from '@/components/play/play-game-backdrop';
+import { runDelayedAction } from '@/lib/action-feedback-delay';
 import { ApiClientError } from '@/lib/api/client';
 import { createLobby } from '@/lib/api/lobbies';
 import { readSavedDisplayName, saveLobbySession } from '@/lib/lobby-session';
@@ -21,33 +23,36 @@ export default function CreateLobbyPage(): React.ReactElement {
 
   async function handleSubmit(event: React.SubmitEvent<HTMLFormElement>): Promise<void> {
     event.preventDefault();
-    setLoading(true);
-    setError(null);
-
-    try {
-      const session = await createLobby({
-        name,
-        displayName,
-        maxPlayers: Number(maxPlayers),
-      });
-
-      saveLobbySession({
-        lobbyCode: session.lobby.code,
-        participantId: session.participantId,
-        sessionToken: session.sessionToken,
-        displayName,
-      });
-
-      router.push(`/play/room/${session.lobby.code}`);
-    } catch (error) {
-      setError(
-        error instanceof ApiClientError
-          ? error.message
-          : 'Oda oluşturulamadı. Bilgileri kontrol edip tekrar dene.',
-      );
-    } finally {
-      setLoading(false);
+    if (loading) {
+      return;
     }
+
+    await runDelayedAction(setLoading, async () => {
+      setError(null);
+
+      try {
+        const session = await createLobby({
+          name,
+          displayName,
+          maxPlayers: Number(maxPlayers),
+        });
+
+        saveLobbySession({
+          lobbyCode: session.lobby.code,
+          participantId: session.participantId,
+          sessionToken: session.sessionToken,
+          displayName,
+        });
+
+        router.push(`/play/room/${session.lobby.code}`);
+      } catch (submitError) {
+        setError(
+          submitError instanceof ApiClientError
+            ? submitError.message
+            : 'Oda oluşturulamadı. Bilgileri kontrol edip tekrar dene.',
+        );
+      }
+    });
   }
 
   return (
@@ -142,9 +147,9 @@ export default function CreateLobbyPage(): React.ReactElement {
               </p>
             ) : null}
 
-            <button className="play-btn" type="submit" disabled={loading}>
-              {loading ? 'Oluşturuluyor…' : '⚽ Odayı Oluştur'}
-            </button>
+            <PlayButton type="submit" loading={loading} loadingLabel="Oluşturuluyor…">
+              ⚽ Odayı Oluştur
+            </PlayButton>
           </form>
         </div>
       </main>

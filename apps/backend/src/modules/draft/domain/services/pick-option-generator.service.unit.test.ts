@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { DEFAULT_DRAFT_BALANCE_CONFIG } from '../../domain/config/default-draft-balance.config';
+import { PICK_BOARD_OVERALL_FLOOR } from '../../domain/constants/pick-board-profile.constants';
 import { PickOptionGenerator } from '../../domain/services/pick-option-generator.service';
 import { SeededRandomSource } from '../../infrastructure/random/seeded-random-source';
 import {
@@ -33,25 +34,58 @@ describe('PickOptionGenerator', () => {
     expect(kinds.has('CHEMISTRY')).toBe(true);
   });
 
-  it('reduces elite exposure after surprise debt accrues', () => {
-    const random = new SeededRandomSource(99);
-    const generator = new PickOptionGenerator(DEFAULT_DRAFT_BALANCE_CONFIG, random);
-    const state = buildTestParticipantState({
-      surpriseDebt: 20,
-      elitePicksTaken: 2,
-    });
+  it('does not offer players below the draft floor overall', () => {
+    const generator = new PickOptionGenerator(
+      DEFAULT_DRAFT_BALANCE_CONFIG,
+      new SeededRandomSource(99),
+    );
 
     const options = generator.generate({
       positionCode: 'CM',
-      participantState: state,
+      participantState: buildTestParticipantState(),
       pool: buildTestPool(),
       draftedRoster: [],
     });
 
-    const eliteOptions = options.filter(
-      (option) => option.tierCode === 'S' || option.tierCode === 'A',
+    expect(options.every((option) => option.overall >= PICK_BOARD_OVERALL_FLOOR)).toBe(true);
+  });
+
+  it('avoids recently offered players when the pool has alternatives', () => {
+    const generator = new PickOptionGenerator(
+      DEFAULT_DRAFT_BALANCE_CONFIG,
+      new SeededRandomSource(21),
     );
-    expect(eliteOptions.length).toBeLessThanOrEqual(2);
+    const pool = [
+      ...buildTestPool(),
+      ...Array.from({ length: 8 }, (_, index) =>
+        buildTestDraftPoolCard({
+          cardId: `extra-cm-${index}`,
+          playerId: `player-extra-${index}`,
+          overall: 82 + (index % 5),
+          displayName: `Extra CM ${index + 1}`,
+        }),
+      ),
+    ];
+    const firstOptions = generator.generate({
+      positionCode: 'CM',
+      participantState: buildTestParticipantState(),
+      pool,
+      draftedRoster: [],
+    });
+
+    const secondOptions = generator.generate({
+      positionCode: 'CM',
+      participantState: buildTestParticipantState({
+        recentlyOfferedPlayerIds: firstOptions.map((option) => option.playerId),
+      }),
+      pool,
+      draftedRoster: [],
+    });
+
+    const repeated = secondOptions.filter((option) =>
+      firstOptions.some((first) => first.playerId === option.playerId),
+    );
+    expect(repeated.length).toBe(0);
   });
 
   it('never offers the same player twice in one pick screen', () => {

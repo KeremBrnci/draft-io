@@ -46,42 +46,46 @@ export function toDraftSessionSummaryDto(session: DraftSession): DraftSessionSum
 }
 
 export function toDraftPickOptionsDto(result: DraftPickOptionsResult): DraftPickOptionsDto {
+  const cardById = new Map(result.optionCards.map((card) => [card.cardId, card]));
+
   return {
     positionCode: result.positionCode,
     participantId: result.participantId,
-    options: result.options.map((option) => ({
-      cardId: option.cardId,
-      playerId: option.playerId,
-      displayName: option.displayName,
-      overall: option.overall,
-      tierCode: option.tierCode,
-      cardTypeCode: option.cardTypeCode,
-      cardRarityCode: option.cardRarityCode,
-      kind: option.kind,
-      pickCost: option.pickCost,
-      projectedChemistry: option.projectedChemistry,
-      positionWeight: option.positionWeight,
-      isWildcard: option.isWildcard,
-      face: toDraftCardFace(
-        {
-          cardId: option.cardId,
-          playerId: option.playerId,
-          displayName: option.displayName,
-          overall: option.overall,
-          cardTypeCode: option.cardTypeCode,
-          cardRarityCode: option.cardRarityCode,
-          positions: [],
-          teamId: null,
-          leagueId: null,
-          nationality: '',
-          imageUrl: null,
-          nationalityFlagUrl: null,
-          leagueName: null,
-          leagueLogoUrl: null,
-        },
-        result.positionCode,
-      ),
-    })),
+    options: result.options.map((option) => {
+      const card = cardById.get(option.cardId);
+      const fallbackCard = {
+        cardId: option.cardId,
+        playerId: option.playerId,
+        displayName: option.displayName,
+        overall: option.overall,
+        cardTypeCode: option.cardTypeCode,
+        cardRarityCode: option.cardRarityCode,
+        positions: [],
+        teamId: null,
+        leagueId: null,
+        nationality: '',
+        imageUrl: null,
+        nationalityFlagUrl: null,
+        leagueName: null,
+        leagueLogoUrl: null,
+      };
+
+      return {
+        cardId: option.cardId,
+        playerId: option.playerId,
+        displayName: option.displayName,
+        overall: option.overall,
+        tierCode: option.tierCode,
+        cardTypeCode: option.cardTypeCode,
+        cardRarityCode: option.cardRarityCode,
+        kind: option.kind,
+        pickCost: option.pickCost,
+        projectedChemistry: option.projectedChemistry,
+        positionWeight: option.positionWeight,
+        isWildcard: option.isWildcard,
+        face: toDraftCardFace(card ?? fallbackCard, result.positionCode),
+      };
+    }),
     remainingBudget: result.remainingBudget,
     picksRemaining: result.picksRemaining,
   };

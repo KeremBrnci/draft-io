@@ -2,17 +2,22 @@
 
 import type { FormationSelectionStateDto } from '@draft-io/shared-types';
 import Link from 'next/link';
-import { useParams, useRouter } from 'next/navigation';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useParams } from 'next/navigation';
+import { useCallback, useMemo, useState, startTransition } from 'react';
 
 import { FormationCard } from '@/components/formations/formation-card';
+import { PlayButton } from '@/components/play/play-button';
 import { PlayGameBackdrop } from '@/components/play/play-game-backdrop';
 import { PlayLoadingState } from '@/components/play/play-loading-state';
 import { PlayStageRail } from '@/components/play/play-stage-rail';
+import { runDelayedAction } from '@/lib/action-feedback-delay';
 import { ApiClientError } from '@/lib/api/client';
 import { getFormationSelection, selectFormation, startDraft } from '@/lib/api/formation-selection';
 import { clearLobbySession, readLobbySession } from '@/lib/lobby-session';
-import { useRoomSocket } from '@/lib/room-socket';
+import { FORMATION_REFRESH_EVENTS } from '@/lib/lobby-stage-events';
+import { applyIfChanged } from '@/lib/stable-state';
+import { useLobbyStageSync } from '@/lib/use-lobby-stage-sync';
+import { usePhaseRedirect } from '@/lib/use-phase-redirect';
 
 import '../../../play.css';
 
@@ -20,7 +25,6 @@ const POLL_INTERVAL_MS = 2500;
 
 export default function FormationSelectionPage(): React.ReactElement {
   const params = useParams<{ code: string }>();
-  const router = useRouter();
   const code = params.code.toUpperCase();
   const [state, setState] = useState<FormationSelectionStateDto | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -28,6 +32,7 @@ export default function FormationSelectionPage(): React.ReactElement {
   const [selectingId, setSelectingId] = useState<string | null>(null);
   const [startingDraft, setStartingDraft] = useState(false);
   const session = useMemo(() => readLobbySession(code), [code]);
+  const redirectForPhase = usePhaseRedirect(code);
 
   const loadState = useCallback(async (): Promise<void> => {
     if (session === null) {
@@ -37,12 +42,13 @@ export default function FormationSelectionPage(): React.ReactElement {
 
     try {
       const nextState = await getFormationSelection(code, session.sessionToken);
-      setState(nextState);
-      setError(null);
+      startTransition(() => {
+        setState((current) => applyIfChanged(current, nextState));
+        setError(null);
+      });
 
       if (nextState.phase === 'DRAFT') {
-        router.replace(`/play/room/${code}/draft`);
-        return;
+        redirectForPhase('DRAFT');
       }
     } catch (loadError) {
       if (
@@ -56,21 +62,14 @@ export default function FormationSelectionPage(): React.ReactElement {
 
       setError('Formasyon seçimi yüklenemedi.');
     }
-  }, [code, router, session]);
+  }, [code, redirectForPhase, session]);
 
-  useEffect(() => {
-    void loadState();
-    const timer = window.setInterval(() => {
-      void loadState();
-    }, POLL_INTERVAL_MS);
-
-    return () => {
-      window.clearInterval(timer);
-    };
-  }, [loadState]);
-
-  useRoomSocket(code, () => {
-    void loadState();
+  useLobbyStageSync({
+    lobbyCode: code,
+    onRefresh: loadState,
+    pollIntervalMs: POLL_INTERVAL_MS,
+    enabled: selectingId === null && !startingDraft,
+    refreshEvents: FORMATION_REFRESH_EVENTS,
   });
 
   const hasLockedSelection = state?.mySelectedFormationId !== null;
@@ -104,25 +103,24 @@ export default function FormationSelectionPage(): React.ReactElement {
   }
 
   async function handleStartDraft(): Promise<void> {
-    if (session === null || state?.canStartDraft !== true) {
+    if (session === null || state?.canStartDraft !== true || startingDraft) {
       return;
     }
 
-    setStartingDraft(true);
-    setActionError(null);
+    await runDelayedAction(setStartingDraft, async () => {
+      setActionError(null);
 
-    try {
-      await startDraft(code, { sessionToken: session.sessionToken });
-      window.location.href = `/play/room/${code}/draft`;
-    } catch (startError) {
-      if (startError instanceof ApiClientError) {
-        setActionError(startError.message);
-      } else {
-        setActionError('Draft başlatılamadı.');
+      try {
+        await startDraft(code, { sessionToken: session.sessionToken });
+        redirectForPhase('DRAFT');
+      } catch (startError) {
+        if (startError instanceof ApiClientError) {
+          setActionError(startError.message);
+        } else {
+          setActionError('Draft başlatılamadı.');
+        }
       }
-    } finally {
-      setStartingDraft(false);
-    }
+    });
   }
 
   return (
@@ -211,14 +209,15 @@ export default function FormationSelectionPage(): React.ReactElement {
 
             {state.canStartDraft ? (
               <div className="play-host-start">
-                <button
+                <PlayButton
                   type="button"
-                  className="play-btn play-btn--start play-btn--start-active"
-                  disabled={startingDraft}
+                  className="play-btn--start play-btn--start-active"
+                  loading={startingDraft}
+                  loadingLabel="Başlatılıyor…"
                   onClick={() => void handleStartDraft()}
                 >
-                  {startingDraft ? 'Başlatılıyor…' : 'Draftı Başlat'}
-                </button>
+                  Draftı Başlat
+                </PlayButton>
               </div>
             ) : null}
 

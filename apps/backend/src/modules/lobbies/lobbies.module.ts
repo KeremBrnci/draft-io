@@ -97,10 +97,8 @@ import { RoomEventsModule } from './room-events.module';
     provideUseCase(GetDraftPickOptionsForSlotUseCase, [
       LOBBY_REPOSITORY,
       FORMATION_REPOSITORY,
-      DRAFT_POOL_REPOSITORY,
       GeneratePickOptionsUseCase,
       GetDraftSessionByLobbyUseCase,
-      CalculateTeamStrengthUseCase,
     ]),
     provideUseCase(ApplyLobbyDraftPickUseCase, [
       LOBBY_REPOSITORY,

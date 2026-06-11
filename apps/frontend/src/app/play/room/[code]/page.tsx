@@ -3,15 +3,20 @@
 import type { LobbySummaryDto } from '@draft-io/shared-types';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState, startTransition } from 'react';
 
+import { PlayButton } from '@/components/play/play-button';
 import { PlayGameBackdrop } from '@/components/play/play-game-backdrop';
 import { PlayLoadingState } from '@/components/play/play-loading-state';
 import { PlayStageRail } from '@/components/play/play-stage-rail';
+import { runDelayedAction } from '@/lib/action-feedback-delay';
 import { ApiClientError } from '@/lib/api/client';
 import { getLobbyByCode, setParticipantReady, startLobby } from '@/lib/api/lobbies';
 import { clearLobbySession, readLobbySession, type StoredLobbySession } from '@/lib/lobby-session';
-import { useRoomSocket } from '@/lib/room-socket';
+import { LOBBY_REFRESH_EVENTS } from '@/lib/lobby-stage-events';
+import { applyIfChanged } from '@/lib/stable-state';
+import { useLobbyStageSync } from '@/lib/use-lobby-stage-sync';
+import { usePhaseRedirect } from '@/lib/use-phase-redirect';
 
 import '../../play.css';
 
@@ -63,36 +68,18 @@ export default function LobbyRoomPage(): React.ReactElement {
   const [startLoading, setStartLoading] = useState(false);
   const [copied, setCopied] = useState(false);
   const [nowMs, setNowMs] = useState(() => Date.now());
+  const redirectForPhase = usePhaseRedirect(code);
 
   const loadLobby = useCallback(async (): Promise<void> => {
     try {
       const nextLobby = await getLobbyByCode(code);
-      setLobby(nextLobby);
-      setError(null);
+      startTransition(() => {
+        setLobby((current) => applyIfChanged(current, nextLobby));
+        setError(null);
+      });
 
-      if (nextLobby.phase === 'FORMATION_SELECTION') {
-        router.replace(`/play/room/${code}/formation`);
-        return;
-      }
-
-      if (nextLobby.phase === 'DRAFT') {
-        router.replace(`/play/room/${code}/draft`);
-        return;
-      }
-
-      if (nextLobby.phase === 'COACH_SELECTION') {
-        router.replace(`/play/room/${code}/coach-selection`);
-        return;
-      }
-
-      if (nextLobby.phase === 'TEAM_REVIEW') {
-        router.replace(`/play/room/${code}/team-review`);
-        return;
-      }
-
-      if (nextLobby.phase === 'MATCHES') {
-        router.replace(`/play/room/${code}/league`);
-        return;
+      if (nextLobby.phase !== 'LOBBY') {
+        redirectForPhase(nextLobby.phase);
       }
     } catch (error) {
       if (error instanceof ApiClientError && error.statusCode === 410) {
@@ -111,12 +98,14 @@ export default function LobbyRoomPage(): React.ReactElement {
 
       setError('Oda bulunamadı veya yüklenemedi.');
     }
-  }, [code, router]);
+  }, [code, redirectForPhase]);
 
-  useRoomSocket(code, (event) => {
-    if (event === 'LOBBY_RESET' || event === 'FORMATION_SELECTION_STARTED') {
-      void loadLobby();
-    }
+  useLobbyStageSync({
+    lobbyCode: code,
+    onRefresh: loadLobby,
+    pollIntervalMs: POLL_INTERVAL_MS,
+    enabled: !readyLoading && !startLoading,
+    refreshEvents: LOBBY_REFRESH_EVENTS,
   });
 
   useEffect(() => {
@@ -151,15 +140,7 @@ export default function LobbyRoomPage(): React.ReactElement {
 
   useEffect(() => {
     setSession(readLobbySession(code));
-    void loadLobby();
-    const timer = window.setInterval(() => {
-      void loadLobby();
-    }, POLL_INTERVAL_MS);
-
-    return () => {
-      window.clearInterval(timer);
-    };
-  }, [code, loadLobby]);
+  }, [code]);
 
   const currentParticipant = useMemo(() => {
     if (lobby === null || session?.lobbyCode !== code) {
@@ -192,50 +173,48 @@ export default function LobbyRoomPage(): React.ReactElement {
   }, [canStart, isHost, readyCount, totalPlayers]);
 
   async function handleToggleReady(): Promise<void> {
-    if (!hasValidSession || lobby?.status === 'STARTED') {
+    if (!hasValidSession || lobby?.status === 'STARTED' || readyLoading) {
       return;
     }
 
-    setReadyLoading(true);
-    setActionError(null);
+    await runDelayedAction(setReadyLoading, async () => {
+      setActionError(null);
 
-    try {
-      const updated = await setParticipantReady(code, {
-        sessionToken: session.sessionToken,
-        isReady: !isReady,
-      });
-      setLobby(updated);
-    } catch (error) {
-      if (error instanceof ApiClientError) {
-        setActionError(error.message);
-      } else {
-        setActionError('Hazır durumu güncellenemedi.');
+      try {
+        const updated = await setParticipantReady(code, {
+          sessionToken: session.sessionToken,
+          isReady: !isReady,
+        });
+        setLobby(updated);
+      } catch (error) {
+        if (error instanceof ApiClientError) {
+          setActionError(error.message);
+        } else {
+          setActionError('Hazır durumu güncellenemedi.');
+        }
       }
-    } finally {
-      setReadyLoading(false);
-    }
+    });
   }
 
   async function handleStartGame(): Promise<void> {
-    if (!hasValidSession || !canStart) {
+    if (!hasValidSession || !canStart || startLoading) {
       return;
     }
 
-    setStartLoading(true);
-    setActionError(null);
+    await runDelayedAction(setStartLoading, async () => {
+      setActionError(null);
 
-    try {
-      await startLobby(code, { sessionToken: session.sessionToken });
-      router.push(`/play/room/${code}/formation`);
-    } catch (error) {
-      if (error instanceof ApiClientError) {
-        setActionError(error.message);
-      } else {
-        setActionError('Oyun başlatılamadı. Herkesin hazır olduğundan emin ol.');
+      try {
+        await startLobby(code, { sessionToken: session.sessionToken });
+        router.push(`/play/room/${code}/formation`);
+      } catch (error) {
+        if (error instanceof ApiClientError) {
+          setActionError(error.message);
+        } else {
+          setActionError('Oyun başlatılamadı. Herkesin hazır olduğundan emin ol.');
+        }
       }
-    } finally {
-      setStartLoading(false);
-    }
+    });
   }
 
   async function handleCopyCode(): Promise<void> {
@@ -399,26 +378,29 @@ export default function LobbyRoomPage(): React.ReactElement {
               </div>
             ) : (
               <div className="play-action-bar">
-                <button
+                <PlayButton
                   type="button"
-                  className={`play-btn${isReady ? ' play-btn--ready' : ' play-btn--primary'}`}
-                  disabled={readyLoading}
+                  className={isReady ? 'play-btn--ready' : 'play-btn--primary'}
+                  loading={readyLoading}
+                  loadingLabel="Güncelleniyor…"
                   onClick={() => void handleToggleReady()}
                 >
-                  {readyLoading ? 'Güncelleniyor…' : isReady ? 'Hazırım ✓' : 'Hazırım'}
-                </button>
+                  {isReady ? 'Hazırım ✓' : 'Hazırım'}
+                </PlayButton>
 
                 {isHost ? (
                   <div className="play-host-start">
-                    <button
+                    <PlayButton
                       type="button"
-                      className={`play-btn play-btn--start${canStart ? ' play-btn--start-active' : ' play-btn--start-disabled'}`}
-                      disabled={!canStart || startLoading}
+                      className={`play-btn--start${canStart ? ' play-btn--start-active' : ' play-btn--start-disabled'}`}
+                      disabled={!canStart}
+                      loading={startLoading}
+                      loadingLabel="Başlatılıyor…"
                       onClick={() => void handleStartGame()}
                       aria-describedby={startDisabledReason ? 'start-hint' : undefined}
                     >
-                      {startLoading ? 'Başlatılıyor…' : 'Formasyon Seçimine Başlat'}
-                    </button>
+                      Formasyon Seçimine Başlat
+                    </PlayButton>
                     {startDisabledReason !== null ? (
                       <p id="start-hint" className="play-action-bar__hint">
                         {startDisabledReason}

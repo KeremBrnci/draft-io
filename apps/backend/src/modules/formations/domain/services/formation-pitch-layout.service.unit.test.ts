@@ -15,8 +15,8 @@ describe('computePitchCoordinates', () => {
       computePitchCoordinates('4-4-2', 11, 'ST'),
     ];
 
-    expect(leftMid.pitchX).toBeLessThan(20);
-    expect(rightMid.pitchX).toBeGreaterThan(80);
+    expect(leftMid.pitchX).toBeLessThan(25);
+    expect(rightMid.pitchX).toBeGreaterThan(75);
     expect(leftMid.pitchY).toBe(rightMid.pitchY);
     expect(strikers[0]?.pitchY).toBe(strikers[1]?.pitchY);
     expect(strikers[0]?.pitchY ?? 100).toBeLessThan(leftMid.pitchY);
@@ -37,12 +37,27 @@ describe('computePitchCoordinates', () => {
     expect(pivotLeft.pitchY).toBeGreaterThan(cam.pitchY);
   });
 
+  it('keeps 4-2-2-2 midfield rows separated', () => {
+    const cdm = computePitchCoordinates('4-2-2-2', 6, 'CDM');
+    const cam = computePitchCoordinates('4-2-2-2', 8, 'CAM');
+
+    expect(cam.pitchY).toBeLessThan(cdm.pitchY);
+    expect(cdm.pitchY - cam.pitchY).toBeGreaterThanOrEqual(18);
+  });
+
+  it('aligns 5-3-2 wingbacks with the back line', () => {
+    const leftWingBack = computePitchCoordinates('5-3-2', 2, 'LWB');
+    const centerBack = computePitchCoordinates('5-3-2', 3, 'CB');
+
+    expect(leftWingBack.pitchY).toBe(centerBack.pitchY);
+  });
+
   it('spreads the back four to the touchlines', () => {
     const leftBack = computePitchCoordinates('4-3-3', 2, 'LB');
     const rightBack = computePitchCoordinates('4-3-3', 5, 'RB');
 
-    expect(leftBack.pitchX).toBeLessThan(20);
-    expect(rightBack.pitchX).toBeGreaterThan(80);
+    expect(leftBack.pitchX).toBeLessThan(25);
+    expect(rightBack.pitchX).toBeGreaterThan(75);
     expect(leftBack.pitchY).toBe(rightBack.pitchY);
   });
 });

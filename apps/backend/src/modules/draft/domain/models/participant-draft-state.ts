@@ -1,3 +1,5 @@
+import { RECENTLY_OFFERED_PLAYER_LIMIT } from '../constants/pick-board-profile.constants';
+
 import type { DraftPoolCard } from './draft-pool-card';
 
 export interface DraftSlotAssignment {
@@ -15,6 +17,7 @@ export interface ParticipantDraftState {
   readonly surpriseCredit: number;
   readonly elitePicksTaken: number;
   readonly draftedCardIds: readonly string[];
+  readonly recentlyOfferedPlayerIds: readonly string[];
   readonly slotAssignments: readonly DraftSlotAssignment[];
   readonly pickCount: number;
 }
@@ -31,8 +34,21 @@ export function createParticipantDraftState(input: {
     surpriseCredit: 0,
     elitePicksTaken: 0,
     draftedCardIds: [],
+    recentlyOfferedPlayerIds: [],
     slotAssignments: [],
     pickCount: 0,
+  };
+}
+
+export function recordOfferedPlayers(
+  state: ParticipantDraftState,
+  playerIds: readonly string[],
+): ParticipantDraftState {
+  const merged = [...state.recentlyOfferedPlayerIds, ...playerIds];
+  const unique = [...new Set(merged)];
+  return {
+    ...state,
+    recentlyOfferedPlayerIds: unique.slice(-RECENTLY_OFFERED_PLAYER_LIMIT),
   };
 }
 

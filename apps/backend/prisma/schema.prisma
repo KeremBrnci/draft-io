@@ -569,8 +569,9 @@ model DraftParticipantState {
   surpriseDebt       Int      @default(0) @map("surprise_debt") @db.SmallInt
   surpriseCredit     Int      @default(0) @map("surprise_credit") @db.SmallInt
   elitePicksTaken    Int      @default(0) @map("elite_picks_taken") @db.SmallInt
-  draftedCardIds     Json     @default("[]") @map("drafted_card_ids")
-  slotAssignments    Json     @default("[]") @map("slot_assignments")
+  draftedCardIds            Json     @default("[]") @map("drafted_card_ids")
+  recentlyOfferedPlayerIds  Json     @default("[]") @map("recently_offered_player_ids")
+  slotAssignments           Json     @default("[]") @map("slot_assignments")
   pickCount          Int      @default(0) @map("pick_count") @db.SmallInt
   createdAt          DateTime @default(now()) @map("created_at")
   updatedAt          DateTime @updatedAt @map("updated_at")

@@ -31,8 +31,16 @@ function FootballCardComponent({
 }: FootballCardProps): React.ReactElement {
   const theme = CARD_VARIANT_THEMES[variant];
   const nameDisplay = formatCardNameForDisplay(face.displayName);
+  const primaryNameLength =
+    nameDisplay.mode === 'split'
+      ? nameDisplay.lines.secondLine.length
+      : nameDisplay.singleLine.length;
   const nameLengthTier =
-    face.displayName.length > 22 ? 'long' : face.displayName.length > 15 ? 'medium' : 'short';
+    primaryNameLength > 14 || face.displayName.length > 22
+      ? 'long'
+      : primaryNameLength > 9 || face.displayName.length > 15
+        ? 'medium'
+        : 'short';
   const leagueIndicator = formatLeagueIndicator(face.leagueName);
   const [portraitFailed, setPortraitFailed] = useState(false);
   const isInteractive = visual === 'interactive';

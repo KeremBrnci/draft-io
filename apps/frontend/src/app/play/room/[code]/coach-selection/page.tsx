@@ -2,41 +2,36 @@
 
 import type { CoachSelectionStateDto } from '@draft-io/shared-types';
 import Link from 'next/link';
-import { useParams, useRouter } from 'next/navigation';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useParams } from 'next/navigation';
+import { useCallback, useMemo, useState, startTransition } from 'react';
 
 import '@/components/league/league.css';
 import { CoachCard } from '@/components/cards';
 import { PlayGameBackdrop } from '@/components/play/play-game-backdrop';
 import { PlayLoadingState } from '@/components/play/play-loading-state';
 import { PlayStageRail } from '@/components/play/play-stage-rail';
+import { waitForActionFeedback } from '@/lib/action-feedback-delay';
 import { ApiClientError } from '@/lib/api/client';
 import { getCoachSelection, selectCoach } from '@/lib/api/coach-selection';
 import { clearLobbySession, readLobbySession } from '@/lib/lobby-session';
-import { useRoomSocket } from '@/lib/room-socket';
+import { COACH_REFRESH_EVENTS } from '@/lib/lobby-stage-events';
+import { applyIfChanged } from '@/lib/stable-state';
+import { useLobbyStageSync } from '@/lib/use-lobby-stage-sync';
+import { usePhaseRedirect } from '@/lib/use-phase-redirect';
 
 import '../../../play.css';
 
 const POLL_INTERVAL_MS = 5000;
 
-const COACH_REFRESH_EVENTS = new Set([
-  'COACH_SELECTION_STARTED',
-  'PLAYER_SELECTED_COACH',
-  'ALL_COACHES_SELECTED',
-  'TEAMS_READY',
-  'LEAGUE_READY',
-  'MATCH_STARTED',
-]);
-
 export default function CoachSelectionPage(): React.ReactElement {
   const params = useParams<{ code: string }>();
-  const router = useRouter();
   const code = params.code.toUpperCase();
   const session = useMemo(() => readLobbySession(code), [code]);
   const [state, setState] = useState<CoachSelectionStateDto | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
   const [selectingId, setSelectingId] = useState<string | null>(null);
+  const redirectForPhase = usePhaseRedirect(code);
 
   const loadState = useCallback(async (): Promise<void> => {
     if (session === null) {
@@ -46,16 +41,18 @@ export default function CoachSelectionPage(): React.ReactElement {
 
     try {
       const nextState = await getCoachSelection(code, session.sessionToken);
-      setState(nextState);
-      setError(null);
+      startTransition(() => {
+        setState((current) => applyIfChanged(current, nextState));
+        setError(null);
+      });
 
       if (nextState.phase === 'TEAM_REVIEW') {
-        router.replace(`/play/room/${code}/team-review`);
+        redirectForPhase('TEAM_REVIEW');
         return;
       }
 
       if (nextState.phase === 'MATCHES') {
-        router.replace(`/play/room/${code}/league`);
+        redirectForPhase('MATCHES');
       }
     } catch (loadError) {
       if (
@@ -69,34 +66,14 @@ export default function CoachSelectionPage(): React.ReactElement {
 
       setError('Teknik direktör seçimi yüklenemedi.');
     }
-  }, [code, router, session]);
+  }, [code, redirectForPhase, session]);
 
-  useEffect(() => {
-    void loadState();
-
-    if (selectingId !== null) {
-      return;
-    }
-
-    const timer = window.setInterval(() => {
-      void loadState();
-    }, POLL_INTERVAL_MS);
-
-    return () => {
-      window.clearInterval(timer);
-    };
-  }, [loadState, selectingId]);
-
-  useRoomSocket(code, (event) => {
-    if (!COACH_REFRESH_EVENTS.has(event)) {
-      return;
-    }
-
-    if (event === 'LEAGUE_READY' || event === 'MATCH_STARTED') {
-      router.replace(`/play/room/${code}/league`);
-      return;
-    }
-    void loadState();
+  useLobbyStageSync({
+    lobbyCode: code,
+    onRefresh: loadState,
+    pollIntervalMs: POLL_INTERVAL_MS,
+    enabled: selectingId === null,
+    refreshEvents: COACH_REFRESH_EVENTS,
   });
 
   const hasLockedSelection = state?.mySelectedCoachId !== null;
@@ -113,15 +90,15 @@ export default function CoachSelectionPage(): React.ReactElement {
     setActionError(null);
 
     try {
+      await waitForActionFeedback();
+
       const nextState = await selectCoach(code, {
         sessionToken: session.sessionToken,
         coachId,
       });
       setState(nextState);
-      if (nextState.phase === 'MATCHES') {
-        router.replace(`/play/room/${code}/league`);
-      } else if (nextState.phase === 'TEAM_REVIEW' || nextState.allCoachesSelected) {
-        router.replace(`/play/room/${code}/league`);
+      if (nextState.phase === 'MATCHES' || nextState.phase === 'TEAM_REVIEW' || nextState.allCoachesSelected) {
+        redirectForPhase('MATCHES');
       }
     } catch {
       setActionError('Teknik direktör seçilemedi.');
@@ -185,15 +162,16 @@ export default function CoachSelectionPage(): React.ReactElement {
                   <button
                     key={coach.id}
                     type="button"
-                    className={`coach-selection-card${isSelected ? ' coach-selection-card--selected' : ''}`}
-                    disabled={hasLockedSelection || isBusy}
+                    className={`coach-selection-card${isSelected ? ' coach-selection-card--selected' : ''}${isBusy ? ' coach-selection-card--busy' : ''}`}
+                    disabled={hasLockedSelection || selectingId !== null}
+                    aria-busy={isBusy}
                     onClick={() => {
                       void handleSelectCoach(coach.id);
                     }}
                   >
+                    {isBusy ? <span className="coach-selection-card__spinner" aria-hidden /> : null}
                     <CoachCard coach={coach} size="sm" visual="interactive" />
                     <span className="coach-selection-card__name">{coach.displayName}</span>
-                    {isBusy ? <span className="coach-selection-card__busy">Seçiliyor…</span> : null}
                   </button>
                 );
               })}

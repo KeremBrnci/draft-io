@@ -5,6 +5,8 @@ export type RoomLeagueStatusDto = 'PENDING' | 'IN_PROGRESS' | 'COMPLETED';
 export interface RoomFixtureDto {
   readonly id: string;
   readonly roundNumber: number;
+  readonly scheduleRound: number;
+  readonly matchInRound: number;
   readonly homeParticipantId: string;
   readonly awayParticipantId: string;
   readonly homeDisplayName: string;

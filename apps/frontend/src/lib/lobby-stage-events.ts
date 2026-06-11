@@ -1,0 +1,41 @@
+import type { RoomEventNameDto } from '@draft-io/shared-types';
+
+export const LOBBY_REFRESH_EVENTS = new Set<RoomEventNameDto>([
+  'FORMATION_SELECTION_STARTED',
+  'LOBBY_RESET',
+]);
+
+export const FORMATION_REFRESH_EVENTS = new Set<RoomEventNameDto>([
+  'FORMATION_SELECTION_STARTED',
+  'PLAYER_SELECTED_FORMATION',
+  'ALL_FORMATIONS_SELECTED',
+  'DRAFT_READY',
+  'LOBBY_RESET',
+]);
+
+export const DRAFT_REFRESH_EVENTS = new Set<RoomEventNameDto>([
+  'DRAFT_READY',
+  'DRAFT_PLAYER_READY',
+  'DRAFT_COMPLETE',
+  'COACH_SELECTION_STARTED',
+  'LEAGUE_READY',
+  'MATCH_STARTED',
+  'LOBBY_RESET',
+]);
+
+export const COACH_REFRESH_EVENTS = new Set<RoomEventNameDto>([
+  'COACH_SELECTION_STARTED',
+  'PLAYER_SELECTED_COACH',
+  'ALL_COACHES_SELECTED',
+  'TEAMS_READY',
+  'LEAGUE_READY',
+  'MATCH_STARTED',
+  'LOBBY_RESET',
+]);
+
+export const TEAM_REVIEW_REFRESH_EVENTS = new Set<RoomEventNameDto>([
+  'TEAMS_READY',
+  'LEAGUE_READY',
+  'MATCH_STARTED',
+  'LOBBY_RESET',
+]);

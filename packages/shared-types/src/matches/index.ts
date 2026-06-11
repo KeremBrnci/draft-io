@@ -8,6 +8,13 @@ export type {
   MatchTeamSideDto,
   MatchTeamSnapshotDto,
 } from './match-simulation.js';
+export {
+  deriveMatchStoppageTime,
+  formatMatchMinuteLabel,
+  getMatchMinuteMilestones,
+  mapEventToInternalMinute,
+} from './match-stoppage-time.js';
+export type { MatchMinuteMilestones, MatchStoppageTimeDto } from './match-stoppage-time.js';
 export type {
   RoomFixtureDto,
   RoomLeagueStandingDto,

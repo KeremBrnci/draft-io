@@ -6,7 +6,7 @@ import { mapCardTypeToVariant } from './map-card-type-to-variant';
 import { mapDraftCardFace } from './map-draft-card-face';
 
 import { FootballCard } from '@/components/cards/football-card';
-import { formatCardNameCompactLabel } from '@/components/cards/format-card-name';
+import { mapPitchDisplayPercent } from '@/lib/map-pitch-display-percent';
 
 interface DraftPitchBoardProps {
   readonly board: DraftBoardStateDto;
@@ -63,8 +63,8 @@ const DraftPitchSlot = memo(function DraftPitchSlot({
   }, [locked, onSelectSlot, slot.card, slot.slotIndex]);
 
   const style = {
-    left: `${slot.pitchX}%`,
-    top: `${slot.pitchY}%`,
+    left: `${mapPitchDisplayPercent(slot.pitchX)}%`,
+    top: `${mapPitchDisplayPercent(slot.pitchY)}%`,
   };
 
   return (
@@ -85,11 +85,8 @@ const DraftPitchSlot = memo(function DraftPitchSlot({
             variant={mapCardTypeToVariant(slot.card.cardTypeCode)}
             size="md"
             visual="interactive"
-            className="draft-pitch-slot__card"
+            className="draft-pitch-slot__card fc-card--pitch"
           />
-          <span className="draft-pitch-slot__label" title={slot.card.displayName}>
-            {formatCardNameCompactLabel(slot.card.displayName)}
-          </span>
         </div>
       )}
     </div>

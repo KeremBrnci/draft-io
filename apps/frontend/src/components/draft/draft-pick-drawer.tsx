@@ -139,10 +139,12 @@ const DraftPickOption = memo(function DraftPickOption({
       type="button"
       className={`draft-pick-drawer__option${isPicking ? ' draft-pick-drawer__option--picking' : ''}${isDisabled ? ' draft-pick-drawer__option--dimmed' : ''}`}
       disabled={pickingCardId !== null}
+      aria-busy={isPicking}
       onClick={() => {
         onPick(option.cardId);
       }}
     >
+      {isPicking ? <span className="draft-pick-drawer__option-spinner" aria-hidden /> : null}
       <FootballCard
         face={mapDraftCardFace(option.face)}
         variant={mapCardTypeToVariant(option.face.cardTypeCode)}

@@ -1,4 +1,5 @@
 import { Inject, Injectable, OnModuleDestroy } from '@nestjs/common';
+import { ModuleRef } from '@nestjs/core';
 
 import {
   ROOM_EVENTS_PUBLISHER,
@@ -6,6 +7,11 @@ import {
 } from '../../../lobbies/application/services/room-events.publisher';
 import { RoomEventName } from '../../../lobbies/domain/events/room.events';
 import { DEFAULT_MATCH_SIMULATION_CONFIG } from '../../../simulation/domain/models/match-simulation.types';
+import { StartNextMatchUseCase } from '../use-cases/room-league.use-cases';
+import {
+  eventsForInternalMinute,
+  resolveMatchStoppageContext,
+} from '../../domain/services/match-stoppage-time.service';
 import type { RoomMatchEventRecord } from '../../domain/repositories/room-league.repository';
 import {
   ROOM_LEAGUE_REPOSITORY,
@@ -16,33 +22,71 @@ interface ActivePlayback {
   readonly matchId: string;
   readonly leagueId: string;
   readonly lobbyCode: string;
-  readonly timer: ReturnType<typeof setInterval>;
+  timer: ReturnType<typeof setInterval> | null;
+  warmupTimer: ReturnType<typeof setTimeout> | null;
 }
 
 const ALERT_EVENT_TYPES = new Set(['GOAL_CHANCE', 'PENALTY']);
 const ALERT_REVEAL_DELAY_MS = 3000;
 
+function dedupeMatchEvents(
+  events: readonly RoomMatchEventRecord[],
+): readonly RoomMatchEventRecord[] {
+  const seen = new Set<string>();
+  const unique: RoomMatchEventRecord[] = [];
+
+  for (const event of events) {
+    if (seen.has(event.id)) {
+      continue;
+    }
+    seen.add(event.id);
+    unique.push(event);
+  }
+
+  return unique;
+}
+
+function countScoredGoals(
+  events: readonly RoomMatchEventRecord[],
+  teamSide: 'HOME' | 'AWAY',
+): number {
+  return events.filter(
+    (event) => event.isGoal && event.eventType === 'GOAL' && event.teamSide === teamSide,
+  ).length;
+}
+
 @Injectable()
 export class MatchPlaybackService implements OnModuleDestroy {
   private readonly active = new Map<string, ActivePlayback>();
   private readonly pendingReveals = new Map<string, ReturnType<typeof setTimeout>>();
+  private readonly autoStartTimers = new Map<string, ReturnType<typeof setTimeout>>();
 
   constructor(
     @Inject(ROOM_LEAGUE_REPOSITORY)
     private readonly roomLeagueRepository: RoomLeagueRepository,
     @Inject(ROOM_EVENTS_PUBLISHER)
     private readonly roomEventsPublisher: RoomEventsPublisher,
+    private readonly moduleRef: ModuleRef,
   ) {}
 
   onModuleDestroy(): void {
     for (const playback of this.active.values()) {
-      clearInterval(playback.timer);
+      if (playback.timer !== null) {
+        clearInterval(playback.timer);
+      }
+      if (playback.warmupTimer !== null) {
+        clearTimeout(playback.warmupTimer);
+      }
     }
     for (const timer of this.pendingReveals.values()) {
       clearTimeout(timer);
     }
+    for (const timer of this.autoStartTimers.values()) {
+      clearTimeout(timer);
+    }
     this.active.clear();
     this.pendingReveals.clear();
+    this.autoStartTimers.clear();
   }
 
   async startPlayback(input: {
@@ -57,7 +101,7 @@ export class MatchPlaybackService implements OnModuleDestroy {
     await this.roomLeagueRepository.updateLeagueStatus(input.leagueId, 'IN_PROGRESS');
     await this.roomLeagueRepository.updateMatchProgress({
       matchId: input.matchId,
-      status: 'LIVE',
+      status: 'PRE_MATCH',
       currentMinute: 0,
       homeScore: 0,
       awayScore: 0,
@@ -70,16 +114,60 @@ export class MatchPlaybackService implements OnModuleDestroy {
       matchId: input.matchId,
     });
 
-    const timer = setInterval(() => {
-      void this.tick(input.matchId, input.leagueId, input.lobbyCode);
-    }, DEFAULT_MATCH_SIMULATION_CONFIG.msPerMinute);
+    const warmupTimer = setTimeout(() => {
+      void this.beginLivePlayback(input.matchId, input.leagueId, input.lobbyCode);
+    }, DEFAULT_MATCH_SIMULATION_CONFIG.warmupDelayMs);
 
     this.active.set(input.matchId, {
       matchId: input.matchId,
       leagueId: input.leagueId,
       lobbyCode: input.lobbyCode,
-      timer,
+      timer: null,
+      warmupTimer,
     });
+  }
+
+  private async beginLivePlayback(
+    matchId: string,
+    leagueId: string,
+    lobbyCode: string,
+  ): Promise<void> {
+    const playback = this.active.get(matchId);
+    if (playback === undefined) {
+      return;
+    }
+
+    playback.warmupTimer = null;
+
+    const match = await this.roomLeagueRepository.findMatchById(matchId);
+    if (match === null || match.status === 'FULL_TIME') {
+      this.stop(matchId);
+      return;
+    }
+
+    await this.roomLeagueRepository.updateMatchProgress({
+      matchId,
+      status: 'LIVE',
+      currentMinute: 0,
+      homeScore: 0,
+      awayScore: 0,
+      revealedEventIds: [],
+    });
+
+    this.roomEventsPublisher.publish(lobbyCode, RoomEventName.MATCH_MINUTE_UPDATED, {
+      lobbyCode,
+      phase: 'MATCHES',
+      matchId,
+      currentMinute: 0,
+      homeScore: 0,
+      awayScore: 0,
+    });
+
+    const timer = setInterval(() => {
+      void this.tick(matchId, leagueId, lobbyCode);
+    }, DEFAULT_MATCH_SIMULATION_CONFIG.msPerMinute);
+
+    playback.timer = timer;
   }
 
   private async tick(matchId: string, leagueId: string, lobbyCode: string): Promise<void> {
@@ -93,16 +181,20 @@ export class MatchPlaybackService implements OnModuleDestroy {
       return;
     }
 
+    const { stoppage, milestones } = resolveMatchStoppageContext(match.simulationSeed);
     const nextMinute = match.currentMinute + 1;
+    if (nextMinute > milestones.matchEnd) {
+      this.stop(matchId);
+      return;
+    }
+
     const allEvents = await this.roomLeagueRepository.listMatchEvents(matchId, false);
-    const minuteEvents = allEvents
-      .filter((event) => event.minute === nextMinute && event.revealedAt === null)
-      .sort((left, right) => left.sortOrder - right.sortOrder);
+    const minuteEvents = eventsForInternalMinute(allEvents, nextMinute, stoppage);
 
     let status = 'LIVE';
-    if (nextMinute === 45) {
+    if (nextMinute === milestones.firstHalfEnd) {
       status = 'HALF_TIME';
-    } else if (match.status === 'HALF_TIME' && nextMinute > 45) {
+    } else if (match.status === 'HALF_TIME' && nextMinute > milestones.firstHalfEnd) {
       status = 'LIVE';
     }
 
@@ -112,7 +204,7 @@ export class MatchPlaybackService implements OnModuleDestroy {
     );
 
     if (alertEvents.length > 0 && resolutionEvents.length > 0) {
-      const statusWhilePending = nextMinute >= 90 ? 'LIVE' : status;
+      const statusWhilePending = nextMinute >= milestones.matchEnd ? 'LIVE' : status;
 
       await this.revealEvents({
         matchId,
@@ -123,6 +215,7 @@ export class MatchPlaybackService implements OnModuleDestroy {
         status: statusWhilePending,
         eventsToReveal: alertEvents,
         allEvents,
+        milestones,
       });
 
       const timer = setTimeout(() => {
@@ -141,9 +234,18 @@ export class MatchPlaybackService implements OnModuleDestroy {
       status,
       eventsToReveal: minuteEvents,
       allEvents,
+      milestones,
     });
 
-    await this.handleMinuteMilestones(matchId, leagueId, lobbyCode, match, nextMinute, updated);
+    await this.handleMinuteMilestones(
+      matchId,
+      leagueId,
+      lobbyCode,
+      match,
+      nextMinute,
+      updated,
+      milestones,
+    );
   }
 
   private async revealDelayedEvents(
@@ -155,10 +257,11 @@ export class MatchPlaybackService implements OnModuleDestroy {
     this.pendingReveals.delete(matchId);
 
     const match = await this.roomLeagueRepository.findMatchById(matchId);
-    if (match === null || eventsToReveal.length === 0) {
+    if (match === null || eventsToReveal.length === 0 || match.status === 'FULL_TIME') {
       return;
     }
 
+    const { milestones } = resolveMatchStoppageContext(match.simulationSeed);
     const allEvents = await this.roomLeagueRepository.listMatchEvents(matchId, false);
     const updated = await this.revealEvents({
       matchId,
@@ -170,10 +273,19 @@ export class MatchPlaybackService implements OnModuleDestroy {
       eventsToReveal,
       allEvents,
       advanceMinute: false,
+      milestones,
     });
 
-    if (updated.currentMinute >= 90) {
-      await this.handleMinuteMilestones(matchId, leagueId, lobbyCode, match, 90, updated);
+    if (updated.currentMinute >= milestones.matchEnd) {
+      await this.handleMinuteMilestones(
+        matchId,
+        leagueId,
+        lobbyCode,
+        match,
+        milestones.matchEnd,
+        updated,
+        milestones,
+      );
     }
   }
 
@@ -187,27 +299,32 @@ export class MatchPlaybackService implements OnModuleDestroy {
     readonly eventsToReveal: readonly RoomMatchEventRecord[];
     readonly allEvents: readonly RoomMatchEventRecord[];
     readonly advanceMinute?: boolean;
+    readonly milestones: ReturnType<
+      typeof resolveMatchStoppageContext
+    >['milestones'];
   }): Promise<NonNullable<Awaited<ReturnType<RoomLeagueRepository['findMatchById']>>>> {
     const advanceMinute = input.advanceMinute ?? true;
     const alreadyRevealed = input.allEvents.filter((event) => event.revealedAt !== null);
-    const revealedNow = [...alreadyRevealed, ...input.eventsToReveal];
-    const homeScore = revealedNow.filter(
-      (event) => event.isGoal && event.teamSide === 'HOME',
-    ).length;
-    const awayScore = revealedNow.filter(
-      (event) => event.isGoal && event.teamSide === 'AWAY',
-    ).length;
+    const revealedNow = dedupeMatchEvents([...alreadyRevealed, ...input.eventsToReveal]);
+    const homeScore = countScoredGoals(revealedNow, 'HOME');
+    const awayScore = countScoredGoals(revealedNow, 'AWAY');
 
     const updated = await this.roomLeagueRepository.updateMatchProgress({
       matchId: input.matchId,
-      status: advanceMinute && input.nextMinute >= 90 ? 'FULL_TIME' : input.status,
-      currentMinute: advanceMinute ? Math.min(input.nextMinute, 90) : input.match.currentMinute,
+      status:
+        advanceMinute && input.nextMinute >= input.milestones.matchEnd ? 'FULL_TIME' : input.status,
+      currentMinute: advanceMinute
+        ? Math.min(input.nextMinute, input.milestones.matchEnd)
+        : input.match.currentMinute,
       homeScore,
       awayScore,
       revealedEventIds: input.eventsToReveal.map((event) => event.id),
     });
 
-    if (advanceMinute) {
+    const scoreChanged =
+      updated.homeScore !== input.match.homeScore || updated.awayScore !== input.match.awayScore;
+
+    if (advanceMinute || scoreChanged) {
       this.roomEventsPublisher.publish(input.lobbyCode, RoomEventName.MATCH_MINUTE_UPDATED, {
         lobbyCode: input.lobbyCode,
         phase: 'MATCHES',
@@ -245,6 +362,7 @@ export class MatchPlaybackService implements OnModuleDestroy {
         input.match,
         input.nextMinute,
         updated,
+        input.milestones,
       );
     }
 
@@ -258,8 +376,9 @@ export class MatchPlaybackService implements OnModuleDestroy {
     match: NonNullable<Awaited<ReturnType<RoomLeagueRepository['findMatchById']>>>,
     nextMinute: number,
     updated: NonNullable<Awaited<ReturnType<RoomLeagueRepository['findMatchById']>>>,
+    milestones: ReturnType<typeof resolveMatchStoppageContext>['milestones'],
   ): Promise<void> {
-    if (nextMinute === 45) {
+    if (nextMinute === milestones.firstHalfEnd) {
       this.roomEventsPublisher.publish(lobbyCode, RoomEventName.HALF_TIME, {
         lobbyCode,
         phase: 'MATCHES',
@@ -268,7 +387,7 @@ export class MatchPlaybackService implements OnModuleDestroy {
       return;
     }
 
-    if (nextMinute >= 90) {
+    if (nextMinute >= milestones.matchEnd) {
       const leagueCompleted = await this.roomLeagueRepository.finalizeMatch({
         matchId,
         homeScore: updated.homeScore,
@@ -300,10 +419,27 @@ export class MatchPlaybackService implements OnModuleDestroy {
               }
             : {}),
         });
+      } else {
+        this.queueNextMatch(lobbyCode, matchId);
       }
 
       this.stop(matchId);
     }
+  }
+
+  private queueNextMatch(lobbyCode: string, matchId: string): void {
+    const existing = this.autoStartTimers.get(matchId);
+    if (existing !== undefined) {
+      clearTimeout(existing);
+    }
+
+    const timer = setTimeout(() => {
+      this.autoStartTimers.delete(matchId);
+      const startNextMatch = this.moduleRef.get(StartNextMatchUseCase, { strict: false });
+      void startNextMatch.execute({ code: lobbyCode });
+    }, DEFAULT_MATCH_SIMULATION_CONFIG.nextMatchDelayMs);
+
+    this.autoStartTimers.set(matchId, timer);
   }
 
   private stop(matchId: string): void {
@@ -317,7 +453,12 @@ export class MatchPlaybackService implements OnModuleDestroy {
     if (playback === undefined) {
       return;
     }
-    clearInterval(playback.timer);
+    if (playback.timer !== null) {
+      clearInterval(playback.timer);
+    }
+    if (playback.warmupTimer !== null) {
+      clearTimeout(playback.warmupTimer);
+    }
     this.active.delete(matchId);
   }
 }
