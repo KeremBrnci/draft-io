@@ -3,10 +3,19 @@ const PITCH_DISPLAY_RANGE = 100 - 2 * PITCH_EDGE_INSET;
 
 /** Wider horizontal spread so md draft cards keep visible gaps on the same row. */
 const DRAFT_HORIZONTAL_SPREAD = 1.38;
-/** Taller vertical spread so defensive and midfield lines do not overlap on the draft board. */
-const DRAFT_VERTICAL_SPREAD = 1.42;
-const DRAFT_PITCH_EDGE_INSET = 8;
-const DRAFT_PITCH_DISPLAY_RANGE = 100 - 2 * DRAFT_PITCH_EDGE_INSET;
+
+/**
+ * Draft-only Y stops: midfield is pulled toward attack, defense toward goal,
+ * with extra room between the two lines without squeezing the goalkeeper.
+ */
+const DRAFT_PITCH_Y_STOPS: readonly { readonly y: number; readonly display: number }[] = [
+  { y: 0, display: 6 },
+  { y: 14, display: 11 },
+  { y: 50, display: 36 },
+  { y: 72, display: 76 },
+  { y: 90, display: 88 },
+  { y: 100, display: 94 },
+];
 
 function toDisplayPercent(normalized: number): number {
   const clamped = Math.min(100, Math.max(0, normalized));
@@ -26,15 +35,32 @@ export function mapDraftPitchDisplayX(pitchX: number): number {
   return toDisplayPercent(clamped);
 }
 
-function toDraftDisplayPercent(normalized: number): number {
+function interpolateDraftPitchY(normalized: number): number {
   const clamped = Math.min(100, Math.max(0, normalized));
-  return DRAFT_PITCH_EDGE_INSET + (clamped / 100) * DRAFT_PITCH_DISPLAY_RANGE;
+
+  for (let index = 0; index < DRAFT_PITCH_Y_STOPS.length - 1; index += 1) {
+    const start = DRAFT_PITCH_Y_STOPS[index];
+    const end = DRAFT_PITCH_Y_STOPS[index + 1];
+    if (start === undefined || end === undefined) {
+      continue;
+    }
+
+    if (clamped <= end.y) {
+      if (end.y === start.y) {
+        return start.display;
+      }
+
+      const progress = (clamped - start.y) / (end.y - start.y);
+      return start.display + progress * (end.display - start.display);
+    }
+  }
+
+  const last = DRAFT_PITCH_Y_STOPS[DRAFT_PITCH_Y_STOPS.length - 1];
+  return last?.display ?? 50;
 }
 
 /** Draft board only — spreads slot Y positions so formation lines keep breathing room. */
 export function mapDraftPitchDisplayY(pitchY: number): number {
   const normalized = Math.min(100, Math.max(0, pitchY));
-  const spreadY = 50 + (normalized - 50) * DRAFT_VERTICAL_SPREAD;
-  const clamped = Math.min(98, Math.max(2, spreadY));
-  return toDraftDisplayPercent(clamped);
+  return interpolateDraftPitchY(normalized);
 }

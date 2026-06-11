@@ -35,15 +35,20 @@ describe('mapDraftPitchDisplayX', () => {
 
 describe('mapDraftPitchDisplayY', () => {
   it('spreads defensive and midfield lines further apart than the default mapper', () => {
-    const defaultGap = mapPitchDisplayPercent(72) - mapPitchDisplayPercent(52);
-    const draftGap = mapDraftPitchDisplayY(72) - mapDraftPitchDisplayY(52);
+    const defaultGap = mapPitchDisplayPercent(72) - mapPitchDisplayPercent(50);
+    const draftGap = mapDraftPitchDisplayY(72) - mapDraftPitchDisplayY(50);
 
     expect(draftGap).toBeGreaterThan(defaultGap);
-    expect(draftGap).toBeGreaterThanOrEqual(20);
+    expect(draftGap).toBeGreaterThanOrEqual(36);
   });
 
   it('keeps attack at the top and goalkeeper at the bottom', () => {
-    expect(mapDraftPitchDisplayY(14)).toBeLessThan(mapDraftPitchDisplayY(52));
+    expect(mapDraftPitchDisplayY(14)).toBeLessThan(mapDraftPitchDisplayY(50));
     expect(mapDraftPitchDisplayY(90)).toBeGreaterThan(mapDraftPitchDisplayY(72));
+  });
+
+  it('keeps the goalkeeper separated from the defensive line', () => {
+    const defenseToGoalkeeperGap = mapDraftPitchDisplayY(90) - mapDraftPitchDisplayY(72);
+    expect(defenseToGoalkeeperGap).toBeGreaterThanOrEqual(10);
   });
 });
