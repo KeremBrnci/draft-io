@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState, startTransition } from 'react';
 
+import { LobbySettingsPanel } from '@/components/lobby/lobby-settings-panel';
 import { PlayButton } from '@/components/play/play-button';
 import { PlayGameBackdrop } from '@/components/play/play-game-backdrop';
 import { PlayLoadingState } from '@/components/play/play-loading-state';
@@ -287,6 +288,20 @@ export default function LobbyRoomPage(): React.ReactElement {
                 {copied ? 'Kopyalandı ✓' : 'Kopyala'}
               </button>
             </div>
+
+            <LobbySettingsPanel
+              lobby={lobby}
+              sessionToken={session?.sessionToken ?? null}
+              isHost={
+                session !== null &&
+                lobby.participants.some(
+                  (participant) => participant.id === session.participantId && participant.isHost,
+                )
+              }
+              onUpdated={(next) => {
+                setLobby(next);
+              }}
+            />
 
             <div className="play-ready-meter">
               <div className="play-ready-meter__labels">

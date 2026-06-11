@@ -4,6 +4,7 @@ import {
   PICK_BOARD_COMPACT_RATE,
   PICK_BOARD_ELITE_RATE,
   PICK_BOARD_OVERALL_FLOOR,
+  PICK_BOARD_SPREAD_RATE,
   PICK_BOARD_WINDOWS,
   RECENTLY_OFFERED_WEIGHT_MULTIPLIER,
   pickBoardOverallFloor,
@@ -126,7 +127,10 @@ export class PickOptionGenerator {
     if (roll < PICK_BOARD_ELITE_RATE + PICK_BOARD_COMPACT_RATE) {
       return 'COMPACT';
     }
-    return 'SPREAD';
+    if (roll < PICK_BOARD_ELITE_RATE + PICK_BOARD_COMPACT_RATE + PICK_BOARD_SPREAD_RATE) {
+      return 'SPREAD';
+    }
+    return 'VALUE';
   }
 
   private resolveBoardCandidates(

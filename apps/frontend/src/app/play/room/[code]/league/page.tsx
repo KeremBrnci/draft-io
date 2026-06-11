@@ -9,6 +9,7 @@ import '@/components/league/league.css';
 import { GoalCelebrationOverlay } from '@/components/league/goal-celebration-overlay';
 import { LeagueVictoryOverlay } from '@/components/league/league-victory-overlay';
 import { MatchCommentaryFeed } from '@/components/league/match-commentary-feed';
+import { MatchGoalScorersPanel } from '@/components/league/match-goal-scorers-panel';
 import { MatchLineupsPanel } from '@/components/league/match-lineups-panel';
 import { MatchLiveStatsPanel } from '@/components/league/match-live-stats-panel';
 import { MatchResultsOverlay } from '@/components/league/match-results-overlay';
@@ -363,6 +364,18 @@ export default function LeaguePage(): React.ReactElement {
                     <div className="league-live__score">{liveScores.awayScore}</div>
                   </div>
                 </div>
+
+                {!isWarmup ? (
+                  <MatchGoalScorersPanel
+                    events={match.events}
+                    homeName={match.homeDisplayName}
+                    awayName={match.awayDisplayName}
+                    stoppage={{
+                      firstHalfMinutes: match.firstHalfStoppageMinutes,
+                      secondHalfMinutes: match.secondHalfStoppageMinutes,
+                    }}
+                  />
+                ) : null}
 
                 {!isWarmup && liveStats !== null ? (
                   <MatchLiveStatsPanel

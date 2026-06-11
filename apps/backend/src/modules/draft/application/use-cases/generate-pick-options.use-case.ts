@@ -44,11 +44,13 @@ export class GeneratePickOptionsUseCase {
         : [command.positionCode];
     const eligiblePositionCodes = expandDraftEligiblePositionCodes(slotPositionCodes);
 
+    const poolLeagueIds = session.config.poolLeagueIds ?? [];
     const pool = await this.draftPoolRepository.findEligibleCards({
       positionCode: command.positionCode,
       positionCodes: eligiblePositionCodes,
       excludeCardIds: participant.draftedCardIds,
       excludePlayerIds: draftedPlayerIds,
+      ...(poolLeagueIds.length > 0 ? { leagueIds: poolLeagueIds } : {}),
       limit: DRAFT_PICK_POOL_FETCH_LIMIT,
     });
 

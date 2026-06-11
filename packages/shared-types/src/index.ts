@@ -40,6 +40,7 @@ export type {
   SetParticipantReadyCommandDto,
   StartLobbyCommandDto,
   StartLobbyResultDto,
+  UpdateLobbySettingsCommandDto,
 } from './lobbies/index.js';
 export type { FormationSlotDto, FormationSummaryDto } from './formations/index.js';
 export type {

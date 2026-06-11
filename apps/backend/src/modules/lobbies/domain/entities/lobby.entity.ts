@@ -30,6 +30,7 @@ export interface CreateLobbyProps {
   readonly code: LobbyCode;
   readonly maxPlayers: number;
   readonly host: LobbyParticipant;
+  readonly draftLeagueIds?: readonly string[];
 }
 
 export interface LobbyProps {
@@ -39,6 +40,7 @@ export interface LobbyProps {
   readonly status: LobbyStatus;
   readonly phase: RoomPhase;
   readonly maxPlayers: number;
+  readonly draftLeagueIds: readonly string[];
   readonly participants: readonly LobbyParticipant[];
   readonly expiresAt: Date;
   readonly formationSelectionStartedAt: Date | null;
@@ -53,6 +55,7 @@ export class Lobby extends Entity<LobbyId> {
   private _status: LobbyStatus;
   private _phase: RoomPhase;
   private readonly _maxPlayers: number;
+  private _draftLeagueIds: string[];
   private _participants: LobbyParticipant[];
   private _expiresAt: Date;
   private _formationSelectionStartedAt: Date | null;
@@ -67,6 +70,7 @@ export class Lobby extends Entity<LobbyId> {
     this._status = props.status;
     this._phase = props.phase;
     this._maxPlayers = props.maxPlayers;
+    this._draftLeagueIds = [...props.draftLeagueIds];
     this._participants = [...props.participants];
     this._expiresAt = props.expiresAt;
     this._formationSelectionStartedAt = props.formationSelectionStartedAt;
@@ -86,6 +90,7 @@ export class Lobby extends Entity<LobbyId> {
       status: LobbyStatus.OPEN,
       phase: RoomPhase.LOBBY,
       maxPlayers: props.maxPlayers,
+      draftLeagueIds: normalizeDraftLeagueIds(props.draftLeagueIds),
       participants: [props.host],
       expiresAt: props.expiresAt,
       formationSelectionStartedAt: null,
@@ -329,6 +334,20 @@ export class Lobby extends Entity<LobbyId> {
     this._updatedAt = new Date();
   }
 
+  updateDraftLeagueIds(sessionToken: SessionToken, leagueIds: readonly string[]): void {
+    const host = this.requireParticipant(sessionToken);
+    if (!host.isHost) {
+      throw new NotLobbyHostError();
+    }
+
+    if (this._phase !== RoomPhase.LOBBY) {
+      throw new InvalidRoomPhaseTransitionError(this._phase, RoomPhase.LOBBY);
+    }
+
+    this._draftLeagueIds = normalizeDraftLeagueIds(leagueIds);
+    this._updatedAt = new Date();
+  }
+
   close(): void {
     this._status = LobbyStatus.CLOSED;
     this._phase = RoomPhase.FINISHED;
@@ -372,6 +391,10 @@ export class Lobby extends Entity<LobbyId> {
     return this._maxPlayers;
   }
 
+  get draftLeagueIds(): readonly string[] {
+    return this._draftLeagueIds;
+  }
+
   get participants(): readonly LobbyParticipant[] {
     return this._participants;
   }
@@ -410,4 +433,12 @@ function assertValidCapacity(maxPlayers: number): void {
   if (!Number.isInteger(maxPlayers) || maxPlayers < MIN_PLAYERS || maxPlayers > MAX_PLAYERS) {
     throw new InvalidLobbyCapacityError(maxPlayers);
   }
+}
+
+function normalizeDraftLeagueIds(leagueIds: readonly string[] | undefined): string[] {
+  if (leagueIds === undefined) {
+    return [];
+  }
+
+  return [...new Set(leagueIds.map((id) => id.trim()).filter((id) => id.length > 0))];
 }

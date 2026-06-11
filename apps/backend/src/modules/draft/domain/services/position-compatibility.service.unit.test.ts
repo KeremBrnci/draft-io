@@ -19,6 +19,8 @@ function buildWidePlayer(positionCode: 'LW' | 'RW'): DraftPoolCard {
     nationality: 'TR',
     imageUrl: null,
     nationalityFlagUrl: null,
+    teamName: null,
+    teamLogoUrl: null,
     leagueName: null,
     leagueLogoUrl: null,
     positions: [{ positionCode, isPrimary: true, sortOrder: 0 }],

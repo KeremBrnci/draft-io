@@ -4,6 +4,7 @@ import type { CardEntityKind, CardFaceData, CardVariant } from '@draft-io/shared
 import { memo, useState } from 'react';
 
 import { CardFootballIcon } from './card-football-icon';
+import { CardMetaBadge } from './card-meta-badge';
 import { FC_CARD_CLIP_ID } from './card-silhouette';
 import { CARD_VARIANT_THEMES } from './card-variant-themes';
 import { formatCardNameForDisplay } from './format-card-name';
@@ -86,6 +87,18 @@ function FootballCardComponent({
 
           <div className="fc-card__rating-block">
             <div className="fc-card__rating">{ratingDisplay}</div>
+            <div className="fc-card__rating-flag" title={face.nationalityLabel ?? undefined}>
+              {face.nationalityFlagUrl !== null && face.nationalityFlagUrl.length > 0 ? (
+                <img
+                  src={face.nationalityFlagUrl}
+                  alt=""
+                  loading={isInteractive ? 'eager' : 'lazy'}
+                  decoding="async"
+                />
+              ) : (
+                <span className="fc-card__flag-placeholder" aria-hidden="true" />
+              )}
+            </div>
           </div>
 
           <div className="fc-card__edition">{theme.label.toUpperCase()}</div>
@@ -143,18 +156,13 @@ function FootballCardComponent({
 
             <div className="fc-card__meta">
               <div className="fc-card__meta-side fc-card__meta-side--left">
-                <div className="fc-card__flag" title={face.nationalityLabel ?? undefined}>
-                  {face.nationalityFlagUrl !== null && face.nationalityFlagUrl.length > 0 ? (
-                    <img
-                      src={face.nationalityFlagUrl}
-                      alt=""
-                      loading={isInteractive ? 'eager' : 'lazy'}
-                      decoding="async"
-                    />
-                  ) : (
-                    <span className="fc-card__flag-placeholder" aria-hidden="true" />
-                  )}
-                </div>
+                <CardMetaBadge
+                  kind="team"
+                  src={face.teamLogoUrl}
+                  alt={face.teamName}
+                  title={face.teamName ?? undefined}
+                  eager={isInteractive}
+                />
               </div>
 
               <div className="fc-card__brand" aria-hidden="true">
@@ -162,26 +170,14 @@ function FootballCardComponent({
               </div>
 
               <div className="fc-card__meta-side fc-card__meta-side--right">
-                <div className="fc-card__league" title={face.leagueName ?? undefined}>
-                  {leagueIndicator !== null ? (
-                    <span className="fc-card__league-text">{leagueIndicator}</span>
-                  ) : (
-                    <span className="fc-card__league-placeholder" aria-hidden="true">
-                      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <rect
-                          x="5"
-                          y="7"
-                          width="14"
-                          height="10"
-                          rx="1.5"
-                          stroke="currentColor"
-                          strokeWidth="1.5"
-                        />
-                        <path d="M5 11h14" stroke="currentColor" strokeWidth="1.5" />
-                      </svg>
-                    </span>
-                  )}
-                </div>
+                <CardMetaBadge
+                  kind="league"
+                  src={face.leagueLogoUrl}
+                  alt={face.leagueName}
+                  title={face.leagueName ?? undefined}
+                  fallbackText={leagueIndicator}
+                  eager={isInteractive}
+                />
               </div>
             </div>
           </footer>
@@ -205,6 +201,8 @@ function footballCardPropsAreEqual(prev: FootballCardProps, next: FootballCardPr
     prev.face.subtitle === next.face.subtitle &&
     prev.face.nationalityFlagUrl === next.face.nationalityFlagUrl &&
     prev.face.nationalityLabel === next.face.nationalityLabel &&
+    prev.face.teamName === next.face.teamName &&
+    prev.face.teamLogoUrl === next.face.teamLogoUrl &&
     prev.face.leagueName === next.face.leagueName &&
     prev.face.leagueLogoUrl === next.face.leagueLogoUrl
   );

@@ -8,6 +8,8 @@ export function mapDraftCardFace(card: DraftCardFaceDto): CardFaceData {
     subtitle: card.subtitle,
     nationalityFlagUrl: card.nationalityFlagUrl,
     ...(card.nationalityLabel !== undefined ? { nationalityLabel: card.nationalityLabel } : {}),
+    teamName: card.teamName,
+    teamLogoUrl: card.teamLogoUrl,
     leagueName: card.leagueName,
     leagueLogoUrl: card.leagueLogoUrl,
   };

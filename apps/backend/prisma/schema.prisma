@@ -395,6 +395,7 @@ model Lobby {
   status    String   @db.VarChar(32)
   phase     String   @default("LOBBY") @db.VarChar(32)
   maxPlayers Int     @default(8) @map("max_players") @db.SmallInt
+  draftLeagueIds Json @default("[]") @map("draft_league_ids")
   expiresAt DateTime @default(dbgenerated("(NOW() + INTERVAL '30 minutes')")) @map("expires_at")
   formationSelectionStartedAt DateTime? @map("formation_selection_started_at")
   formationSelectionDeadline  DateTime? @map("formation_selection_deadline")

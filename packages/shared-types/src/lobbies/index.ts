@@ -1,5 +1,6 @@
 export type {
   CreateLobbyCommandDto,
+  UpdateLobbySettingsCommandDto,
   JoinLobbyCommandDto,
   LobbyParticipantDto,
   LobbySessionDto,

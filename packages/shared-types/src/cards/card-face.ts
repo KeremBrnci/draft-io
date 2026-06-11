@@ -18,6 +18,8 @@ export interface CardFaceData {
   readonly subtitle: string;
   readonly nationalityFlagUrl: string | null;
   readonly nationalityLabel?: string;
+  readonly teamName: string | null;
+  readonly teamLogoUrl: string | null;
   readonly leagueName: string | null;
   readonly leagueLogoUrl: string | null;
 }

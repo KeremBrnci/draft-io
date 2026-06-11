@@ -1,4 +1,4 @@
-import { IsInt, IsOptional, IsString, Max, MaxLength, Min, MinLength } from 'class-validator';
+import { IsArray, IsInt, IsOptional, IsString, IsUUID, Max, MaxLength, Min, MinLength } from 'class-validator';
 
 export class CreateLobbyDto {
   @IsString()
@@ -16,4 +16,9 @@ export class CreateLobbyDto {
   @Min(2)
   @Max(12)
   maxPlayers?: number;
+
+  @IsOptional()
+  @IsArray()
+  @IsUUID('4', { each: true })
+  draftLeagueIds?: string[];
 }

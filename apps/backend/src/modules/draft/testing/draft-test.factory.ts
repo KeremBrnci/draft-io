@@ -14,6 +14,8 @@ export function buildTestDraftPoolCard(overrides: Partial<DraftPoolCard> = {}): 
     nationality: 'TR',
     imageUrl: null,
     nationalityFlagUrl: null,
+    teamName: null,
+    teamLogoUrl: null,
     leagueName: null,
     leagueLogoUrl: null,
     positions: [{ positionCode: 'CM', isPrimary: true, sortOrder: 0 }],
@@ -64,6 +66,18 @@ export function buildTestPool(): readonly DraftPoolCard[] {
       playerId: 'player-d-1',
       overall: 77,
       displayName: 'Risk CM',
+    }),
+    buildTestDraftPoolCard({
+      cardId: 'value-1',
+      playerId: 'player-value-1',
+      overall: 76,
+      displayName: 'Budget CM',
+    }),
+    buildTestDraftPoolCard({
+      cardId: 'value-2',
+      playerId: 'player-value-2',
+      overall: 79,
+      displayName: 'Rotation CM',
     }),
     buildTestDraftPoolCard({
       cardId: 'chem-1',

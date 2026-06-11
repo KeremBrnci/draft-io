@@ -62,6 +62,8 @@ export function toDraftPickOptionsDto(result: DraftPickOptionsResult): DraftPick
         nationality: '',
         imageUrl: null,
         nationalityFlagUrl: null,
+        teamName: null,
+        teamLogoUrl: null,
         leagueName: null,
         leagueLogoUrl: null,
       };

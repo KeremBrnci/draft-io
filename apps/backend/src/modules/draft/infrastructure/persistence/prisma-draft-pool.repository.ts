@@ -13,6 +13,7 @@ type DraftPoolRecord = Prisma.CardGetPayload<{
       include: {
         positions: true;
         league: { select: { name: true; logoUrl: true; externalId: true } };
+        team: { select: { name: true; logoUrl: true; externalId: true } };
       };
     };
     cardType: { select: { code: true } };
@@ -27,6 +28,7 @@ const cardInclude = {
         orderBy: [{ isPrimary: 'desc' as const }, { createdAt: 'asc' as const }],
       },
       league: { select: { name: true, logoUrl: true, externalId: true } },
+      team: { select: { name: true, logoUrl: true, externalId: true } },
     },
   },
   cardType: { select: { code: true } },
@@ -55,6 +57,7 @@ export class PrismaDraftPoolRepository implements DraftPoolRepository {
 
     const excludePlayerIds = query.excludePlayerIds ?? [];
 
+    const leagueIds = query.leagueIds ?? [];
     const where: Prisma.CardWhereInput = {
       isActive: true,
       player: {
@@ -64,6 +67,7 @@ export class PrismaDraftPoolRepository implements DraftPoolRepository {
           },
         },
         ...(excludePlayerIds.length > 0 ? { id: { notIn: [...excludePlayerIds] } } : {}),
+        ...(leagueIds.length > 0 ? { leagueId: { in: [...leagueIds] } } : {}),
       },
     };
 
@@ -103,6 +107,9 @@ export class PrismaDraftPoolRepository implements DraftPoolRepository {
       imageUrl: record.player.imageUrl,
       externalId: record.player.externalId,
       nationality: record.player.nationality,
+      teamName: record.player.team?.name ?? null,
+      teamLogoUrl: record.player.team?.logoUrl ?? null,
+      teamExternalId: record.player.team?.externalId ?? null,
       leagueName: record.player.league?.name ?? null,
       leagueLogoUrl: record.player.league?.logoUrl ?? null,
       leagueExternalId: record.player.league?.externalId ?? null,
@@ -120,6 +127,8 @@ export class PrismaDraftPoolRepository implements DraftPoolRepository {
       nationality: record.player.nationality,
       imageUrl: presentation.imageUrl,
       nationalityFlagUrl: presentation.nationalityFlagUrl,
+      teamName: presentation.teamName,
+      teamLogoUrl: presentation.teamLogoUrl,
       leagueName: presentation.leagueName,
       leagueLogoUrl: presentation.leagueLogoUrl,
       positions: record.player.positions.map((position, index) => ({

@@ -107,14 +107,18 @@
   height: 18cqw;
 }
 
-.fc-card--pitch .fc-card__flag,
-.fc-card--pitch .fc-card__league {
+.fc-card--pitch .fc-card__badge {
   width: 17cqw;
   height: 17cqw;
 }
 
-.fc-card--pitch .fc-card__league-text {
+.fc-card--pitch .fc-card__badge-text {
   font-size: 6.5cqw;
+}
+
+.fc-card--pitch .fc-card__rating-flag {
+  width: 11cqw;
+  height: 11cqw;
 }
 
 .fc-card__clip-svg {
@@ -242,8 +246,28 @@
   top: clamp(7px, 5.8%, 11px);
   left: clamp(8px, 7%, 13px);
   z-index: 6;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: clamp(2px, 0.8cqw, 4px);
   line-height: 1;
   text-shadow: 0 1px 2px rgba(255, 255, 255, 0.45);
+}
+
+.fc-card__rating-flag {
+  width: clamp(0.72rem, 3.4vw, 0.92rem);
+  height: clamp(0.72rem, 3.4vw, 0.92rem);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.fc-card__rating-flag img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.18));
 }
 
 .fc-card__rating {
@@ -511,8 +535,7 @@
   height: 100%;
 }
 
-.fc-card__flag,
-.fc-card__league {
+.fc-card__badge {
   width: clamp(1.1rem, 5.2vw, 1.35rem);
   height: clamp(1.1rem, 5.2vw, 1.35rem);
   display: flex;
@@ -521,11 +544,19 @@
   flex-shrink: 0;
 }
 
-.fc-card__flag img {
+.fc-card__badge img {
   width: 100%;
   height: 100%;
   object-fit: contain;
   filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.18));
+}
+
+.fc-card__badge--team img {
+  object-fit: contain;
+}
+
+.fc-card__badge--league img {
+  object-fit: contain;
 }
 
 .fc-card__flag-placeholder {
@@ -536,7 +567,7 @@
   border: 1px solid rgba(0, 0, 0, 0.08);
 }
 
-.fc-card__league-text {
+.fc-card__badge-text {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -553,14 +584,12 @@
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5);
 }
 
-.fc-card__league-placeholder {
-  width: 100%;
-  height: 100%;
+.fc-card__badge--placeholder {
   color: var(--fc-ink-muted);
   padding: 1px;
 }
 
-.fc-card__league-placeholder svg {
+.fc-card__badge--placeholder svg {
   width: 100%;
   height: 100%;
 }

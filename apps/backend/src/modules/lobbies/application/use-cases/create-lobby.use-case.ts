@@ -33,6 +33,7 @@ export class CreateLobbyUseCase {
       code,
       maxPlayers,
       host,
+      ...(command.draftLeagueIds !== undefined ? { draftLeagueIds: command.draftLeagueIds } : {}),
       expiresAt: this.lifecycle.initialExpiresAt(),
     });
 

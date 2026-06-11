@@ -1,5 +1,6 @@
 import { type GetDraftSessionByLobbyUseCase } from '../../../draft/application/use-cases/get-draft-session-by-lobby.use-case';
 import { type InitializeDraftSessionUseCase } from '../../../draft/application/use-cases/initialize-draft-session.use-case';
+import { DEFAULT_DRAFT_BALANCE_CONFIG } from '../../../draft/domain/config/default-draft-balance.config';
 import { DraftSessionAlreadyExistsError } from '../../../draft/domain/errors/draft.errors';
 import type { Lobby } from '../../domain/entities/lobby.entity';
 import { RoomPhase } from '../../domain/enums/room-phase.enum';
@@ -41,6 +42,12 @@ export class StartDraftUseCase {
       const draftSession = await this.initializeDraftSessionUseCase.execute({
         lobbyId: lobby.id.value,
         participantIds,
+        config: {
+          ...DEFAULT_DRAFT_BALANCE_CONFIG,
+          ...(lobby.draftLeagueIds.length > 0
+            ? { poolLeagueIds: lobby.draftLeagueIds }
+            : {}),
+        },
       });
       draftSessionId = draftSession.id;
     } catch (error) {

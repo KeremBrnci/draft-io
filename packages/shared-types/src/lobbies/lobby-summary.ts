@@ -23,6 +23,8 @@ export interface LobbySummaryDto {
   readonly maxPlayers: number;
   readonly participantCount: number;
   readonly participants: readonly LobbyParticipantDto[];
+  /** Empty = draft pool includes all leagues. */
+  readonly draftLeagueIds: readonly string[];
   readonly formationSelectionStartedAt: string | null;
   readonly formationSelectionDeadline: string | null;
   readonly createdAt: string;
@@ -39,6 +41,13 @@ export interface CreateLobbyCommandDto {
   readonly name: string;
   readonly displayName: string;
   readonly maxPlayers?: number;
+  readonly draftLeagueIds?: readonly string[];
+}
+
+export interface UpdateLobbySettingsCommandDto {
+  readonly sessionToken: string;
+  /** Empty = all leagues. */
+  readonly draftLeagueIds: readonly string[];
 }
 
 export interface JoinLobbyCommandDto {

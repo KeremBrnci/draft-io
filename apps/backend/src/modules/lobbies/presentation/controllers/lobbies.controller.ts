@@ -33,6 +33,7 @@ import {
 import { SetParticipantReadyUseCase } from '../../application/use-cases/set-participant-ready.use-case';
 import { StartDraftUseCase } from '../../application/use-cases/start-draft.use-case';
 import { StartLobbyUseCase } from '../../application/use-cases/start-lobby.use-case';
+import { UpdateLobbySettingsUseCase } from '../../application/use-cases/update-lobby-settings.use-case';
 import { CoachSelectionQueryDto, SelectCoachDto } from '../dto/coach-selection.dto';
 import { CreateLobbyDto } from '../dto/create-lobby.dto';
 import {
@@ -43,6 +44,7 @@ import {
 import { FormationSelectionQueryDto, SelectFormationDto } from '../dto/formation-selection.dto';
 import { JoinLobbyDto } from '../dto/join-lobby.dto';
 import { SetParticipantReadyDto, StartLobbyDto } from '../dto/lobby-ready.dto';
+import { UpdateLobbySettingsDto } from '../dto/update-lobby-settings.dto';
 import { RoomChatQueryDto, SendRoomChatMessageDto } from '../dto/room-chat.dto';
 import { toCoachSelectionState } from '../mappers/coach-selection-response.mapper';
 import { toDraftBoardStateDto } from '../mappers/draft-board-response.mapper';
@@ -75,6 +77,7 @@ export class LobbiesController {
     private readonly playAgainUseCase: PlayAgainUseCase,
     private readonly listRoomChatMessagesUseCase: ListRoomChatMessagesUseCase,
     private readonly sendRoomChatMessageUseCase: SendRoomChatMessageUseCase,
+    private readonly updateLobbySettingsUseCase: UpdateLobbySettingsUseCase,
   ) {}
 
   @Post()
@@ -85,6 +88,7 @@ export class LobbiesController {
       name: dto.name,
       displayName: dto.displayName,
       ...(dto.maxPlayers !== undefined ? { maxPlayers: dto.maxPlayers } : {}),
+      ...(dto.draftLeagueIds !== undefined ? { draftLeagueIds: dto.draftLeagueIds } : {}),
     });
 
     return { data: toLobbySessionDto(session) };
@@ -107,6 +111,20 @@ export class LobbiesController {
     @Param('code') code: string,
   ): Promise<ApiResponse<ReturnType<typeof toLobbySummary>>> {
     const lobby = await this.getLobbyByCodeUseCase.execute({ code: code.toUpperCase() });
+    return { data: toLobbySummary(lobby) };
+  }
+
+  @Post('code/:code/settings')
+  async updateSettings(
+    @Param('code') code: string,
+    @Body() dto: UpdateLobbySettingsDto,
+  ): Promise<ApiResponse<ReturnType<typeof toLobbySummary>>> {
+    const lobby = await this.updateLobbySettingsUseCase.execute({
+      code: code.toUpperCase(),
+      sessionToken: dto.sessionToken,
+      draftLeagueIds: dto.draftLeagueIds,
+    });
+
     return { data: toLobbySummary(lobby) };
   }
 

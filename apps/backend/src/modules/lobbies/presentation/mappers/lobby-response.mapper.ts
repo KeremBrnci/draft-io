@@ -14,6 +14,7 @@ export function toLobbySummary(lobby: Lobby): LobbySummaryDto {
     maxPlayers: lobby.maxPlayers,
     participantCount: lobby.participants.length,
     participants: lobby.participants.map(toLobbyParticipantDto),
+    draftLeagueIds: [...lobby.draftLeagueIds],
     formationSelectionStartedAt: lobby.formationSelectionStartedAt?.toISOString() ?? null,
     formationSelectionDeadline: lobby.formationSelectionDeadline?.toISOString() ?? null,
     createdAt: lobby.createdAt.toISOString(),

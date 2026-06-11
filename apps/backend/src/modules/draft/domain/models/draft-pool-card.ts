@@ -17,6 +17,8 @@ export interface DraftPoolCard {
   readonly nationality: string;
   readonly imageUrl: string | null;
   readonly nationalityFlagUrl: string | null;
+  readonly teamName: string | null;
+  readonly teamLogoUrl: string | null;
   readonly leagueName: string | null;
   readonly leagueLogoUrl: string | null;
 }
@@ -28,5 +30,6 @@ export interface DraftPoolQuery {
   readonly excludePlayerIds?: readonly string[];
   readonly minOverall?: number;
   readonly maxOverall?: number;
+  readonly leagueIds?: readonly string[];
   readonly limit?: number;
 }

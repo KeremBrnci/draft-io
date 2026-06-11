@@ -46,6 +46,7 @@ import {
 import { SetParticipantReadyUseCase } from './application/use-cases/set-participant-ready.use-case';
 import { StartDraftUseCase } from './application/use-cases/start-draft.use-case';
 import { StartLobbyUseCase } from './application/use-cases/start-lobby.use-case';
+import { UpdateLobbySettingsUseCase } from './application/use-cases/update-lobby-settings.use-case';
 import { LOBBY_REPOSITORY } from './domain/repositories/lobby.repository';
 import { ROOM_CHAT_REPOSITORY } from './domain/repositories/room-chat.repository';
 import { PrismaLobbyRepository } from './infrastructure/persistence/prisma-lobby.repository';
@@ -66,6 +67,7 @@ import { RoomEventsModule } from './room-events.module';
   controllers: [LobbiesController],
   providers: [
     provideUseCase(CreateLobbyUseCase, [LOBBY_REPOSITORY]),
+    provideUseCase(UpdateLobbySettingsUseCase, [LOBBY_REPOSITORY, LEAGUE_REPOSITORY]),
     provideUseCase(JoinLobbyUseCase, [LOBBY_REPOSITORY]),
     provideUseCase(GetLobbyByCodeUseCase, [LOBBY_REPOSITORY]),
     provideUseCase(SetParticipantReadyUseCase, [

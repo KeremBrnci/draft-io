@@ -4,6 +4,7 @@ import type {
   LobbyParticipantCoachOption as PrismaCoachOption,
   LobbyParticipantFormationOption as PrismaFormationOption,
 } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 
 import { LobbyParticipant } from '../../domain/entities/lobby-participant.entity';
 import { Lobby } from '../../domain/entities/lobby.entity';
@@ -33,6 +34,7 @@ export function toLobbyDomain(record: LobbyWithParticipants): Lobby {
     status: parseLobbyStatus(record.status),
     phase: parseRoomPhase(record.phase),
     maxPlayers: record.maxPlayers,
+    draftLeagueIds: parseDraftLeagueIds(record.draftLeagueIds),
     participants: record.participants.map(toParticipantDomain),
     expiresAt: record.expiresAt ?? expirationService.initialExpiresAt(record.createdAt),
     formationSelectionStartedAt: record.formationSelectionStartedAt,
@@ -42,8 +44,12 @@ export function toLobbyDomain(record: LobbyWithParticipants): Lobby {
   });
 }
 
+type LobbyPersistenceRecord = Omit<PrismaLobby, 'participants' | 'draftLeagueIds'> & {
+  readonly draftLeagueIds: Prisma.InputJsonValue;
+};
+
 export function toLobbyPersistence(lobby: Lobby): {
-  readonly lobby: Omit<PrismaLobby, 'participants'>;
+  readonly lobby: LobbyPersistenceRecord;
   readonly participants: readonly (Omit<PrismaLobbyParticipant, 'lobby'> & {
     readonly formationOptionIds: readonly string[];
     readonly coachOptionIds: readonly string[];
@@ -57,6 +63,7 @@ export function toLobbyPersistence(lobby: Lobby): {
       status: lobby.status,
       phase: lobby.phase,
       maxPlayers: lobby.maxPlayers,
+      draftLeagueIds: [...lobby.draftLeagueIds] as unknown as Prisma.InputJsonValue,
       expiresAt: lobby.expiresAt,
       formationSelectionStartedAt: lobby.formationSelectionStartedAt,
       formationSelectionDeadline: lobby.formationSelectionDeadline,
@@ -106,6 +113,14 @@ function toParticipantDomain(
     sessionToken: SessionToken.reconstitute(record.sessionToken),
     joinedAt: record.joinedAt,
   });
+}
+
+function parseDraftLeagueIds(value: unknown): string[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value.filter((entry): entry is string => typeof entry === 'string' && entry.length > 0);
 }
 
 function parseLobbyStatus(value: string): LobbyStatus {

@@ -50,6 +50,7 @@ describe('LobbyExpirationService', () => {
       status: LobbyStatus.STARTED,
       phase: RoomPhase.FORMATION_SELECTION,
       maxPlayers: 4,
+      draftLeagueIds: [],
       participants: [host, guest],
       expiresAt: new Date(Date.now() - 1_000),
       formationSelectionStartedAt: new Date(),

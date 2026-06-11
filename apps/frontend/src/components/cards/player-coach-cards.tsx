@@ -19,6 +19,8 @@ export function mapCoachToCardFace(coach: CoachBrowserItemDto): CardFaceData {
     subtitle: translateCoachRole(coach.role) || 'Teknik Direktör',
     nationalityFlagUrl: coach.nationalityFlagUrl,
     nationalityLabel: translateNationality(coach.nationality),
+    teamName: coach.teamName,
+    teamLogoUrl: coach.teamLogoUrl,
     leagueName: coach.leagueName,
     leagueLogoUrl: coach.leagueLogoUrl,
   };
@@ -43,6 +45,8 @@ export function mapPlayerToCardFace(player: {
   readonly positions?: readonly { readonly positionCode: string; readonly isPrimary: boolean }[];
   readonly nationality: string;
   readonly nationalityFlagUrl: string | null;
+  readonly teamName?: string | null;
+  readonly teamLogoUrl?: string | null;
   readonly leagueName: string | null;
   readonly leagueLogoUrl: string | null;
   readonly leagueId?: string | null;
@@ -59,6 +63,8 @@ export function mapPlayerToCardFace(player: {
     subtitle,
     nationalityFlagUrl: player.nationalityFlagUrl,
     nationalityLabel: translateNationality(player.nationality),
+    teamName: player.teamName ?? null,
+    teamLogoUrl: player.teamLogoUrl ?? null,
     leagueName: player.leagueName,
     leagueLogoUrl: player.leagueLogoUrl,
   };

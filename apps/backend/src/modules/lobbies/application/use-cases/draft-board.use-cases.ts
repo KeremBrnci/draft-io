@@ -254,6 +254,8 @@ export class GetDraftPickOptionsForSlotUseCase {
           nationality: '',
           imageUrl: null,
           nationalityFlagUrl: null,
+          teamName: null,
+          teamLogoUrl: null,
           leagueName: null,
           leagueLogoUrl: null,
         };

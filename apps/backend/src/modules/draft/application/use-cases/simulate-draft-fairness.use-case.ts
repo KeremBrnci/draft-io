@@ -207,6 +207,8 @@ export class SimulateDraftFairnessUseCase {
           nationality: input.nationality ?? `NAT-${index % 6}`,
           imageUrl: null,
           nationalityFlagUrl: null,
+          teamName: null,
+          teamLogoUrl: null,
           leagueName: null,
           leagueLogoUrl: null,
           positions: input.positions.map((positionCode, positionIndex) => ({

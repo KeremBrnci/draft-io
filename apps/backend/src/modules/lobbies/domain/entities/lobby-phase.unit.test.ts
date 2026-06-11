@@ -27,6 +27,7 @@ describe('Lobby room phase machine', () => {
       status: LobbyStatus.FULL,
       phase: RoomPhase.LOBBY,
       maxPlayers: 4,
+      draftLeagueIds: [],
       participants: [host, guest],
       expiresAt: new Date(Date.now() + 60_000),
       formationSelectionStartedAt: null,

@@ -38,4 +38,6 @@ export interface DraftBalanceConfigDto {
   readonly chemistry: ChemistryConfigDto;
   readonly matchPower: MatchPowerConfigDto;
   readonly positionWeights: PositionWeightConfigDto;
+  /** Empty = all imported leagues are eligible for draft picks. */
+  readonly poolLeagueIds?: readonly string[];
 }

@@ -6,6 +6,7 @@ import type {
   SetParticipantReadyCommandDto,
   StartLobbyCommandDto,
   StartLobbyResultDto,
+  UpdateLobbySettingsCommandDto,
 } from '@draft-io/shared-types';
 
 import { apiGet, apiPost } from './client';
@@ -35,6 +36,16 @@ export function setParticipantReady(
 export function startLobby(code: string, body: StartLobbyCommandDto): Promise<StartLobbyResultDto> {
   return apiPost<StartLobbyResultDto>(
     `/lobbies/code/${encodeURIComponent(code.toUpperCase())}/start`,
+    body,
+  );
+}
+
+export function updateLobbySettings(
+  code: string,
+  body: UpdateLobbySettingsCommandDto,
+): Promise<LobbySummaryDto> {
+  return apiPost<LobbySummaryDto>(
+    `/lobbies/code/${encodeURIComponent(code.toUpperCase())}/settings`,
     body,
   );
 }

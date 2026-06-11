@@ -1,0 +1,104 @@
+.match-goal-scorers {
+  margin-top: 0.65rem;
+  padding-top: 0.7rem;
+  border-top: 1px solid rgb(148 163 184 / 16%);
+}
+
+.match-goal-scorers__title {
+  margin: 0 0 0.55rem;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #86efac;
+  text-align: center;
+}
+
+.match-goal-scorers__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.match-goal-scorers__team {
+  min-width: 0;
+}
+
+.match-goal-scorers__team--home {
+  text-align: right;
+}
+
+.match-goal-scorers__team--away {
+  text-align: left;
+}
+
+.match-goal-scorers__team-name {
+  margin: 0 0 0.35rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #94a3b8;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.match-goal-scorers__empty {
+  margin: 0;
+  font-size: 0.82rem;
+  color: #64748b;
+}
+
+.match-goal-scorers__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.28rem;
+}
+
+.match-goal-scorers__item {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  font-size: 0.8rem;
+  line-height: 1.35;
+}
+
+.match-goal-scorers__team--home .match-goal-scorers__item {
+  justify-content: flex-end;
+  flex-direction: row-reverse;
+}
+
+.match-goal-scorers__minute {
+  flex-shrink: 0;
+  font-weight: 800;
+  color: #facc15;
+}
+
+.match-goal-scorers__player {
+  color: #f8fafc;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.match-goal-scorers__assist {
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+@media (max-width: 520px) {
+  .match-goal-scorers__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .match-goal-scorers__team--home,
+  .match-goal-scorers__team--away {
+    text-align: left;
+  }
+
+  .match-goal-scorers__team--home .match-goal-scorers__item {
+    justify-content: flex-start;
+    flex-direction: row;
+  }
+}

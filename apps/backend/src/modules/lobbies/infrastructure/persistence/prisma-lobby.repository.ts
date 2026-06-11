@@ -58,6 +58,7 @@ export class PrismaLobbyRepository implements LobbyRepository {
           status: lobbyData.status,
           phase: lobbyData.phase,
           maxPlayers: lobbyData.maxPlayers,
+          draftLeagueIds: lobbyData.draftLeagueIds,
           expiresAt: lobbyData.expiresAt,
           formationSelectionStartedAt: lobbyData.formationSelectionStartedAt,
           formationSelectionDeadline: lobbyData.formationSelectionDeadline,
