@@ -168,7 +168,11 @@ export class MatchPlaybackService implements MatchPlaybackPort, OnModuleDestroy 
         playback.halfTimeResumeTimer === null
       ) {
         void this.resumeAfterHalfTime(input.matchId, input.leagueId, input.lobbyCode);
-      } else if (match.status === 'LIVE' && playback.timer === null && playback.halfTimeResumeTimer === null) {
+      } else if (
+        match.status === 'LIVE' &&
+        playback.timer === null &&
+        playback.halfTimeResumeTimer === null
+      ) {
         this.startMatchTimer(input.matchId, input.leagueId, input.lobbyCode);
       }
       return;
@@ -293,7 +297,11 @@ export class MatchPlaybackService implements MatchPlaybackPort, OnModuleDestroy 
       }
 
       if (match.status === 'HALF_TIME') {
-        if (playback !== undefined && playback.timer === null && playback.halfTimeResumeTimer === null) {
+        if (
+          playback !== undefined &&
+          playback.timer === null &&
+          playback.halfTimeResumeTimer === null
+        ) {
           void this.resumeAfterHalfTime(matchId, leagueId, lobbyCode);
         }
         return;
@@ -319,9 +327,7 @@ export class MatchPlaybackService implements MatchPlaybackPort, OnModuleDestroy 
         (event) => !ALERT_EVENT_TYPES.has(event.eventType),
       );
       const shouldDelayAlertReveal =
-        alertEvents.length > 0 &&
-        resolutionEvents.length > 0 &&
-        nextMinute < milestones.matchEnd;
+        alertEvents.length > 0 && resolutionEvents.length > 0 && nextMinute < milestones.matchEnd;
 
       if (shouldDelayAlertReveal) {
         const updated = await this.revealEvents({
