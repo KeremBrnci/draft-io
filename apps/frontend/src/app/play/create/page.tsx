@@ -74,9 +74,15 @@ export default function CreateLobbyPage(): React.ReactElement {
           Kendi draft lobini aç — takım adını ve sahada görünecek ismini yaz.
         </p>
 
-        <form className="play-form" onSubmit={(event) => void handleSubmit(event)}>
-          <div className="play-field">
-            <label htmlFor="lobby-name">Oda adı</label>
+        <div className="play-arena play-form-arena">
+          <form className="play-form" onSubmit={(event) => void handleSubmit(event)}>
+            <div className="play-field">
+              <div className="play-field__label-row">
+                <span className="play-field__icon" aria-hidden>
+                  🏟️
+                </span>
+                <label htmlFor="lobby-name">Oda adı</label>
+              </div>
             <input
               id="lobby-name"
               value={name}
@@ -91,7 +97,12 @@ export default function CreateLobbyPage(): React.ReactElement {
           </div>
 
           <div className="play-field">
-            <label htmlFor="display-name">Senin adın</label>
+            <div className="play-field__label-row">
+              <span className="play-field__icon" aria-hidden>
+                👤
+              </span>
+              <label htmlFor="display-name">Senin adın</label>
+            </div>
             <input
               id="display-name"
               value={displayName}
@@ -106,7 +117,12 @@ export default function CreateLobbyPage(): React.ReactElement {
           </div>
 
           <div className="play-field">
-            <label htmlFor="max-players">Maksimum oyuncu</label>
+            <div className="play-field__label-row">
+              <span className="play-field__icon" aria-hidden>
+                👥
+              </span>
+              <label htmlFor="max-players">Maksimum oyuncu</label>
+            </div>
             <input
               id="max-players"
               type="number"
@@ -130,6 +146,7 @@ export default function CreateLobbyPage(): React.ReactElement {
             {loading ? 'Oluşturuluyor…' : '⚽ Odayı Oluştur'}
           </button>
         </form>
+        </div>
       </main>
     </div>
   );

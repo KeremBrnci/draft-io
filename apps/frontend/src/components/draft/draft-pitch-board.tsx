@@ -1,9 +1,14 @@
 import type { DraftBoardStateDto, DraftSlotStateDto } from '@draft-io/shared-types';
+import { memo, useCallback } from 'react';
 
 import { DraftEmptyCard } from './draft-empty-card';
 import { mapCardTypeToVariant } from './map-card-type-to-variant';
+import { mapDraftCardFace } from './map-draft-card-face';
 
 import { FootballCard } from '@/components/cards/football-card';
+import { formatCardNameCompactLabel } from '@/components/cards/format-card-name';
+
+
 
 interface DraftPitchBoardProps {
   readonly board: DraftBoardStateDto;
@@ -11,11 +16,13 @@ interface DraftPitchBoardProps {
   readonly onSelectSlot: (slotIndex: number) => void;
 }
 
-export function DraftPitchBoard({
+export const DraftPitchBoard = memo(function DraftPitchBoard({
   board,
   activeSlotIndex,
   onSelectSlot,
 }: DraftPitchBoardProps): React.ReactElement {
+  const isSelectionLocked = activeSlotIndex !== null;
+
   return (
     <div className="draft-pitch-board" aria-label={`${board.formation.code} dizilişi`}>
       <div className="draft-pitch-board__grass" />
@@ -23,44 +30,40 @@ export function DraftPitchBoard({
       <div className="draft-pitch-board__line draft-pitch-board__line--box" />
       <div className="draft-pitch-board__formation-tag">{board.formation.code}</div>
 
-      {board.slots.map((slot) => {
-        const isSelectionLocked = activeSlotIndex !== null;
-        const isLockedSlot =
-          isSelectionLocked && activeSlotIndex !== slot.slotIndex && slot.card === null;
-
-        return (
-          <DraftPitchSlot
-            key={slot.slotIndex}
-            slot={slot}
-            isActive={activeSlotIndex === slot.slotIndex}
-            isNext={board.nextSlotIndex === slot.slotIndex}
-            locked={isLockedSlot}
-            onSelect={() => {
-              if (slot.card !== null || isLockedSlot) {
-                return;
-              }
-              onSelectSlot(slot.slotIndex);
-            }}
-          />
-        );
-      })}
+      {board.slots.map((slot) => (
+        <DraftPitchSlot
+          key={slot.slotIndex}
+          slot={slot}
+          isActive={activeSlotIndex === slot.slotIndex}
+          isNext={board.nextSlotIndex === slot.slotIndex}
+          locked={isSelectionLocked && activeSlotIndex !== slot.slotIndex && slot.card === null}
+          onSelectSlot={onSelectSlot}
+        />
+      ))}
     </div>
   );
-}
+});
 
-function DraftPitchSlot({
+const DraftPitchSlot = memo(function DraftPitchSlot({
   slot,
   isActive,
   isNext,
   locked,
-  onSelect,
+  onSelectSlot,
 }: {
   readonly slot: DraftSlotStateDto;
   readonly isActive: boolean;
   readonly isNext: boolean;
   readonly locked: boolean;
-  readonly onSelect: () => void;
+  readonly onSelectSlot: (slotIndex: number) => void;
 }): React.ReactElement {
+  const handleSelect = useCallback(() => {
+    if (slot.card !== null || locked) {
+      return;
+    }
+    onSelectSlot(slot.slotIndex);
+  }, [locked, onSelectSlot, slot.card, slot.slotIndex]);
+
   const style = {
     left: `${slot.pitchX}%`,
     top: `${slot.pitchY}%`,
@@ -75,27 +78,22 @@ function DraftPitchSlot({
         locked ? (
           <DraftEmptyCard label={slot.label} active={isActive || isNext} locked />
         ) : (
-          <DraftEmptyCard label={slot.label} active={isActive || isNext} onClick={onSelect} />
+          <DraftEmptyCard label={slot.label} active={isActive || isNext} onClick={handleSelect} />
         )
       ) : (
-        <FootballCard
-          face={{
-            displayName: slot.card.displayName,
-            imageUrl: slot.card.imageUrl,
-            rating: slot.card.rating,
-            subtitle: slot.card.subtitle,
-            nationalityFlagUrl: slot.card.nationalityFlagUrl,
-            ...(slot.card.nationalityLabel !== undefined
-              ? { nationalityLabel: slot.card.nationalityLabel }
-              : {}),
-            leagueName: slot.card.leagueName,
-            leagueLogoUrl: slot.card.leagueLogoUrl,
-          }}
-          variant={mapCardTypeToVariant(slot.card.cardTypeCode)}
-          size="md"
-          className="draft-pitch-slot__card fc-card--pitch"
-        />
+        <div className="draft-pitch-slot__filled">
+          <FootballCard
+            face={mapDraftCardFace(slot.card)}
+            variant={mapCardTypeToVariant(slot.card.cardTypeCode)}
+            size="md"
+            visual="interactive"
+            className="draft-pitch-slot__card"
+          />
+          <span className="draft-pitch-slot__label" title={slot.card.displayName}>
+            {formatCardNameCompactLabel(slot.card.displayName)}
+          </span>
+        </div>
       )}
     </div>
   );
-}
+});

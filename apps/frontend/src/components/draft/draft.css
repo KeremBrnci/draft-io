@@ -53,6 +53,7 @@
   overflow: hidden;
   border: 1px solid color-mix(in srgb, #22c55e 30%, var(--border));
   box-shadow: inset 0 0 80px rgb(0 0 0 / 18%);
+  contain: layout paint;
 }
 
 .draft-pitch-board__grass {
@@ -101,9 +102,52 @@
   animation: draft-slot-pulse 1.4s ease-in-out infinite;
 }
 
+.draft-pitch-slot__filled {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.12rem;
+}
+
 .draft-pitch-slot__card {
-  width: 4.25rem;
+  width: 6.75rem;
   max-width: none;
+  transform: scale(0.64);
+  transform-origin: center top;
+  pointer-events: none;
+}
+
+.draft-pitch-slot__label {
+  max-width: 6.5rem;
+  margin-top: -0.35rem;
+  font-size: 0.58rem;
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: 0.02em;
+  text-align: center;
+  color: #ecfdf5;
+  text-shadow:
+    0 1px 2px rgb(0 0 0 / 85%),
+    0 0 6px rgb(0 0 0 / 45%);
+  text-wrap: balance;
+  word-break: break-word;
+  hyphens: auto;
+  pointer-events: none;
+}
+
+.draft-pick-drawer__player-name {
+  width: 100%;
+  margin: 0;
+  padding: 0 0.2rem;
+  font-size: 0.74rem;
+  font-weight: 800;
+  line-height: 1.25;
+  letter-spacing: 0.01em;
+  text-align: center;
+  color: #f8fafc;
+  text-wrap: balance;
+  word-break: break-word;
+  hyphens: auto;
 }
 
 .draft-stats-panel {
@@ -163,61 +207,13 @@
   gap: 0.5rem;
 }
 
-.draft-pick-drawer {
-  position: fixed;
-  inset: 0;
-  z-index: 100;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-}
-
-.draft-pick-drawer__backdrop {
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(circle at 50% 40%, rgb(34 197 94 / 18%), transparent 55%),
-    rgb(4 12 8 / 82%);
-  backdrop-filter: blur(8px);
-  animation: draft-pick-backdrop-in 0.28s ease-out;
-}
-
-.draft-pick-drawer__spotlight {
-  position: absolute;
-  top: 8%;
-  left: 50%;
-  width: min(90vw, 52rem);
-  height: 55vh;
-  transform: translateX(-50%);
-  background: radial-gradient(ellipse at center, rgb(250 204 21 / 12%), transparent 68%);
-  pointer-events: none;
-  animation: draft-pick-spotlight-pulse 3s ease-in-out infinite;
-}
-
 .draft-pick-drawer__panel {
-  position: relative;
-  width: min(1020px, 100%);
-  max-height: min(90vh, 780px);
-  overflow: auto;
+  width: min(100%, 64rem);
   padding: 1.35rem 1.5rem 1.65rem;
   border-radius: 22px;
   border: 2px solid rgb(74 222 128 / 28%);
   background: linear-gradient(165deg, rgb(18 44 30 / 97%), rgb(8 22 15 / 98%));
-  box-shadow:
-    0 0 0 1px rgb(255 255 255 / 4%) inset,
-    0 0 60px rgb(34 197 94 / 12%),
-    0 28px 70px rgb(0 0 0 / 55%);
-  animation: draft-pick-drawer-in 0.38s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.draft-pick-drawer__panel-glow {
-  position: absolute;
-  inset: -1px;
-  border-radius: inherit;
-  pointer-events: none;
-  background: linear-gradient(135deg, rgb(250 204 21 / 14%), transparent 40%, rgb(74 222 128 / 10%) 100%);
-  mask: linear-gradient(#fff, transparent 55%);
+  box-shadow: 0 28px 70px rgb(0 0 0 / 55%);
 }
 
 .draft-pick-drawer__header {
@@ -315,55 +311,22 @@
   padding: 0.75rem 0.55rem 0.85rem;
   border: 2px solid rgb(74 222 128 / 14%);
   border-radius: 16px;
-  background: linear-gradient(180deg, rgb(14 36 24 / 85%), rgb(8 22 15 / 90%));
+  background: rgb(8 22 15 / 92%);
   cursor: pointer;
-  overflow: hidden;
-  animation: draft-pick-card-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
   transition:
-    border-color 0.2s,
-    transform 0.2s,
-    box-shadow 0.2s,
-    opacity 0.2s;
-}
-
-.draft-pick-drawer__option-ring {
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  opacity: 0;
-  box-shadow: inset 0 0 0 2px rgb(250 204 21 / 55%);
-  transition: opacity 0.2s;
-  pointer-events: none;
+    border-color 0.15s,
+    transform 0.15s,
+    opacity 0.15s;
+  contain: layout paint;
 }
 
 .draft-pick-drawer__option-shine {
-  position: absolute;
-  top: -40%;
-  left: -60%;
-  width: 50%;
-  height: 180%;
-  background: linear-gradient(105deg, transparent, rgb(255 255 255 / 12%), transparent);
-  transform: rotate(12deg);
-  opacity: 0;
-  transition: opacity 0.2s;
-  pointer-events: none;
+  display: none;
 }
 
 .draft-pick-drawer__option:hover:not(:disabled) {
   border-color: rgb(250 204 21 / 55%);
-  transform: translateY(-6px) scale(1.03);
-  box-shadow:
-    0 0 28px rgb(250 204 21 / 18%),
-    0 16px 36px rgb(0 0 0 / 35%);
-}
-
-.draft-pick-drawer__option:hover:not(:disabled) .draft-pick-drawer__option-ring {
-  opacity: 1;
-}
-
-.draft-pick-drawer__option:hover:not(:disabled) .draft-pick-drawer__option-shine {
-  opacity: 1;
-  animation: draft-pick-shine-sweep 0.65s ease-out;
+  transform: translateY(-2px);
 }
 
 .draft-pick-drawer__option:hover:not(:disabled) .draft-pick-drawer__pick-hint {
@@ -373,9 +336,8 @@
 
 .draft-pick-drawer__option--picking {
   border-color: rgb(74 222 128 / 65%);
-  transform: scale(1.04);
-  box-shadow: 0 0 32px rgb(34 197 94 / 28%);
-  animation: draft-pick-card-pulse 0.55s ease-in-out infinite;
+  transform: scale(1.02);
+  box-shadow: 0 0 24px rgb(34 197 94 / 24%);
 }
 
 .draft-pick-drawer__option--dimmed {
@@ -385,12 +347,11 @@
 
 .draft-pick-drawer__option .fc-card {
   width: 100%;
-  filter: drop-shadow(0 8px 18px rgb(0 0 0 / 35%));
-  transition: transform 0.2s;
+  transition: transform 0.15s;
 }
 
 .draft-pick-drawer__option:hover:not(:disabled) .fc-card {
-  transform: scale(1.02);
+  transform: scale(1.01);
 }
 
 .draft-pick-drawer__option-footer {
@@ -570,9 +531,13 @@
     min-height: 26rem;
   }
 
-  .draft-empty-card,
+  .draft-empty-card {
+    width: 4.25rem;
+  }
+
   .draft-pitch-slot__card {
-    width: 4.85rem;
+    width: 7.25rem;
+    transform: scale(0.66);
   }
 }
 
@@ -587,9 +552,13 @@
     min-height: 32rem;
   }
 
-  .draft-empty-card,
+  .draft-empty-card {
+    width: 4.85rem;
+  }
+
   .draft-pitch-slot__card {
-    width: 5.25rem;
+    width: 7.75rem;
+    transform: scale(0.68);
   }
 }
 
@@ -614,9 +583,13 @@
 }
 
 @media (max-width: 420px) {
-  .draft-empty-card,
-  .draft-pitch-slot__card {
+  .draft-empty-card {
     width: 3.75rem;
+  }
+
+  .draft-pitch-slot__card {
+    width: 6.25rem;
+    transform: scale(0.6);
   }
 }
 
@@ -652,5 +625,16 @@
 .play--game .draft-stats-panel {
   border-color: rgb(74 222 128 / 22%);
   background: rgb(12 32 22 / 88%);
+}
+
+body.app-overlay-open .draft-pitch-slot--next .draft-empty-card,
+.play--pick-open .draft-pitch-slot--next .draft-empty-card {
+  animation: none;
+}
+
+body.app-overlay-open .draft-pitch-board,
+.play--pick-open .draft-pitch-board {
+  visibility: hidden;
+  pointer-events: none;
 }
 

@@ -25,6 +25,7 @@ export interface DraftSessionRepository {
   save(session: DraftSession): Promise<void>;
   findByLobbyId(lobbyId: string): Promise<DraftSession | null>;
   findById(id: string): Promise<DraftSession | null>;
+  deleteByLobbyId(lobbyId: string): Promise<void>;
 }
 
 export const DRAFT_SESSION_REPOSITORY = Symbol('DRAFT_SESSION_REPOSITORY');

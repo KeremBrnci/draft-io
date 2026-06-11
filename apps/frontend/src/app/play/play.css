@@ -1,5 +1,6 @@
 .play {
   min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
   background: var(--background);
@@ -248,6 +249,8 @@
 }
 
 .play-arena {
+  position: relative;
+  overflow: hidden;
   padding: 1.5rem;
   border-radius: 20px;
   border: 1px solid color-mix(in srgb, var(--accent) 22%, var(--border));
@@ -256,6 +259,19 @@
     0 0 0 1px color-mix(in srgb, #fff 4%, transparent) inset,
     0 24px 60px color-mix(in srgb, #000 28%, transparent);
   backdrop-filter: blur(12px);
+  animation: play-arena-in 0.48s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.play-arena::before {
+  content: '';
+  position: absolute;
+  top: -45%;
+  left: 50%;
+  width: 85%;
+  height: 70%;
+  transform: translateX(-50%);
+  background: radial-gradient(ellipse at center, rgb(250 204 21 / 7%), transparent 72%);
+  pointer-events: none;
 }
 
 .play-arena--loading {
@@ -784,9 +800,69 @@
 
 .play--game {
   position: relative;
-  overflow: hidden;
+  overflow-x: hidden;
   background: #0b1f14;
   color: #f8fafc;
+}
+
+html:has(.play--game) {
+  background: #07150e;
+}
+
+.play--draft .play-game-bg__deco,
+.play--pick-open .play-game-bg__deco {
+  display: none;
+}
+
+.play-game-bg__deco {
+  position: absolute;
+  font-size: clamp(1.25rem, 3.5vw, 2rem);
+  opacity: 0.14;
+  pointer-events: none;
+  user-select: none;
+  animation: play-deco-drift 24s ease-in-out infinite;
+  animation-delay: calc(var(--deco-i, 0) * -4s);
+  contain: layout style;
+}
+
+.play-game-bg__deco--ball-1 {
+  --deco-i: 0;
+  top: 14%;
+  left: 7%;
+}
+
+.play-game-bg__deco--ball-2 {
+  --deco-i: 1;
+  top: 68%;
+  right: 6%;
+  animation-duration: 28s;
+}
+
+.play-game-bg__deco--goal {
+  --deco-i: 2;
+  bottom: 18%;
+  left: 12%;
+  font-size: clamp(1.5rem, 4vw, 2.35rem);
+  animation-duration: 32s;
+}
+
+.play-game-bg__deco--whistle {
+  --deco-i: 3;
+  top: 22%;
+  right: 14%;
+  animation-duration: 26s;
+}
+
+.play-game-bg__deco--boot {
+  --deco-i: 4;
+  bottom: 28%;
+  right: 18%;
+  animation-duration: 30s;
+}
+
+.play--game .play-arena {
+  backdrop-filter: none;
+  background: rgb(10 28 19 / 88%);
 }
 
 .play--game .play-lobby-bg {
@@ -831,56 +907,15 @@
   opacity: 0.35;
 }
 
-.play-game-bg__deco {
+.play-game-bg__spotlight {
   position: absolute;
-  font-size: clamp(1.6rem, 4vw, 2.6rem);
-  filter: drop-shadow(0 8px 18px rgb(0 0 0 / 35%));
-  opacity: 0.55;
-  animation: play-game-float 6s ease-in-out infinite;
-}
-
-.play-game-bg__deco--ball-1 {
-  top: 12%;
-  left: 8%;
-  animation-delay: 0s;
-}
-
-.play-game-bg__deco--ball-2 {
-  top: 22%;
-  right: 10%;
-  animation-delay: 1.4s;
-  font-size: clamp(1.2rem, 3vw, 2rem);
-}
-
-.play-game-bg__deco--goal {
-  bottom: 14%;
-  left: 6%;
-  animation-delay: 0.8s;
-}
-
-.play-game-bg__deco--whistle {
-  top: 18%;
-  right: 22%;
-  animation-delay: 2.2s;
-  font-size: clamp(1.3rem, 3vw, 2.1rem);
-}
-
-.play-game-bg__deco--boot {
-  bottom: 18%;
-  right: 8%;
-  animation-delay: 1.8s;
-  font-size: clamp(1.3rem, 3vw, 2.1rem);
-}
-
-@keyframes play-game-float {
-  0%,
-  100% {
-    transform: translateY(0) rotate(0deg);
-  }
-
-  50% {
-    transform: translateY(-10px) rotate(6deg);
-  }
+  top: -20%;
+  left: 50%;
+  width: min(120vw, 56rem);
+  height: 55%;
+  transform: translateX(-50%);
+  background: radial-gradient(ellipse at center, rgb(250 204 21 / 10%), transparent 68%);
+  pointer-events: none;
 }
 
 .play--game .play-header {
@@ -919,6 +954,7 @@
 .play--game .play-main {
   position: relative;
   z-index: 1;
+  animation: play-page-in 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 .play--game .play-title {
@@ -1185,4 +1221,269 @@
   border: 2px solid rgb(74 222 128 / 30%);
   box-shadow: 0 12px 30px rgb(0 0 0 / 30%);
   animation: play-game-float 5s ease-in-out infinite;
+}
+
+/* ── Stage rail, loading, form panel, motion ── */
+
+.play-stage-rail {
+  margin-bottom: 1.15rem;
+}
+
+.play-stage-rail__list {
+  list-style: none;
+  margin: 0;
+  padding: 0.35rem 0.45rem;
+  display: flex;
+  align-items: center;
+  gap: 0.15rem;
+  border-radius: 999px;
+  border: 1px solid rgb(74 222 128 / 18%);
+  background: rgb(8 22 15 / 72%);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.play-stage-rail__list::-webkit-scrollbar {
+  display: none;
+}
+
+.play-stage-rail__step {
+  flex: 1 1 0;
+  min-width: 3.4rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0.25rem 0.15rem;
+  text-align: center;
+}
+
+.play-stage-rail__node {
+  display: grid;
+  place-items: center;
+  width: 1.85rem;
+  height: 1.85rem;
+  border-radius: 999px;
+  border: 1px solid rgb(74 222 128 / 18%);
+  background: rgb(15 35 24 / 80%);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.play-stage-rail__icon {
+  font-size: 0.95rem;
+  line-height: 1;
+}
+
+.play-stage-rail__label {
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #64748b;
+  white-space: nowrap;
+}
+
+.play-stage-rail__step--done .play-stage-rail__node {
+  border-color: rgb(74 222 128 / 45%);
+  background: rgb(20 83 45 / 55%);
+}
+
+.play-stage-rail__step--done .play-stage-rail__label {
+  color: #86efac;
+}
+
+.play-stage-rail__step--current .play-stage-rail__node {
+  border-color: rgb(250 204 21 / 55%);
+  background: linear-gradient(135deg, rgb(34 197 94 / 35%), rgb(250 204 21 / 22%));
+  box-shadow: 0 0 16px rgb(250 204 21 / 18%);
+  transform: scale(1.08);
+}
+
+.play-stage-rail__step--current .play-stage-rail__label {
+  color: #facc15;
+}
+
+.play-loading-state__icon {
+  font-size: 2rem;
+  line-height: 1;
+  animation: play-game-float 3.5s ease-in-out infinite;
+}
+
+.play-form-arena {
+  margin-top: 0.35rem;
+}
+
+.play-form-arena .play-form {
+  margin-top: 0.25rem;
+}
+
+.play-field__label-row {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.play-field__icon {
+  font-size: 0.95rem;
+  line-height: 1;
+}
+
+.play-card-link__chevron {
+  margin-left: auto;
+  align-self: center;
+  font-size: 1.15rem;
+  color: #64748b;
+  transition: transform 0.15s ease, color 0.15s ease;
+}
+
+.play--game .play-card-link:hover .play-card-link__chevron {
+  transform: translateX(4px);
+  color: #facc15;
+}
+
+.play-roster__slot:nth-child(1) {
+  animation-delay: 0.04s;
+}
+.play-roster__slot:nth-child(2) {
+  animation-delay: 0.08s;
+}
+.play-roster__slot:nth-child(3) {
+  animation-delay: 0.12s;
+}
+.play-roster__slot:nth-child(4) {
+  animation-delay: 0.16s;
+}
+.play-roster__slot:nth-child(5) {
+  animation-delay: 0.2s;
+}
+.play-roster__slot:nth-child(6) {
+  animation-delay: 0.24s;
+}
+.play-roster__slot:nth-child(7) {
+  animation-delay: 0.28s;
+}
+.play-roster__slot:nth-child(8) {
+  animation-delay: 0.32s;
+}
+
+.formation-card {
+  animation: play-slot-in 0.38s ease both;
+}
+
+.formation-card:nth-child(1) {
+  animation-delay: 0.05s;
+}
+.formation-card:nth-child(2) {
+  animation-delay: 0.1s;
+}
+.formation-card:nth-child(3) {
+  animation-delay: 0.15s;
+}
+.formation-card:nth-child(4) {
+  animation-delay: 0.2s;
+}
+.formation-card:nth-child(5) {
+  animation-delay: 0.25s;
+}
+
+.formation-card__icon {
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.formation-card--selected {
+  animation: play-formation-pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes play-game-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes play-deco-drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+
+  50% {
+    transform: translate3d(0, -10px, 0) rotate(6deg);
+  }
+}
+
+@keyframes play-page-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes play-arena-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes play-formation-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 24px rgb(34 197 94 / 18%);
+  }
+
+  50% {
+    box-shadow: 0 0 32px rgb(250 204 21 / 22%);
+  }
+}
+
+.play-arena__meta {
+  flex-shrink: 0;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.4rem 0.7rem;
+  border-radius: 999px;
+  border: 1px solid rgb(74 222 128 / 25%);
+  background: rgb(8 22 15 / 65%);
+  color: #86efac;
+}
+
+.play--game .formation-card__header strong {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .play--game .play-main,
+  .play-arena,
+  .play-roster__slot,
+  .formation-card,
+  .play-game-hero__icon,
+  .play-loading-state__icon,
+  .play-game-bg__deco,
+  .formation-card--selected {
+    animation: none !important;
+  }
+
+  .play-stage-rail__step--current .play-stage-rail__node {
+    transform: none;
+  }
 }

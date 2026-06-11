@@ -1,6 +1,7 @@
 import type { ApiResponse } from '@draft-io/shared-types';
 import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 
+import { PlayAgainUseCase } from '../../../matches/application/use-cases/play-again.use-case';
 import {
   GetLeagueStateUseCase,
   GetMatchStateUseCase,
@@ -66,6 +67,7 @@ export class LobbiesController {
     private readonly getLeagueStateUseCase: GetLeagueStateUseCase,
     private readonly startNextMatchUseCase: StartNextMatchUseCase,
     private readonly getMatchStateUseCase: GetMatchStateUseCase,
+    private readonly playAgainUseCase: PlayAgainUseCase,
   ) {}
 
   @Post()
@@ -301,6 +303,15 @@ export class LobbiesController {
   async startNextMatch(@Param('code') code: string) {
     await this.startNextMatchUseCase.execute({ code: code.toUpperCase() });
     const data = await this.getLeagueStateUseCase.execute({ code: code.toUpperCase() });
+    return { data };
+  }
+
+  @Post('code/:code/play-again')
+  async playAgain(@Param('code') code: string, @Body() dto: StartLobbyDto) {
+    const data = await this.playAgainUseCase.execute({
+      code: code.toUpperCase(),
+      sessionToken: dto.sessionToken,
+    });
     return { data };
   }
 

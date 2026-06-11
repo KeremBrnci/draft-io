@@ -10,11 +10,8 @@ export default function PlayPage(): React.ReactElement {
       <PlayGameBackdrop />
 
       <header className="play-header">
-        <Link href="/" className="play-header__brand">
+        <Link href="/play" className="play-header__brand">
           draft<span>.io</span>
-        </Link>
-        <Link href="/admin" className="play-header__link">
-          Yönetim
         </Link>
       </header>
 
@@ -38,6 +35,9 @@ export default function PlayPage(): React.ReactElement {
               <h2>Oda Oluştur</h2>
               <p>Odaya isim ver, kodunu arkadaşlarınla paylaş ve sahaya çıkmayı bekle.</p>
             </div>
+            <span className="play-card-link__chevron" aria-hidden>
+              →
+            </span>
           </Link>
 
           <Link href="/play/join" className="play-card-link">
@@ -48,6 +48,9 @@ export default function PlayPage(): React.ReactElement {
               <h2>Odaya Katıl</h2>
               <p>6 haneli oda kodunu gir ve draft lobisine dal.</p>
             </div>
+            <span className="play-card-link__chevron" aria-hidden>
+              →
+            </span>
           </Link>
         </div>
       </main>

@@ -383,30 +383,72 @@
 .fc-card__name,
 .fc-card__name-last {
   display: block;
-  font-size: clamp(0.72rem, 3.6vw, 0.92rem);
+  font-size: clamp(0.62rem, 3.2vw, 0.88rem);
   font-weight: 800;
-  letter-spacing: 0.05em;
-  line-height: 1.05;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  letter-spacing: 0.04em;
+  line-height: 1.12;
   max-width: 100%;
+  overflow: hidden;
+  text-wrap: balance;
+  word-break: break-word;
+  hyphens: auto;
 }
 
 .fc-card__name--single {
-  font-size: clamp(0.68rem, 3.3vw, 0.88rem);
+  font-size: clamp(0.58rem, 3vw, 0.84rem);
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
 }
 
 .fc-card__name-first {
-  display: block;
-  font-size: clamp(0.42rem, 2vw, 0.52rem);
+  font-size: clamp(0.46rem, 2.15vw, 0.56rem);
   font-weight: 600;
-  letter-spacing: 0.12em;
-  opacity: 0.82;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  letter-spacing: 0.08em;
+  opacity: 0.86;
+  line-height: 1.12;
   max-width: 100%;
+  overflow: hidden;
+  text-wrap: balance;
+  word-break: break-word;
+  hyphens: auto;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.fc-card__name-last {
+  margin-top: 0.04rem;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.fc-card__nameplate--medium .fc-card__name,
+.fc-card__nameplate--medium .fc-card__name-last,
+.fc-card__nameplate--medium .fc-card__name--single {
+  font-size: clamp(0.56rem, 2.9vw, 0.8rem);
+  letter-spacing: 0.03em;
+}
+
+.fc-card__nameplate--medium .fc-card__name-first {
+  font-size: clamp(0.42rem, 1.95vw, 0.5rem);
+}
+
+.fc-card__nameplate--long .fc-card__name,
+.fc-card__nameplate--long .fc-card__name-last,
+.fc-card__nameplate--long .fc-card__name--single {
+  font-size: clamp(0.5rem, 2.6vw, 0.72rem);
+  letter-spacing: 0.02em;
+}
+
+.fc-card__nameplate--long .fc-card__name-first {
+  font-size: clamp(0.38rem, 1.75vw, 0.46rem);
+  -webkit-line-clamp: 1;
+}
+
+.fc-card__nameplate--long .fc-card__name-last {
+  -webkit-line-clamp: 3;
 }
 
 .fc-card__position {
@@ -676,4 +718,36 @@
     animation: none;
     opacity: 0.45;
   }
+}
+
+/* Interactive / draft mode — fewer paint layers, no shimmer */
+.fc-card--interactive .fc-card__shell {
+  filter: drop-shadow(0 4px 10px rgb(0 0 0 / 28%));
+}
+
+.fc-card--interactive .fc-card__portrait--cutout {
+  mix-blend-mode: normal;
+  filter: none;
+}
+
+.fc-card--interactive .fc-card__portrait-wrap {
+  contain: layout paint;
+}
+
+.fc-card--interactive .fc-card__frame {
+  contain: layout paint;
+}
+
+.fc-card--interactive .fc-card__name,
+.fc-card--interactive .fc-card__name-last,
+.fc-card--interactive .fc-card__name--single {
+  -webkit-line-clamp: 3;
+}
+
+.fc-card--interactive .fc-card__name-first {
+  -webkit-line-clamp: 2;
+}
+
+.fc-card--interactive .fc-card__nameplate--long .fc-card__name-last {
+  -webkit-line-clamp: 4;
 }

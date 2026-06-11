@@ -172,7 +172,7 @@ export class StartLeagueUseCase {
 
     const fixtures = await this.roomLeagueRepository.listFixtures(league.id);
     const standings = await this.roomLeagueRepository.listStandings(league.id);
-    const currentMatch = await this.roomLeagueRepository.findLiveMatch(league.id);
+    const currentMatch = await this.roomLeagueRepository.findCurrentMatch(league.id);
     const completedMatchCount = await this.roomLeagueRepository.countCompletedMatches(league.id);
 
     return toRoomLeagueStateDto({
@@ -206,7 +206,7 @@ export class GetLeagueStateUseCase {
 
     const fixtures = await this.roomLeagueRepository.listFixtures(league.id);
     const standings = await this.roomLeagueRepository.listStandings(league.id);
-    const currentMatch = await this.roomLeagueRepository.findLiveMatch(league.id);
+    const currentMatch = await this.roomLeagueRepository.findCurrentMatch(league.id);
     const completedMatchCount = await this.roomLeagueRepository.countCompletedMatches(league.id);
     const currentMatchEvents =
       currentMatch === null

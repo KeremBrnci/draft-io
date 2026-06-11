@@ -4,11 +4,11 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 const NAV_ITEMS = [
-  { href: '/admin', label: 'Panel', exact: true },
-  { href: '/admin/players', label: 'Oyuncular', exact: false },
-  { href: '/admin/coaches', label: 'Teknik Direktörler', exact: false },
-  { href: '/admin/cards', label: 'Kart Şablonu', exact: false },
-  { href: '/admin/data-quality', label: 'Veri Kalitesi', exact: false },
+  { href: '/admin', label: 'Panel', icon: '📊', exact: true },
+  { href: '/admin/players', label: 'Oyuncular', icon: '👤', exact: false },
+  { href: '/admin/coaches', label: 'Teknik Direktörler', icon: '🧢', exact: false },
+  { href: '/admin/cards', label: 'Kart Şablonu', icon: '🃏', exact: false },
+  { href: '/admin/data-quality', label: 'Veri Kalitesi', icon: '🔍', exact: false },
 ] as const;
 
 function isActive(pathname: string, href: string, exact: boolean): boolean {
@@ -25,7 +25,9 @@ export function AdminSidebar(): React.ReactElement {
   return (
     <aside className="admin-sidebar">
       <div className="admin-sidebar__brand">
-        <div className="admin-sidebar__brand-title">draft.io</div>
+        <div className="admin-sidebar__brand-title">
+          <span aria-hidden>⚽</span> draft.io
+        </div>
         <div className="admin-sidebar__brand-sub">Yönetim Paneli</div>
       </div>
 
@@ -36,6 +38,9 @@ export function AdminSidebar(): React.ReactElement {
             href={item.href}
             className={`admin-sidebar__link${isActive(pathname, item.href, item.exact) ? ' admin-sidebar__link--active' : ''}`}
           >
+            <span className="admin-sidebar__link-icon" aria-hidden>
+              {item.icon}
+            </span>
             {item.label}
           </Link>
         ))}
@@ -43,11 +48,11 @@ export function AdminSidebar(): React.ReactElement {
 
       <div className="admin-sidebar__footer">
         <Link
-          href="/"
+          href="/play"
           className="admin-sidebar__link"
           style={{ padding: '0.4rem 0', fontSize: '0.75rem' }}
         >
-          ← Back to home
+          ← Oyuna dön
         </Link>
       </div>
     </aside>

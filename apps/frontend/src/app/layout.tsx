@@ -1,6 +1,9 @@
 import type { Metadata } from 'next';
 
+import { FootballCardSilhouetteDefs } from '@/components/cards/card-silhouette';
+
 import './globals.css';
+import '@/styles/overlay.css';
 
 export const metadata: Metadata = {
   title: 'draft.io',
@@ -14,7 +17,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <FootballCardSilhouetteDefs />
+        <div id="app-portal" />
+        {children}
+      </body>
     </html>
   );
 }

@@ -65,7 +65,7 @@ export function computeLiveMatchStats(events: readonly MatchEventDto[]): LiveMat
 
   for (const event of events) {
     if (event.teamSide === 'HOME') {
-      if (event.xgValue !== null) {
+      if (event.xgValue !== null && event.eventType !== 'PENALTY') {
         homeXg += event.xgValue;
       }
       if (BIG_CHANCE_EVENTS.has(event.eventType)) {
@@ -84,7 +84,7 @@ export function computeLiveMatchStats(events: readonly MatchEventDto[]): LiveMat
     }
 
     if (event.teamSide === 'AWAY') {
-      if (event.xgValue !== null) {
+      if (event.xgValue !== null && event.eventType !== 'PENALTY') {
         awayXg += event.xgValue;
       }
       if (BIG_CHANCE_EVENTS.has(event.eventType)) {
@@ -134,6 +134,18 @@ export function duelSharePct(
 
   const homePct = Math.round((home / total) * 100);
   return { home: homePct, away: 100 - homePct };
+}
+
+/** Bar lengths reflect each side's value against the stronger side (not a 100% split). */
+export function duelRelativeBarPct(
+  home: number,
+  away: number,
+): { readonly home: number; readonly away: number } {
+  const max = Math.max(home, away, 0.001);
+  return {
+    home: Math.round((home / max) * 100),
+    away: Math.round((away / max) * 100),
+  };
 }
 
 function round2(value: number): number {

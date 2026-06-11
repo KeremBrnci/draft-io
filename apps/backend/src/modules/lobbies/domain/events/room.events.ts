@@ -17,6 +17,8 @@ export enum RoomEventName {
   HALF_TIME = 'HALF_TIME',
   FULL_TIME = 'FULL_TIME',
   LEAGUE_TABLE_UPDATED = 'LEAGUE_TABLE_UPDATED',
+  LEAGUE_COMPLETED = 'LEAGUE_COMPLETED',
+  LOBBY_RESET = 'LOBBY_RESET',
 }
 
 export interface RoomEventPayload {
@@ -36,5 +38,6 @@ export interface RoomEventPayload {
   readonly eventId?: string;
   readonly eventType?: string;
   readonly commentary?: string;
-  readonly playerName?: string;
+  readonly winnerDisplayName?: string;
+  readonly winnerParticipantId?: string;
 }

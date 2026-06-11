@@ -136,12 +136,12 @@ export class MatchSimulationEngine {
       }
 
       const attackRoll = rng.next();
-      if (attackRoll < 0.38) {
+      if (attackRoll < 0.28) {
         events.push(this.buildDangerousAttack(minute, attackingSide, attackingTeam, rng));
         continue;
       }
 
-      if (attackRoll < 0.48) {
+      if (attackRoll < 0.38) {
         events.push(this.buildCorner(minute, attackingSide, attackingTeam, rng));
         if (attackingSide === 'HOME') {
           stats.homeCorners += 1;
@@ -151,12 +151,12 @@ export class MatchSimulationEngine {
         continue;
       }
 
-      if (attackRoll < 0.54) {
+      if (attackRoll < 0.44) {
         events.push(this.buildFreeKick(minute, attackingSide, attackingTeam, rng));
         continue;
       }
 
-      if (attackRoll < 0.6 && minute > 15) {
+      if (attackRoll < 0.5 && minute > 15) {
         const cardEvent = this.buildCard(minute, attackingSide, defendingTeam, rng);
         events.push(cardEvent);
         if (cardEvent.eventType === 'YELLOW_CARD') {
@@ -179,7 +179,7 @@ export class MatchSimulationEngine {
       const shotType = this.pickShotType(rng);
       const shooter = this.pickShooter(attackingTeam, shotType, rng);
       const xg = this.xgForShot(shotType, shooter.overall, defendingTeam.matchPower);
-      const goalChance = Math.min(0.92, xg * (1.05 + rng.next() * 0.35));
+      const goalChance = Math.min(0.94, xg * (1.45 + rng.next() * 0.55));
 
       if (attackingSide === 'HOME') {
         stats.homeShots += 1;
@@ -216,7 +216,7 @@ export class MatchSimulationEngine {
           events.push(this.buildGoalChance(minute, attackingSide, attackingTeam));
         }
 
-        if (rng.next() < 0.06) {
+        if (rng.next() < 0.03) {
           events.push({
             minute,
             eventType: 'OFFSIDE_GOAL',
@@ -278,8 +278,7 @@ export class MatchSimulationEngine {
         continue;
       }
 
-      if (rng.next() < 0.14) {
-        events.push(this.buildGoalChance(minute, attackingSide, attackingTeam));
+      if (rng.next() < 0.12) {
         events.push({
           minute,
           eventType: 'WOODWORK',
@@ -295,9 +294,6 @@ export class MatchSimulationEngine {
       }
 
       const isOnTarget = rng.next() < 0.62;
-      if (isOnTarget && xg >= 0.18) {
-        events.push(this.buildGoalChance(minute, attackingSide, attackingTeam));
-      }
 
       events.push({
         minute,

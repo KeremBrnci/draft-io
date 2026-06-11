@@ -35,6 +35,10 @@ export function mapDomainErrorToHttpStatus(error: DomainError): HttpStatus {
     return HttpStatus.CONFLICT;
   }
 
+  if (code === 'LEAGUE_NOT_COMPLETED') {
+    return HttpStatus.CONFLICT;
+  }
+
   if (code === 'LOBBY_EXPIRED') {
     return HttpStatus.GONE;
   }

@@ -1,0 +1,158 @@
+.league-results__panel {
+  width: min(100%, 32rem);
+  max-height: min(90vh, 42rem);
+  overflow: auto;
+  padding: 1.65rem 1.5rem 1.5rem;
+  border-radius: 18px;
+  border: 1px solid rgb(34 197 94 / 35%);
+  background: linear-gradient(180deg, rgb(20 48 32 / 96%), rgb(10 28 19 / 98%));
+  box-shadow: 0 24px 48px rgb(0 0 0 / 45%);
+  animation: league-results-panel-in 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.league-results__eyebrow {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #86efac;
+}
+
+.league-results__title {
+  margin: 0.35rem 0 0;
+  font-size: 1.35rem;
+  color: #f8fafc;
+}
+
+.league-results__subtitle {
+  margin: 0.55rem 0 0;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: #94a3b8;
+}
+
+.league-results__section {
+  margin-top: 1.15rem;
+}
+
+.league-results__section-title {
+  margin: 0 0 0.55rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #cbd5e1;
+}
+
+.league-results__fixtures {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.4rem;
+  max-height: 14rem;
+  overflow: auto;
+}
+
+.league-results__fixture {
+  display: grid;
+  grid-template-columns: 2rem 1fr auto 1fr auto;
+  align-items: center;
+  gap: 0.35rem 0.5rem;
+  padding: 0.55rem 0.65rem;
+  border-radius: 8px;
+  border: 1px solid rgb(148 163 184 / 20%);
+  background: rgb(15 23 42 / 35%);
+  font-size: 0.82rem;
+}
+
+.league-results__fixture--latest {
+  border-color: rgb(34 197 94 / 45%);
+  background: rgb(34 197 94 / 10%);
+}
+
+.league-results__fixture-round {
+  font-size: 0.7rem;
+  color: #94a3b8;
+}
+
+.league-results__fixture-home,
+.league-results__fixture-away {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.league-results__fixture-away {
+  text-align: right;
+}
+
+.league-results__fixture-score {
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: #f8fafc;
+  padding: 0.1rem 0.45rem;
+  border-radius: 6px;
+  background: rgb(15 23 42 / 55%);
+}
+
+.league-results__fixture-badge {
+  grid-column: 1 / -1;
+  justify-self: start;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #86efac;
+}
+
+.league-results__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+
+.league-results__table th,
+.league-results__table td {
+  padding: 0.45rem 0.35rem;
+  border-bottom: 1px solid rgb(148 163 184 / 18%);
+  text-align: center;
+}
+
+.league-results__table th:nth-child(2),
+.league-results__table td:nth-child(2) {
+  text-align: left;
+}
+
+.league-results__table td:last-child {
+  font-weight: 800;
+  color: #facc15;
+}
+
+.league-results__cta {
+  margin-top: 1.25rem;
+  width: 100%;
+}
+
+@keyframes league-results-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (max-width: 480px) {
+  .league-results__fixture {
+    grid-template-columns: 1.75rem 1fr auto 1fr;
+  }
+
+  .league-results__fixture-badge {
+    grid-column: 2 / -1;
+  }
+}

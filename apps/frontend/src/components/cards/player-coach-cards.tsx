@@ -6,6 +6,7 @@ import {
   translateNationality,
   translatePositionCode,
 } from '@draft-io/shared-utils';
+import { memo } from 'react';
 
 import { FootballCard, type FootballCardProps } from './football-card';
 
@@ -27,9 +28,12 @@ export interface CoachCardProps extends Omit<FootballCardProps, 'face' | 'entity
   readonly coach: CoachBrowserItemDto;
 }
 
-export function CoachCard({ coach, ...cardProps }: CoachCardProps): React.ReactElement {
+export const CoachCard = memo(function CoachCard({
+  coach,
+  ...cardProps
+}: CoachCardProps): React.ReactElement {
   return <FootballCard face={mapCoachToCardFace(coach)} entityKind="coach" {...cardProps} />;
-}
+});
 
 export function mapPlayerToCardFace(player: {
   readonly displayName: string;

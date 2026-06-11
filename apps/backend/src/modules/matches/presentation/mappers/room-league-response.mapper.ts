@@ -50,7 +50,9 @@ export function toRoomLeagueStateDto(input: {
       homeDisplayName: input.participantNames.get(fixture.homeParticipantId) ?? 'Home',
       awayDisplayName: input.participantNames.get(fixture.awayParticipantId) ?? 'Away',
       matchId: fixture.matchId,
-      matchStatus: null,
+      matchStatus: fixture.matchStatus,
+      homeScore: fixture.homeScore,
+      awayScore: fixture.awayScore,
     })),
     standings: input.standings.map((row) => ({
       participantId: row.participantId,
@@ -75,6 +77,27 @@ export function toRoomLeagueStateDto(input: {
           ),
     completedMatchCount: input.completedMatchCount,
     totalMatchCount: input.fixtures.length,
+    winner: resolveLeagueWinner(input.league.status, input.standings),
+  };
+}
+
+function resolveLeagueWinner(
+  status: string,
+  standings: readonly RoomStandingRecord[],
+): RoomLeagueStateDto['winner'] {
+  if (status !== 'COMPLETED') {
+    return null;
+  }
+
+  const leader = standings.find((row) => row.rank === 1);
+  if (leader === undefined) {
+    return null;
+  }
+
+  return {
+    participantId: leader.participantId,
+    displayName: leader.displayName,
+    points: leader.points,
   };
 }
 

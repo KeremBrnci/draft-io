@@ -335,6 +335,23 @@ export class Lobby extends Entity<LobbyId> {
     this._updatedAt = new Date();
   }
 
+  resetForPlayAgain(): void {
+    if (this._phase !== RoomPhase.MATCHES && this._phase !== RoomPhase.FINISHED) {
+      throw new InvalidRoomPhaseTransitionError(this._phase, RoomPhase.LOBBY);
+    }
+
+    for (const participant of this._participants) {
+      participant.resetForPlayAgain();
+    }
+
+    this._phase = RoomPhase.LOBBY;
+    this._status =
+      this._participants.length >= this._maxPlayers ? LobbyStatus.FULL : LobbyStatus.OPEN;
+    this._formationSelectionStartedAt = null;
+    this._formationSelectionDeadline = null;
+    this._updatedAt = new Date();
+  }
+
   get name(): LobbyName {
     return this._name;
   }

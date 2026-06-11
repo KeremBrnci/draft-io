@@ -77,9 +77,15 @@ export default function JoinLobbyPage(): React.ReactElement {
         </h1>
         <p className="play-subtitle">Arkadaşının paylaştığı 6 haneli kodla sahaya gir.</p>
 
-        <form className="play-form" onSubmit={(event) => void handleSubmit(event)}>
-          <div className="play-field">
-            <label htmlFor="lobby-code">Oda kodu</label>
+        <div className="play-arena play-form-arena">
+          <form className="play-form" onSubmit={(event) => void handleSubmit(event)}>
+            <div className="play-field">
+              <div className="play-field__label-row">
+                <span className="play-field__icon" aria-hidden>
+                  🔑
+                </span>
+                <label htmlFor="lobby-code">Oda kodu</label>
+              </div>
             <input
               id="lobby-code"
               value={code}
@@ -94,7 +100,12 @@ export default function JoinLobbyPage(): React.ReactElement {
           </div>
 
           <div className="play-field">
-            <label htmlFor="display-name">Senin adın</label>
+            <div className="play-field__label-row">
+              <span className="play-field__icon" aria-hidden>
+                👤
+              </span>
+              <label htmlFor="display-name">Senin adın</label>
+            </div>
             <input
               id="display-name"
               value={displayName}
@@ -126,6 +137,7 @@ export default function JoinLobbyPage(): React.ReactElement {
             {loading ? 'Katılınıyor…' : '⚽ Odaya Katıl'}
           </button>
         </form>
+        </div>
       </main>
     </div>
   );

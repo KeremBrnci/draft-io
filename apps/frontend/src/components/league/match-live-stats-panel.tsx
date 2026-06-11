@@ -1,6 +1,6 @@
 'use client';
 
-import { duelSharePct, type LiveMatchStats } from '@/lib/match-live-stats';
+import { duelRelativeBarPct, type LiveMatchStats } from '@/lib/match-live-stats';
 
 interface MatchLiveStatsPanelProps {
   readonly homeName: string;
@@ -81,7 +81,7 @@ function DuelStatRow({
   readonly homeRaw: number;
   readonly awayRaw: number;
 }): React.ReactElement {
-  const share = duelSharePct(homeRaw, awayRaw);
+  const bar = duelRelativeBarPct(homeRaw, awayRaw);
   const homeLeads = homeRaw >= awayRaw;
 
   return (
@@ -99,13 +99,17 @@ function DuelStatRow({
           {awayValue}
         </span>
       </div>
-      <div className="league-duel-stat__bar" role="presentation">
-        {share.home > 0 ? (
-          <div className="league-duel-stat__bar-home" style={{ width: `${share.home}%` }} />
-        ) : null}
-        {share.away > 0 ? (
-          <div className="league-duel-stat__bar-away" style={{ width: `${share.away}%` }} />
-        ) : null}
+      <div className="league-duel-stat__bar league-duel-stat__bar--mirrored" role="presentation">
+        <div className="league-duel-stat__bar-half league-duel-stat__bar-half--home">
+          {bar.home > 0 ? (
+            <div className="league-duel-stat__bar-home" style={{ width: `${bar.home}%` }} />
+          ) : null}
+        </div>
+        <div className="league-duel-stat__bar-half league-duel-stat__bar-half--away">
+          {bar.away > 0 ? (
+            <div className="league-duel-stat__bar-away" style={{ width: `${bar.away}%` }} />
+          ) : null}
+        </div>
       </div>
     </div>
   );

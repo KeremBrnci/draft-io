@@ -13,6 +13,7 @@ export type {
   RoomLeagueStandingDto,
   RoomLeagueStateDto,
   RoomLeagueStatusDto,
+  RoomLeagueWinnerDto,
   TeamReviewParticipantDto,
   TeamReviewStateDto,
 } from './room-league.js';

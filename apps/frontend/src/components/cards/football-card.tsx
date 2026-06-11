@@ -1,10 +1,10 @@
 'use client';
 
 import type { CardEntityKind, CardFaceData, CardVariant } from '@draft-io/shared-types';
-import { useState } from 'react';
+import { memo, useState } from 'react';
 
 import { CardFootballIcon } from './card-football-icon';
-import { FC_CARD_CLIP_ID, FootballCardSilhouetteDefs } from './card-silhouette';
+import { FC_CARD_CLIP_ID } from './card-silhouette';
 import { CARD_VARIANT_THEMES } from './card-variant-themes';
 import { formatCardNameForDisplay } from './format-card-name';
 import { formatLeagueIndicator } from './format-league-indicator';
@@ -17,19 +17,25 @@ export interface FootballCardProps {
   readonly entityKind?: CardEntityKind;
   readonly className?: string;
   readonly size?: 'sm' | 'md' | 'lg';
+  /** Lighter rendering for draft pick flows — fewer layers and no shimmer. */
+  readonly visual?: 'premium' | 'interactive';
 }
 
-export function FootballCard({
+function FootballCardComponent({
   face,
   variant = 'base',
   entityKind = 'player',
   className,
   size = 'md',
+  visual = 'premium',
 }: FootballCardProps): React.ReactElement {
   const theme = CARD_VARIANT_THEMES[variant];
   const nameDisplay = formatCardNameForDisplay(face.displayName);
+  const nameLengthTier =
+    face.displayName.length > 22 ? 'long' : face.displayName.length > 15 ? 'medium' : 'short';
   const leagueIndicator = formatLeagueIndicator(face.leagueName);
   const [portraitFailed, setPortraitFailed] = useState(false);
+  const isInteractive = visual === 'interactive';
 
   const showPortrait = face.imageUrl !== null && face.imageUrl.length > 0 && !portraitFailed;
   const ratingDisplay = face.rating !== null ? String(face.rating) : (face.ratingFallback ?? '—');
@@ -39,6 +45,7 @@ export function FootballCard({
     `fc-card--${variant}`,
     `fc-card--${entityKind}`,
     `fc-card--${size}`,
+    isInteractive ? 'fc-card--interactive' : null,
     className,
   ]
     .filter(Boolean)
@@ -56,16 +63,18 @@ export function FootballCard({
       }
       aria-label={`${face.displayName} ${theme.label} kart`}
     >
-      <FootballCardSilhouetteDefs />
-
       <div className="fc-card__shell">
         <div className="fc-card__frame" style={{ clipPath: `url(#${FC_CARD_CLIP_ID})` }}>
-          <div className="fc-card__bevel" aria-hidden="true" />
-          <div className="fc-card__satin" aria-hidden="true" />
-          <div className="fc-card__pattern" aria-hidden="true" />
-          <div className="fc-card__highlight" aria-hidden="true" />
-          <div className="fc-card__shine" aria-hidden="true" />
-          <div className="fc-card__inner-rim" aria-hidden="true" />
+          {!isInteractive ? (
+            <>
+              <div className="fc-card__bevel" aria-hidden="true" />
+              <div className="fc-card__satin" aria-hidden="true" />
+              <div className="fc-card__pattern" aria-hidden="true" />
+              <div className="fc-card__highlight" aria-hidden="true" />
+              <div className="fc-card__shine" aria-hidden="true" />
+              <div className="fc-card__inner-rim" aria-hidden="true" />
+            </>
+          ) : null}
 
           <div className="fc-card__rating-block">
             <div className="fc-card__rating">{ratingDisplay}</div>
@@ -74,14 +83,15 @@ export function FootballCard({
           <div className="fc-card__edition">{theme.label.toUpperCase()}</div>
 
           <div className="fc-card__portrait-wrap">
-            <div className="fc-card__portrait-burst" aria-hidden="true" />
+            {!isInteractive ? <div className="fc-card__portrait-burst" aria-hidden="true" /> : null}
             {showPortrait ? (
               <img
                 className="fc-card__portrait fc-card__portrait--cutout"
                 src={face.imageUrl}
                 alt=""
-                loading="lazy"
+                loading={isInteractive ? 'eager' : 'lazy'}
                 decoding="async"
+                fetchPriority={isInteractive ? 'high' : 'auto'}
                 onError={() => {
                   setPortraitFailed(true);
                 }}
@@ -91,12 +101,17 @@ export function FootballCard({
                 <span className="fc-card__portrait-icon" />
               </div>
             )}
-            <div className="fc-card__portrait-vignette" aria-hidden="true" />
+            {!isInteractive ? (
+              <div className="fc-card__portrait-vignette" aria-hidden="true" />
+            ) : null}
           </div>
 
           <footer className="fc-card__footer">
             <div className="fc-card__identity">
-              <div className="fc-card__nameplate">
+              <div
+                className={`fc-card__nameplate fc-card__nameplate--${nameLengthTier}`}
+                title={face.displayName}
+              >
                 {nameDisplay.mode === 'single' ? (
                   <span className="fc-card__name fc-card__name--single">
                     {nameDisplay.singleLine.toUpperCase()}
@@ -122,7 +137,12 @@ export function FootballCard({
               <div className="fc-card__meta-side fc-card__meta-side--left">
                 <div className="fc-card__flag" title={face.nationalityLabel ?? undefined}>
                   {face.nationalityFlagUrl !== null && face.nationalityFlagUrl.length > 0 ? (
-                    <img src={face.nationalityFlagUrl} alt="" loading="lazy" decoding="async" />
+                    <img
+                      src={face.nationalityFlagUrl}
+                      alt=""
+                      loading={isInteractive ? 'eager' : 'lazy'}
+                      decoding="async"
+                    />
                   ) : (
                     <span className="fc-card__flag-placeholder" aria-hidden="true" />
                   )}
@@ -162,3 +182,27 @@ export function FootballCard({
     </article>
   );
 }
+
+function footballCardPropsAreEqual(
+  prev: FootballCardProps,
+  next: FootballCardProps,
+): boolean {
+  return (
+    prev.variant === next.variant &&
+    prev.entityKind === next.entityKind &&
+    prev.size === next.size &&
+    prev.visual === next.visual &&
+    prev.className === next.className &&
+    prev.face.displayName === next.face.displayName &&
+    prev.face.imageUrl === next.face.imageUrl &&
+    prev.face.rating === next.face.rating &&
+    prev.face.ratingFallback === next.face.ratingFallback &&
+    prev.face.subtitle === next.face.subtitle &&
+    prev.face.nationalityFlagUrl === next.face.nationalityFlagUrl &&
+    prev.face.nationalityLabel === next.face.nationalityLabel &&
+    prev.face.leagueName === next.face.leagueName &&
+    prev.face.leagueLogoUrl === next.face.leagueLogoUrl
+  );
+}
+
+export const FootballCard = memo(FootballCardComponent, footballCardPropsAreEqual);

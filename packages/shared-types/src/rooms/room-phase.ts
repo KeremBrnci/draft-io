@@ -27,4 +27,6 @@ export type RoomEventNameDto =
   | 'GOAL_SCORED'
   | 'HALF_TIME'
   | 'FULL_TIME'
-  | 'LEAGUE_TABLE_UPDATED';
+  | 'LEAGUE_TABLE_UPDATED'
+  | 'LEAGUE_COMPLETED'
+  | 'LOBBY_RESET';

@@ -269,7 +269,7 @@ export class MatchPlaybackService implements OnModuleDestroy {
     }
 
     if (nextMinute >= 90) {
-      await this.roomLeagueRepository.finalizeMatch({
+      const leagueCompleted = await this.roomLeagueRepository.finalizeMatch({
         matchId,
         homeScore: updated.homeScore,
         awayScore: updated.awayScore,
@@ -286,6 +286,21 @@ export class MatchPlaybackService implements OnModuleDestroy {
         lobbyCode,
         phase: 'MATCHES',
       });
+
+      if (leagueCompleted) {
+        const standings = await this.roomLeagueRepository.listStandings(match.leagueId);
+        const winner = standings.find((row) => row.rank === 1);
+        this.roomEventsPublisher.publish(lobbyCode, RoomEventName.LEAGUE_COMPLETED, {
+          lobbyCode,
+          phase: 'MATCHES',
+          ...(winner !== undefined
+            ? {
+                winnerDisplayName: winner.displayName,
+                winnerParticipantId: winner.participantId,
+              }
+            : {}),
+        });
+      }
 
       this.stop(matchId);
     }

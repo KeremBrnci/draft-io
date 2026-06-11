@@ -7,22 +7,34 @@ import type {
 } from '@draft-io/shared-types';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, startTransition } from 'react';
 
 import { DraftPickDrawer } from '@/components/draft/draft-pick-drawer';
 import { DraftPitchBoard } from '@/components/draft/draft-pitch-board';
 import { DraftStatsPanel } from '@/components/draft/draft-stats-panel';
 import '@/components/draft/draft.css';
 import { PlayGameBackdrop } from '@/components/play/play-game-backdrop';
+import { PlayLoadingState } from '@/components/play/play-loading-state';
+import { PlayStageRail } from '@/components/play/play-stage-rail';
 import { ApiClientError } from '@/lib/api/client';
 import { applyDraftPick, getDraftBoard, getDraftPickOptions } from '@/lib/api/draft';
 import { setParticipantReady } from '@/lib/api/lobbies';
 import { clearLobbySession, readLobbySession } from '@/lib/lobby-session';
 import { useRoomSocket } from '@/lib/room-socket';
+import { useVisibleInterval } from '@/lib/use-visible-interval';
 
 import '../../../play.css';
 
-const POLL_INTERVAL_MS = 3000;
+const POLL_INTERVAL_MS = 6000;
+
+const DRAFT_REFRESH_EVENTS = new Set([
+  'DRAFT_READY',
+  'DRAFT_PLAYER_READY',
+  'DRAFT_COMPLETE',
+  'COACH_SELECTION_STARTED',
+  'LEAGUE_READY',
+  'MATCH_STARTED',
+]);
 
 function applyOptimisticPick(
   board: DraftBoardStateDto,
@@ -72,10 +84,12 @@ export default function DraftRoomPage(): React.ReactElement {
 
       try {
         const nextBoard = await getDraftBoard(code, session.sessionToken);
-        setBoard((current) =>
-          !force && skipPollBoardUpdateRef.current && current !== null ? current : nextBoard,
-        );
-        setError(null);
+        startTransition(() => {
+          setBoard((current) =>
+            !force && skipPollBoardUpdateRef.current && current !== null ? current : nextBoard,
+          );
+          setError(null);
+        });
 
         if (nextBoard.phase === 'COACH_SELECTION') {
           router.replace(`/play/room/${code}/coach-selection`);
@@ -108,16 +122,21 @@ export default function DraftRoomPage(): React.ReactElement {
 
   useEffect(() => {
     void loadBoard();
-    const timer = window.setInterval(() => {
-      void loadBoard();
-    }, POLL_INTERVAL_MS);
-
-    return () => {
-      window.clearInterval(timer);
-    };
   }, [loadBoard]);
 
+  useVisibleInterval(
+    () => {
+      void loadBoard();
+    },
+    POLL_INTERVAL_MS,
+    activeSlotIndex === null && pickingCardId === null,
+  );
+
   useRoomSocket(code, (event) => {
+    if (!DRAFT_REFRESH_EVENTS.has(event)) {
+      return;
+    }
+
     void loadBoard();
     if (event === 'DRAFT_COMPLETE' || event === 'COACH_SELECTION_STARTED') {
       router.replace(`/play/room/${code}/coach-selection`);
@@ -156,71 +175,89 @@ export default function DraftRoomPage(): React.ReactElement {
   const participantCount = board?.participantCount ?? 0;
   const allPlayersReady = participantCount > 0 && readyCount >= participantCount;
 
-  async function openSlot(slotIndex: number): Promise<void> {
-    if (session === null || board === null || board.isRosterComplete || activeSlotIndex !== null) {
-      return;
-    }
-
-    const slot = board.slots.find((entry) => entry.slotIndex === slotIndex);
-    if (slot?.card !== null) {
-      return;
-    }
-
-    setActiveSlotIndex(slotIndex);
-    setOptionsLoading(true);
-    setActionError(null);
-    setPickOptions(null);
-
-    try {
-      const options = await getDraftPickOptions(code, session.sessionToken, slotIndex);
-      setPickOptions(options);
-    } catch (optionsError) {
-      if (optionsError instanceof ApiClientError) {
-        setActionError(optionsError.message);
-      } else {
-        setActionError('Oyuncu seçenekleri yüklenemedi.');
+  const openSlot = useCallback(
+    async (slotIndex: number): Promise<void> => {
+      if (session === null || board === null || board.isRosterComplete || activeSlotIndex !== null) {
+        return;
       }
+
+      const slot = board.slots.find((entry) => entry.slotIndex === slotIndex);
+      if (slot?.card !== null) {
+        return;
+      }
+
+      setActiveSlotIndex(slotIndex);
+      setOptionsLoading(true);
+      setActionError(null);
+      setPickOptions(null);
+
+      try {
+        const options = await getDraftPickOptions(code, session.sessionToken, slotIndex);
+        setPickOptions(options);
+      } catch (optionsError) {
+        if (optionsError instanceof ApiClientError) {
+          setActionError(optionsError.message);
+        } else {
+          setActionError('Oyuncu seçenekleri yüklenemedi.');
+        }
+        setActiveSlotIndex(null);
+      } finally {
+        setOptionsLoading(false);
+      }
+    },
+    [activeSlotIndex, board, code, session],
+  );
+
+  const handlePick = useCallback(
+    async (cardId: string): Promise<void> => {
+      if (session === null || activeSlotIndex === null || board === null) {
+        return;
+      }
+
+      const option = pickOptions?.options.find((entry) => entry.cardId === cardId);
+      if (option === undefined) {
+        return;
+      }
+
+      const slotIndex = activeSlotIndex;
+      setPickingCardId(cardId);
+      setActionError(null);
+      setBoard(applyOptimisticPick(board, slotIndex, option));
       setActiveSlotIndex(null);
-    } finally {
-      setOptionsLoading(false);
-    }
-  }
+      setPickOptions(null);
 
-  async function handlePick(cardId: string): Promise<void> {
-    if (session === null || activeSlotIndex === null || board === null) {
-      return;
-    }
+      try {
+        const nextBoard = await applyDraftPick(code, {
+          sessionToken: session.sessionToken,
+          slotIndex,
+          cardId,
+        });
+        setBoard(nextBoard);
+      } catch (pickError) {
+        await loadBoard(true);
+        if (pickError instanceof ApiClientError) {
+          setActionError(pickError.message);
+        } else {
+          setActionError('Oyuncu seçilemedi.');
+        }
+      } finally {
+        setPickingCardId(null);
+      }
+    },
+    [activeSlotIndex, board, code, loadBoard, pickOptions, session],
+  );
 
-    const option = pickOptions?.options.find((entry) => entry.cardId === cardId);
-    if (option === undefined) {
-      return;
-    }
+  const handleSelectSlot = useCallback(
+    (slotIndex: number) => {
+      void openSlot(slotIndex);
+    },
+    [openSlot],
+  );
 
-    const slotIndex = activeSlotIndex;
-    setPickingCardId(cardId);
-    setActionError(null);
-    setBoard(applyOptimisticPick(board, slotIndex, option));
+  const closePickDrawer = useCallback(() => {
     setActiveSlotIndex(null);
     setPickOptions(null);
-
-    try {
-      const nextBoard = await applyDraftPick(code, {
-        sessionToken: session.sessionToken,
-        slotIndex,
-        cardId,
-      });
-      setBoard(nextBoard);
-    } catch (pickError) {
-      await loadBoard(true);
-      if (pickError instanceof ApiClientError) {
-        setActionError(pickError.message);
-      } else {
-        setActionError('Oyuncu seçilemedi.');
-      }
-    } finally {
-      setPickingCardId(null);
-    }
-  }
+  }, []);
 
   const activeSlotLabel =
     board?.slots.find((slot) => slot.slotIndex === activeSlotIndex)?.label ?? 'Mevki';
@@ -228,7 +265,9 @@ export default function DraftRoomPage(): React.ReactElement {
     !optionsLoading && (pickOptions === null || pickOptions.options.length === 0);
 
   return (
-    <div className="play play--game play--draft">
+    <div
+      className={`play play--game play--draft${activeSlotIndex !== null ? ' play--pick-open' : ''}`}
+    >
       <PlayGameBackdrop />
 
       <header className="play-header play-header--lobby">
@@ -239,6 +278,7 @@ export default function DraftRoomPage(): React.ReactElement {
       </header>
 
       <main className="play-main play-main--draft">
+        <PlayStageRail current="draft" />
         {error !== null ? (
           <div className="play-arena">
             <p className="play-error" role="alert">
@@ -246,10 +286,7 @@ export default function DraftRoomPage(): React.ReactElement {
             </p>
           </div>
         ) : board === null ? (
-          <div className="play-arena play-arena--loading">
-            <div className="play-loader" />
-            <p className="play-subtitle">Draft yükleniyor…</p>
-          </div>
+          <PlayLoadingState message="Draft yükleniyor…" icon="👟" />
         ) : (
           <div className="play-arena">
             <div className="play-arena__header">
@@ -338,9 +375,7 @@ export default function DraftRoomPage(): React.ReactElement {
                 <DraftPitchBoard
                   board={board}
                   activeSlotIndex={activeSlotIndex}
-                  onSelectSlot={(slotIndex) => {
-                    void openSlot(slotIndex);
-                  }}
+                  onSelectSlot={handleSelectSlot}
                 />
               </div>
               <DraftStatsPanel board={board} />
@@ -380,10 +415,7 @@ export default function DraftRoomPage(): React.ReactElement {
           onPick={(cardId) => {
             void handlePick(cardId);
           }}
-          onClose={() => {
-            setActiveSlotIndex(null);
-            setPickOptions(null);
-          }}
+          onClose={closePickDrawer}
         />
       ) : null}
     </div>

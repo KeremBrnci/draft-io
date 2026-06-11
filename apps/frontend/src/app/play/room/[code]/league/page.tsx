@@ -1,37 +1,72 @@
 'use client';
 
-import type { MatchEventDto, RoomLeagueStateDto } from '@draft-io/shared-types';
+import type { RoomLeagueStateDto } from '@draft-io/shared-types';
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useParams, useRouter } from 'next/navigation';
+import { useCallback, useEffect, useMemo, useRef, useState, startTransition } from 'react';
 
 import '@/components/league/league.css';
+import { GoalCelebrationOverlay } from '@/components/league/goal-celebration-overlay';
+import { LeagueVictoryOverlay } from '@/components/league/league-victory-overlay';
+import { MatchCommentaryFeed } from '@/components/league/match-commentary-feed';
 import { MatchLiveStatsPanel } from '@/components/league/match-live-stats-panel';
+import { MatchResultsOverlay } from '@/components/league/match-results-overlay';
 import { PlayGameBackdrop } from '@/components/play/play-game-backdrop';
+import { PlayLoadingState } from '@/components/play/play-loading-state';
+import { PlayStageRail } from '@/components/play/play-stage-rail';
 import { ApiClientError } from '@/lib/api/client';
-import { getLeagueState, startNextMatch } from '@/lib/api/league';
-import { getMatchEventUi } from '@/lib/match-event-ui';
+import { getLeagueState, playAgain, startNextMatch } from '@/lib/api/league';
+import { readLobbySession } from '@/lib/lobby-session';
 import { getActiveLiveMatchAlert } from '@/lib/match-live-alert';
 import { computeLiveMatchStats } from '@/lib/match-live-stats';
 import { useRoomSocket } from '@/lib/room-socket';
+import { useGoalCelebration } from '@/lib/use-goal-celebration';
+import { useVisibleInterval } from '@/lib/use-visible-interval';
 
 import '../../../play.css';
 
-const POLL_INTERVAL_MS = 2000;
+const POLL_INTERVAL_MS = 3000;
+
+function isLeagueFinished(league: RoomLeagueStateDto): boolean {
+  if (league.status === 'COMPLETED') {
+    return true;
+  }
+
+  return (
+    league.totalMatchCount > 0 &&
+    league.completedMatchCount >= league.totalMatchCount &&
+    league.currentMatch === null
+  );
+}
+
+function resolveWinnerName(league: RoomLeagueStateDto): string {
+  if (league.winner !== null) {
+    return league.winner.displayName;
+  }
+
+  const leader = league.standings.find((row) => row.rank === 1);
+  return leader?.displayName ?? '—';
+}
 
 export default function LeaguePage(): React.ReactElement {
   const params = useParams<{ code: string }>();
+  const router = useRouter();
   const code = params.code.toUpperCase();
+  const session = useMemo(() => readLobbySession(code), [code]);
   const [league, setLeague] = useState<RoomLeagueStateDto | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [startingNext, setStartingNext] = useState(false);
+  const [playAgainLoading, setPlayAgainLoading] = useState(false);
+  const [resultsDismissed, setResultsDismissed] = useState(false);
   const autoNextQueuedRef = useRef(false);
 
   const load = useCallback(async (): Promise<void> => {
     try {
       const next = await getLeagueState(code);
-      setLeague(next);
-      setError(null);
+      startTransition(() => {
+        setLeague(next);
+        setError(null);
+      });
     } catch (loadError) {
       if (loadError instanceof ApiClientError) {
         setError(loadError.message);
@@ -49,9 +84,6 @@ export default function LeaguePage(): React.ReactElement {
     autoNextQueuedRef.current = true;
     setStartingNext(true);
     try {
-      await new Promise((resolve) => {
-        window.setTimeout(resolve, 2500);
-      });
       const next = await startNextMatch(code);
       setLeague(next);
       setError(null);
@@ -63,17 +95,24 @@ export default function LeaguePage(): React.ReactElement {
     }
   }, [code]);
 
+  useVisibleInterval(
+    () => {
+      void load();
+    },
+    POLL_INTERVAL_MS,
+    league === null || !isLeagueFinished(league),
+  );
+
   useEffect(() => {
     void load();
-    const timer = window.setInterval(() => {
-      void load();
-    }, POLL_INTERVAL_MS);
-    return () => {
-      window.clearInterval(timer);
-    };
   }, [load]);
 
   useRoomSocket(code, (event) => {
+    if (event === 'LOBBY_RESET') {
+      router.replace(`/play/room/${code}`);
+      return;
+    }
+
     if (
       event === 'MATCH_STARTED' ||
       event === 'MATCH_MINUTE_UPDATED' ||
@@ -82,20 +121,68 @@ export default function LeaguePage(): React.ReactElement {
       event === 'HALF_TIME' ||
       event === 'FULL_TIME' ||
       event === 'LEAGUE_TABLE_UPDATED' ||
+      event === 'LEAGUE_COMPLETED' ||
       event === 'LEAGUE_READY'
     ) {
       void load();
-      if (event === 'FULL_TIME') {
-        void queueNextMatch();
-      }
     }
   });
 
-  async function handleStartNext(): Promise<void> {
-    await queueNextMatch();
+  async function handlePlayAgain(): Promise<void> {
+    if (session === null || playAgainLoading) {
+      return;
+    }
+
+    setPlayAgainLoading(true);
+    setError(null);
+
+    try {
+      await playAgain(code, session.sessionToken);
+      router.replace(`/play/room/${code}`);
+    } catch (playAgainError) {
+      if (playAgainError instanceof ApiClientError) {
+        setError(playAgainError.message);
+      } else {
+        setError('Yeni lig başlatılamadı.');
+      }
+    } finally {
+      setPlayAgainLoading(false);
+    }
   }
 
   const match = league?.currentMatch ?? null;
+  const isFinalMatchReview =
+    match?.status === 'FULL_TIME' &&
+    league !== null &&
+    league.completedMatchCount >= league.totalMatchCount;
+  const showMatchResults =
+    match?.status === 'FULL_TIME' && !resultsDismissed && !startingNext;
+  const leagueFinished =
+    league !== null &&
+    isLeagueFinished(league) &&
+    (!showMatchResults || resultsDismissed);
+  const winnerName = league !== null ? resolveWinnerName(league) : '—';
+
+  async function handleStartNext(): Promise<void> {
+    if (
+      league !== null &&
+      match?.status === 'FULL_TIME' &&
+      league.completedMatchCount >= league.totalMatchCount
+    ) {
+      setResultsDismissed(true);
+      return;
+    }
+
+    setResultsDismissed(false);
+    await queueNextMatch();
+  }
+
+  useEffect(() => {
+    if (match?.status === 'LIVE' || match?.status === 'HALF_TIME') {
+      setResultsDismissed(false);
+    }
+  }, [match?.id, match?.status]);
+
   const liveStats = useMemo(
     () => (match === null ? null : computeLiveMatchStats(match.events)),
     [match],
@@ -103,6 +190,14 @@ export default function LeaguePage(): React.ReactElement {
   const liveAlert = useMemo(
     () => (match === null ? null : getActiveLiveMatchAlert(match.events)),
     [match],
+  );
+  const goalCelebration = useGoalCelebration(
+    match?.id ?? null,
+    match?.events ?? [],
+    {
+      home: match?.homeDisplayName ?? 'Ev sahibi',
+      away: match?.awayDisplayName ?? 'Deplasman',
+    },
   );
 
   return (
@@ -117,19 +212,20 @@ export default function LeaguePage(): React.ReactElement {
       </header>
 
       <main className="play-main play-main--draft">
+        <PlayStageRail current="league" />
         {error !== null ? (
           <p className="play-error" role="alert">
             {error}
           </p>
         ) : league === null ? (
-          <div className="play-arena play-arena--loading">
-            <div className="play-loader" />
-          </div>
+          <PlayLoadingState message="Lig ekranı yükleniyor…" icon="🏟️" />
         ) : (
           <div className="play-arena league-layout">
             <div className="play-arena__header">
               <div>
-                <p className="play-arena__eyebrow">Canlı maç · lig heyecanı</p>
+                <p className="play-arena__eyebrow">
+                  {leagueFinished ? 'Sezon bitti · şampiyon belli' : 'Canlı maç · lig heyecanı'}
+                </p>
                 <h1 className="play-title play-title--lobby">
                   {league.completedMatchCount}/{league.totalMatchCount} maç
                 </h1>
@@ -137,9 +233,19 @@ export default function LeaguePage(): React.ReactElement {
             </div>
 
             {match !== null ? (
-              <section className="league-live" aria-live="polite">
-                <div className="league-live__scoreboard">
-                  <div className="league-live__team">
+              <section
+                className={`league-live${goalCelebration !== null ? ' league-live--goal' : ''}`}
+                aria-live="polite"
+              >
+                {goalCelebration !== null ? (
+                  <GoalCelebrationOverlay celebration={goalCelebration} />
+                ) : null}
+                <div
+                  className={`league-live__scoreboard${goalCelebration !== null ? ' league-live__scoreboard--goal' : ''}`}
+                >
+                  <div
+                    className={`league-live__team${goalCelebration?.teamSide === 'HOME' ? ' league-live__team--scored' : ''}`}
+                  >
                     {liveAlert?.teamSide === 'HOME' ? (
                       <div className="league-live__alert" role="status" aria-live="assertive">
                         {liveAlert.label}
@@ -149,10 +255,21 @@ export default function LeaguePage(): React.ReactElement {
                     <div className="league-live__score">{match.homeScore}</div>
                   </div>
                   <div className="league-live__minute">
+                    {match.status === 'LIVE' ? (
+                      <span className="league-live__live-badge">Canlı</span>
+                    ) : null}
                     <div>{match.currentMinute}&apos;</div>
-                    <div>{match.status === 'HALF_TIME' ? 'Devre arası' : match.status}</div>
+                    <div>
+                      {match.status === 'HALF_TIME'
+                        ? '⏸️ Devre arası'
+                        : match.status === 'FULL_TIME'
+                          ? '🏁 Maç sonu'
+                          : match.status}
+                    </div>
                   </div>
-                  <div className="league-live__team">
+                  <div
+                    className={`league-live__team${goalCelebration?.teamSide === 'AWAY' ? ' league-live__team--scored' : ''}`}
+                  >
                     {liveAlert?.teamSide === 'AWAY' ? (
                       <div className="league-live__alert" role="status" aria-live="assertive">
                         {liveAlert.label}
@@ -178,45 +295,21 @@ export default function LeaguePage(): React.ReactElement {
                 ) : null}
 
                 <h3 className="league-section-title">Canlı anlatım</h3>
-                <div className="league-commentary">
-                  {[...match.events]
-                    .filter((event) => event.eventType !== 'GOAL_CHANCE')
-                    .reverse()
-                    .map((event: MatchEventDto) => {
-                      const ui = getMatchEventUi(event.eventType);
-                      const teamName =
-                        event.teamSide === 'HOME'
-                          ? match.homeDisplayName
-                          : event.teamSide === 'AWAY'
-                            ? match.awayDisplayName
-                            : null;
-
-                      return (
-                        <div
-                          key={event.id}
-                          className={`league-commentary__item league-commentary__item--${ui.tone}${event.isGoal ? ' league-commentary__item--goal' : ''}`}
-                        >
-                          <div className="league-commentary__meta">
-                            <span className="league-commentary__icon" aria-hidden>
-                              {ui.icon}
-                            </span>
-                            <span className="league-commentary__minute">{event.minute}&apos;</span>
-                            <span className="league-commentary__tag">{ui.label}</span>
-                            {teamName !== null ? (
-                              <span className="league-commentary__team">{teamName}</span>
-                            ) : null}
-                          </div>
-                          <p className="league-commentary__text">{event.commentary}</p>
-                        </div>
-                      );
-                    })}
-                </div>
+                <MatchCommentaryFeed
+                  events={match.events}
+                  homeDisplayName={match.homeDisplayName}
+                  awayDisplayName={match.awayDisplayName}
+                />
               </section>
+            ) : leagueFinished ? (
+              <p className="play-subtitle">Tüm maçlar oynandı. Şampiyon kutlaması açıldı.</p>
+            ) : league.completedMatchCount === 0 ? (
+              <p className="play-subtitle">İlk maç başlamak üzere.</p>
             ) : (
-              <p className="play-subtitle">Şu an canlı maç yok.</p>
+              <p className="play-subtitle">Sonraki maç için sonuç ekranından devam edin.</p>
             )}
 
-            {match === null && league.completedMatchCount < league.totalMatchCount ? (
+            {league.completedMatchCount === 0 && !leagueFinished ? (
               <button
                 type="button"
                 className="play-btn play-btn--primary"
@@ -225,21 +318,7 @@ export default function LeaguePage(): React.ReactElement {
                   void handleStartNext();
                 }}
               >
-                {startingNext ? 'Başlatılıyor…' : 'Sonraki Maçı Başlat'}
-              </button>
-            ) : null}
-
-            {match?.status === 'FULL_TIME' &&
-            league.completedMatchCount < league.totalMatchCount ? (
-              <button
-                type="button"
-                className="play-btn play-btn--primary"
-                disabled={startingNext}
-                onClick={() => {
-                  void handleStartNext();
-                }}
-              >
-                {startingNext ? 'Başlatılıyor…' : 'Sonraki Maçı Başlat'}
+                {startingNext ? 'Başlatılıyor…' : 'İlk Maçı Başlat'}
               </button>
             ) : null}
 
@@ -249,16 +328,31 @@ export default function LeaguePage(): React.ReactElement {
                 {league.fixtures.map((fixture) => {
                   const isCurrent =
                     match !== null && fixture.matchId === match.id && match.status !== 'FULL_TIME';
-                  const isDone = fixture.matchId !== null && !isCurrent;
+                  const isDone =
+                    fixture.matchStatus === 'FULL_TIME' &&
+                    fixture.homeScore !== null &&
+                    fixture.awayScore !== null;
+                  const scoreLabel = isDone
+                    ? `${fixture.homeScore} - ${fixture.awayScore}`
+                    : isCurrent
+                      ? 'Canlı'
+                      : null;
                   return (
                     <li
                       key={fixture.id}
                       className={`league-fixture${isCurrent ? ' league-fixture--live' : ''}${isDone ? ' league-fixture--done' : ''}`}
                     >
                       <span className="league-fixture__round">#{fixture.roundNumber}</span>
-                      <span>
+                      <span className="league-fixture__teams">
                         {fixture.homeDisplayName} vs {fixture.awayDisplayName}
                       </span>
+                      {scoreLabel !== null ? (
+                        <span
+                          className={`league-fixture__score${isCurrent ? ' league-fixture__score--live' : ''}`}
+                        >
+                          {scoreLabel}
+                        </span>
+                      ) : null}
                     </li>
                   );
                 })}
@@ -267,6 +361,7 @@ export default function LeaguePage(): React.ReactElement {
 
             <section>
               <h2 className="play-subtitle">Puan durumu</h2>
+              <p className="league-points-legend">Galibiyet 3 · Beraberlik 1 · Mağlubiyet 0 puan</p>
               <table className="league-table">
                 <thead>
                   <tr>
@@ -284,8 +379,11 @@ export default function LeaguePage(): React.ReactElement {
                 </thead>
                 <tbody>
                   {league.standings.map((row) => (
-                    <tr key={row.participantId}>
-                      <td>{row.rank}</td>
+                    <tr
+                      key={row.participantId}
+                      className={row.rank === 1 && leagueFinished ? 'league-table__champion' : undefined}
+                    >
+                      <td>{row.rank === 1 && leagueFinished ? '👑' : row.rank}</td>
                       <td>{row.displayName}</td>
                       <td>{row.played}</td>
                       <td>{row.won}</td>
@@ -303,6 +401,29 @@ export default function LeaguePage(): React.ReactElement {
           </div>
         )}
       </main>
+
+      {showMatchResults && league !== null ? (
+        <MatchResultsOverlay
+          fixtures={league.fixtures}
+          standings={league.standings}
+          latestMatchId={match.id}
+          loading={startingNext}
+          isFinalMatch={isFinalMatchReview}
+          onContinue={() => {
+            void handleStartNext();
+          }}
+        />
+      ) : null}
+
+      {leagueFinished ? (
+        <LeagueVictoryOverlay
+          winnerName={winnerName}
+          loading={playAgainLoading}
+          onPlayAgain={() => {
+            void handlePlayAgain();
+          }}
+        />
+      ) : null}
     </div>
   );
 }

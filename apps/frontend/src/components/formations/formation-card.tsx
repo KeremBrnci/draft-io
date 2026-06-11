@@ -32,7 +32,12 @@ export function FormationCard({
       aria-pressed={selected}
     >
       <div className="formation-card__header">
-        <strong>{formation.code}</strong>
+        <strong>
+          <span className="formation-card__icon" aria-hidden>
+            ⚽
+          </span>{' '}
+          {formation.code}
+        </strong>
         {locked ? <span className="formation-card__badge">Kilitli</span> : null}
         {selected && !locked ? <span className="formation-card__badge">Seçildi</span> : null}
       </div>

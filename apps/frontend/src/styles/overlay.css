@@ -1,0 +1,56 @@
+/* Full-screen overlays — consistent across mobile/desktop browsers */
+
+html.app-overlay-open,
+html.app-overlay-open body {
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+html.app-overlay-open {
+  background: #07150e;
+}
+
+body.app-overlay-open {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  touch-action: none;
+}
+
+.app-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  min-height: 100dvh;
+  min-height: 100svh;
+  padding:
+    max(0.75rem, env(safe-area-inset-top, 0px))
+    max(0.75rem, env(safe-area-inset-right, 0px))
+    max(0.75rem, env(safe-area-inset-bottom, 0px))
+    max(0.75rem, env(safe-area-inset-left, 0px));
+  overflow: hidden;
+  overscroll-behavior: none;
+  isolation: isolate;
+  contain: strict;
+}
+
+.app-overlay__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgb(4 12 8 / 94%);
+}
+
+.app-overlay__panel {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 64rem);
+  max-height: min(92dvh, 92vh, 780px);
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}

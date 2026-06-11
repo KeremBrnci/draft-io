@@ -6,6 +6,7 @@ import { COACH_REPOSITORY } from '../coaches/domain/repositories/coach.repositor
 import { CalculateTeamStrengthUseCase } from '../draft/application/use-cases/calculate-team-strength.use-case';
 import { GetDraftSessionByLobbyUseCase } from '../draft/application/use-cases/get-draft-session-by-lobby.use-case';
 import { DRAFT_POOL_REPOSITORY } from '../draft/domain/repositories/draft-pool.repository';
+import { DRAFT_SESSION_REPOSITORY } from '../draft/domain/repositories/draft-session.repository';
 import { DraftModule } from '../draft/draft.module';
 import { FORMATION_REPOSITORY } from '../formations/domain/repositories/formation.repository';
 import { FormationsModule } from '../formations/formations.module';
@@ -17,6 +18,7 @@ import { MatchSimulationEngine } from '../simulation/domain/services/match-simul
 import { SimulationModule } from '../simulation/simulation.module';
 
 import { MatchPlaybackService } from './application/services/match-playback.service';
+import { PlayAgainUseCase } from './application/use-cases/play-again.use-case';
 import {
   CheckDraftCompletionUseCase,
   GetLeagueStateUseCase,
@@ -73,6 +75,12 @@ import { PrismaRoomLeagueRepository } from './infrastructure/persistence/prisma-
       COACH_REPOSITORY,
       ROOM_EVENTS_PUBLISHER,
     ]),
+    provideUseCase(PlayAgainUseCase, [
+      LOBBY_REPOSITORY,
+      ROOM_LEAGUE_REPOSITORY,
+      DRAFT_SESSION_REPOSITORY,
+      ROOM_EVENTS_PUBLISHER,
+    ]),
   ],
   exports: [
     ROOM_LEAGUE_REPOSITORY,
@@ -83,6 +91,7 @@ import { PrismaRoomLeagueRepository } from './infrastructure/persistence/prisma-
     StartNextMatchUseCase,
     GetMatchStateUseCase,
     MatchPlaybackService,
+    PlayAgainUseCase,
   ],
 })
 export class MatchesModule {}

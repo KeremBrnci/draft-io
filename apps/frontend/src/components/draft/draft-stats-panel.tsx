@@ -1,10 +1,13 @@
 import type { DraftBoardStateDto } from '@draft-io/shared-types';
+import { memo } from 'react';
 
 interface DraftStatsPanelProps {
   readonly board: DraftBoardStateDto;
 }
 
-export function DraftStatsPanel({ board }: DraftStatsPanelProps): React.ReactElement {
+export const DraftStatsPanel = memo(function DraftStatsPanel({
+  board,
+}: DraftStatsPanelProps): React.ReactElement {
   return (
     <aside className="draft-stats-panel" aria-label="Takım istatistikleri">
       <div className="draft-stats-panel__grid">
@@ -47,4 +50,4 @@ export function DraftStatsPanel({ board }: DraftStatsPanelProps): React.ReactEle
       </div>
     </aside>
   );
-}
+});

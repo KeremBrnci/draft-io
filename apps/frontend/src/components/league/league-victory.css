@@ -1,0 +1,151 @@
+.league-victory__fx {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.league-victory__panel {
+  width: min(100%, 28rem);
+  max-height: none;
+  padding: 2rem 1.75rem 1.85rem;
+  border-radius: 22px;
+  border: 2px solid rgb(250 204 21 / 45%);
+  background: linear-gradient(180deg, rgb(20 48 32 / 96%), rgb(10 28 19 / 98%));
+  box-shadow:
+    0 0 60px rgb(250 204 21 / 18%),
+    0 24px 48px rgb(0 0 0 / 45%);
+  text-align: center;
+  animation: league-victory-panel-in 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.league-victory__crown {
+  font-size: 3.4rem;
+  line-height: 1;
+  margin-bottom: 0.35rem;
+  animation: league-victory-crown-bounce 1.2s ease-in-out infinite;
+}
+
+.league-victory__eyebrow {
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #86efac;
+}
+
+.league-victory__title {
+  margin: 0.45rem 0 0;
+  font-size: 1.55rem;
+  color: #f8fafc;
+}
+
+.league-victory__winner {
+  margin: 0.35rem 0 0;
+  font-size: 2rem;
+  font-weight: 800;
+  color: #facc15;
+  text-shadow: 0 0 24px rgb(250 204 21 / 30%);
+}
+
+.league-victory__subtitle {
+  margin: 0.85rem 0 0;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: #cbd5e1;
+}
+
+.league-victory__cta {
+  margin-top: 1.35rem;
+  min-width: 12rem;
+}
+
+.league-victory__spark {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #facc15;
+  animation: league-victory-spark 1.8s ease-out infinite;
+  animation-delay: calc(var(--i) * 0.18s);
+  transform: rotate(calc(var(--i) * 60deg)) translateY(-18vh);
+}
+
+.league-victory__confetti-piece {
+  position: absolute;
+  top: -8%;
+  left: calc((var(--i) * 9%) + 2%);
+  width: 8px;
+  height: 14px;
+  border-radius: 2px;
+  background: hsl(calc(var(--i) * 36deg) 85% 58%);
+  animation: league-victory-confetti-fall 2.8s linear infinite;
+  animation-delay: calc(var(--i) * 0.15s);
+}
+
+@keyframes league-victory-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes league-victory-crown-bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes league-victory-spark {
+  0% {
+    opacity: 0;
+    transform: rotate(calc(var(--i) * 60deg)) translateY(-12vh) scale(0.4);
+  }
+
+  20% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    transform: rotate(calc(var(--i) * 60deg)) translateY(-38vh) scale(1.4);
+  }
+}
+
+@keyframes league-victory-confetti-fall {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 0;
+  }
+
+  10% {
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateY(110vh) rotate(360deg);
+    opacity: 0.2;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .league-victory__crown,
+  .league-victory__spark,
+  .league-victory__confetti-piece,
+  .league-victory__panel {
+    animation: none;
+  }
+}

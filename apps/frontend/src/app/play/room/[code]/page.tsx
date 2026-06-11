@@ -6,9 +6,12 @@ import { useParams, useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { PlayGameBackdrop } from '@/components/play/play-game-backdrop';
+import { PlayLoadingState } from '@/components/play/play-loading-state';
+import { PlayStageRail } from '@/components/play/play-stage-rail';
 import { ApiClientError } from '@/lib/api/client';
 import { getLobbyByCode, setParticipantReady, startLobby } from '@/lib/api/lobbies';
 import { clearLobbySession, readLobbySession, type StoredLobbySession } from '@/lib/lobby-session';
+import { useRoomSocket } from '@/lib/room-socket';
 
 import '../../play.css';
 
@@ -109,6 +112,12 @@ export default function LobbyRoomPage(): React.ReactElement {
       setError('Oda bulunamadı veya yüklenemedi.');
     }
   }, [code, router]);
+
+  useRoomSocket(code, (event) => {
+    if (event === 'LOBBY_RESET' || event === 'FORMATION_SELECTION_STARTED') {
+      void loadLobby();
+    }
+  });
 
   useEffect(() => {
     const timer = window.setInterval(() => {
@@ -253,6 +262,7 @@ export default function LobbyRoomPage(): React.ReactElement {
       </header>
 
       <main className="play-main play-main--lobby">
+        <PlayStageRail current="lobby" />
         {error !== null ? (
           <div className="play-arena">
             <p className="play-error" role="alert">
@@ -263,10 +273,7 @@ export default function LobbyRoomPage(): React.ReactElement {
             </Link>
           </div>
         ) : lobby === null ? (
-          <div className="play-arena play-arena--loading">
-            <div className="play-loader" />
-            <p className="play-subtitle">Oda yükleniyor…</p>
-          </div>
+          <PlayLoadingState message="Oda yükleniyor…" icon="🎮" />
         ) : (
           <div className="play-arena">
             <div className="play-arena__header">

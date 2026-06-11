@@ -111,6 +111,15 @@ export class LobbyParticipant {
     this._phaseStatus = ParticipantPhaseStatus.FORMATION_SELECTED;
   }
 
+  resetForPlayAgain(): void {
+    this._isReady = false;
+    this._phaseStatus = ParticipantPhaseStatus.IN_LOBBY;
+    this._selectedFormationId = null;
+    this._selectedCoachId = null;
+    this._formationOptionIds = [];
+    this._coachOptionIds = [];
+  }
+
   selectCoach(coachId: string): void {
     if (this._selectedCoachId !== null) {
       throw new CoachAlreadySelectedError();

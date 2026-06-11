@@ -47,6 +47,8 @@ export function useRoomSocket(
       'HALF_TIME',
       'FULL_TIME',
       'LEAGUE_TABLE_UPDATED',
+      'LEAGUE_COMPLETED',
+      'LOBBY_RESET',
     ];
 
     socket.on('connect', () => {

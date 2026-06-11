@@ -57,4 +57,8 @@ export class PrismaDraftSessionRepository implements DraftSessionRepository {
 
     return record === null ? null : toDraftSessionDomain(record);
   }
+
+  async deleteByLobbyId(lobbyId: string): Promise<void> {
+    await this.prisma.draftSession.deleteMany({ where: { lobbyId } });
+  }
 }

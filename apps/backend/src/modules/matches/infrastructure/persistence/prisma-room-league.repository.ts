@@ -21,6 +21,17 @@ import type {
 export class PrismaRoomLeagueRepository implements RoomLeagueRepository {
   constructor(private readonly prisma: PrismaService) {}
 
+  async findById(id: string): Promise<RoomLeagueRecord | null> {
+    const record = await this.prisma.roomLeague.findUnique({ where: { id } });
+    return record === null
+      ? null
+      : { id: record.id, lobbyId: record.lobbyId, status: record.status };
+  }
+
+  async deleteByLobbyId(lobbyId: string): Promise<void> {
+    await this.prisma.roomLeague.deleteMany({ where: { lobbyId } });
+  }
+
   async findByLobbyId(lobbyId: string): Promise<RoomLeagueRecord | null> {
     const record = await this.prisma.roomLeague.findUnique({ where: { lobbyId } });
     return record === null
@@ -69,6 +80,15 @@ export class PrismaRoomLeagueRepository implements RoomLeagueRepository {
     const records = await this.prisma.roomFixture.findMany({
       where: { leagueId },
       orderBy: { roundNumber: 'asc' },
+      include: {
+        match: {
+          select: {
+            status: true,
+            homeScore: true,
+            awayScore: true,
+          },
+        },
+      },
     });
     return records.map((record) => ({
       id: record.id,
@@ -77,6 +97,9 @@ export class PrismaRoomLeagueRepository implements RoomLeagueRepository {
       homeParticipantId: record.homeParticipantId,
       awayParticipantId: record.awayParticipantId,
       matchId: record.matchId,
+      homeScore: record.match?.homeScore ?? null,
+      awayScore: record.match?.awayScore ?? null,
+      matchStatus: record.match?.status ?? null,
     }));
   }
 
@@ -144,6 +167,19 @@ export class PrismaRoomLeagueRepository implements RoomLeagueRepository {
     return record === null ? null : this.toMatchRecord(record);
   }
 
+  async findCurrentMatch(leagueId: string): Promise<RoomMatchRecord | null> {
+    const live = await this.findLiveMatch(leagueId);
+    if (live !== null) {
+      return live;
+    }
+
+    const record = await this.prisma.roomMatch.findFirst({
+      where: { leagueId, status: 'FULL_TIME' },
+      orderBy: { finishedAt: 'desc' },
+    });
+    return record === null ? null : this.toMatchRecord(record);
+  }
+
   async findNextFixture(leagueId: string): Promise<RoomFixtureRecord | null> {
     const record = await this.prisma.roomFixture.findFirst({
       where: { leagueId, matchId: null },
@@ -159,6 +195,9 @@ export class PrismaRoomLeagueRepository implements RoomLeagueRepository {
       homeParticipantId: record.homeParticipantId,
       awayParticipantId: record.awayParticipantId,
       matchId: record.matchId,
+      homeScore: null,
+      awayScore: null,
+      matchStatus: null,
     };
   }
 
@@ -302,7 +341,7 @@ export class PrismaRoomLeagueRepository implements RoomLeagueRepository {
     readonly awayScore: number;
     readonly homeParticipantId: string;
     readonly awayParticipantId: string;
-  }): Promise<void> {
+  }): Promise<boolean> {
     const match = await this.prisma.roomMatch.findUniqueOrThrow({
       where: { id: input.matchId },
       select: { leagueId: true },
@@ -321,7 +360,7 @@ export class PrismaRoomLeagueRepository implements RoomLeagueRepository {
     });
 
     if (homeStanding === null || awayStanding === null) {
-      return;
+      return false;
     }
 
     const homeWon = input.homeScore > input.awayScore;
@@ -364,9 +403,12 @@ export class PrismaRoomLeagueRepository implements RoomLeagueRepository {
     const remaining = await this.prisma.roomFixture.count({
       where: { leagueId: match.leagueId, matchId: null },
     });
-    if (remaining === 0) {
+    const leagueCompleted = remaining === 0;
+    if (leagueCompleted) {
       await this.updateLeagueStatus(match.leagueId, 'COMPLETED');
     }
+
+    return leagueCompleted;
   }
 
   async updateLeagueStatus(leagueId: string, status: string): Promise<void> {

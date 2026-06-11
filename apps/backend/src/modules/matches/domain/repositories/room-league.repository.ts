@@ -19,6 +19,9 @@ export interface RoomFixtureRecord {
   readonly homeParticipantId: string;
   readonly awayParticipantId: string;
   readonly matchId: string | null;
+  readonly homeScore: number | null;
+  readonly awayScore: number | null;
+  readonly matchStatus: string | null;
 }
 
 export interface RoomMatchRecord {
@@ -123,6 +126,7 @@ export interface RoomLeagueRepository {
   findMatchById(matchId: string): Promise<RoomMatchRecord | null>;
   findMatchStatistics(matchId: string): Promise<RoomMatchStatisticRecord | null>;
   findLiveMatch(leagueId: string): Promise<RoomMatchRecord | null>;
+  findCurrentMatch(leagueId: string): Promise<RoomMatchRecord | null>;
   findNextFixture(leagueId: string): Promise<RoomFixtureRecord | null>;
   createMatch(input: CreateMatchInput): Promise<RoomMatchRecord>;
   listMatchEvents(matchId: string, revealedOnly: boolean): Promise<readonly RoomMatchEventRecord[]>;
@@ -140,7 +144,9 @@ export interface RoomLeagueRepository {
     readonly awayScore: number;
     readonly homeParticipantId: string;
     readonly awayParticipantId: string;
-  }): Promise<void>;
+  }): Promise<boolean>;
   updateLeagueStatus(leagueId: string, status: string): Promise<void>;
   countCompletedMatches(leagueId: string): Promise<number>;
+  deleteByLobbyId(lobbyId: string): Promise<void>;
+  findById(id: string): Promise<RoomLeagueRecord | null>;
 }

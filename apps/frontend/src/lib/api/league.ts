@@ -1,4 +1,4 @@
-import type { MatchStateDto, RoomLeagueStateDto, TeamReviewStateDto } from '@draft-io/shared-types';
+import type { MatchStateDto, RoomLeagueStateDto, TeamReviewStateDto, LobbySummaryDto } from '@draft-io/shared-types';
 
 import { apiGet, apiPost } from './client';
 
@@ -20,6 +20,10 @@ export function getLeagueState(code: string): Promise<RoomLeagueStateDto> {
 
 export function startNextMatch(code: string): Promise<RoomLeagueStateDto> {
   return apiPost<RoomLeagueStateDto>(`/lobbies/code/${code}/league/next-match`, {});
+}
+
+export function playAgain(code: string, sessionToken: string): Promise<LobbySummaryDto> {
+  return apiPost<LobbySummaryDto>(`/lobbies/code/${code}/play-again`, { sessionToken });
 }
 
 export function getMatchState(code: string, matchId: string): Promise<MatchStateDto> {

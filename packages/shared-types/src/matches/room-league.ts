@@ -11,6 +11,8 @@ export interface RoomFixtureDto {
   readonly awayDisplayName: string;
   readonly matchId: string | null;
   readonly matchStatus: string | null;
+  readonly homeScore: number | null;
+  readonly awayScore: number | null;
 }
 
 export interface RoomLeagueStandingDto {
@@ -48,6 +50,12 @@ export interface TeamReviewStateDto {
   readonly participants: readonly TeamReviewParticipantDto[];
 }
 
+export interface RoomLeagueWinnerDto {
+  readonly participantId: string;
+  readonly displayName: string;
+  readonly points: number;
+}
+
 export interface RoomLeagueStateDto {
   readonly id: string;
   readonly lobbyId: string;
@@ -57,4 +65,5 @@ export interface RoomLeagueStateDto {
   readonly currentMatch: MatchStateDto | null;
   readonly completedMatchCount: number;
   readonly totalMatchCount: number;
+  readonly winner: RoomLeagueWinnerDto | null;
 }

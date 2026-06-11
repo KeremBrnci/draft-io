@@ -8,6 +8,8 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import '@/components/league/league.css';
 import { CoachCard } from '@/components/cards';
 import { PlayGameBackdrop } from '@/components/play/play-game-backdrop';
+import { PlayLoadingState } from '@/components/play/play-loading-state';
+import { PlayStageRail } from '@/components/play/play-stage-rail';
 import { ApiClientError } from '@/lib/api/client';
 import { getCoachSelection, selectCoach } from '@/lib/api/coach-selection';
 import { clearLobbySession, readLobbySession } from '@/lib/lobby-session';
@@ -15,7 +17,16 @@ import { useRoomSocket } from '@/lib/room-socket';
 
 import '../../../play.css';
 
-const POLL_INTERVAL_MS = 2500;
+const POLL_INTERVAL_MS = 5000;
+
+const COACH_REFRESH_EVENTS = new Set([
+  'COACH_SELECTION_STARTED',
+  'PLAYER_SELECTED_COACH',
+  'ALL_COACHES_SELECTED',
+  'TEAMS_READY',
+  'LEAGUE_READY',
+  'MATCH_STARTED',
+]);
 
 export default function CoachSelectionPage(): React.ReactElement {
   const params = useParams<{ code: string }>();
@@ -62,6 +73,11 @@ export default function CoachSelectionPage(): React.ReactElement {
 
   useEffect(() => {
     void loadState();
+
+    if (selectingId !== null) {
+      return;
+    }
+
     const timer = window.setInterval(() => {
       void loadState();
     }, POLL_INTERVAL_MS);
@@ -69,24 +85,18 @@ export default function CoachSelectionPage(): React.ReactElement {
     return () => {
       window.clearInterval(timer);
     };
-  }, [loadState]);
+  }, [loadState, selectingId]);
 
   useRoomSocket(code, (event) => {
-    if (
-      event === 'DRAFT_COMPLETE' ||
-      event === 'COACH_SELECTION_STARTED' ||
-      event === 'PLAYER_SELECTED_COACH' ||
-      event === 'ALL_COACHES_SELECTED' ||
-      event === 'TEAMS_READY' ||
-      event === 'LEAGUE_READY' ||
-      event === 'MATCH_STARTED'
-    ) {
-      if (event === 'LEAGUE_READY' || event === 'MATCH_STARTED') {
-        router.replace(`/play/room/${code}/league`);
-        return;
-      }
-      void loadState();
+    if (!COACH_REFRESH_EVENTS.has(event)) {
+      return;
     }
+
+    if (event === 'LEAGUE_READY' || event === 'MATCH_STARTED') {
+      router.replace(`/play/room/${code}/league`);
+      return;
+    }
+    void loadState();
   });
 
   const hasLockedSelection = state?.mySelectedCoachId !== null;
@@ -132,14 +142,13 @@ export default function CoachSelectionPage(): React.ReactElement {
       </header>
 
       <main className="play-main play-main--draft">
+        <PlayStageRail current="coach" />
         {error !== null ? (
           <p className="play-error" role="alert">
             {error}
           </p>
         ) : state === null ? (
-          <div className="play-arena play-arena--loading">
-            <div className="play-loader" />
-          </div>
+          <PlayLoadingState message="Teknik direktörler yükleniyor…" icon="🧢" />
         ) : (
           <div className="play-arena">
             <div className="play-arena__header">
@@ -182,8 +191,9 @@ export default function CoachSelectionPage(): React.ReactElement {
                       void handleSelectCoach(coach.id);
                     }}
                   >
-                    <CoachCard coach={coach} size="sm" />
-                    {isBusy ? <span>Seçiliyor…</span> : null}
+                    <CoachCard coach={coach} size="sm" visual="interactive" />
+                    <span className="coach-selection-card__name">{coach.displayName}</span>
+                    {isBusy ? <span className="coach-selection-card__busy">Seçiliyor…</span> : null}
                   </button>
                 );
               })}

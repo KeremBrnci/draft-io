@@ -7,6 +7,8 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import '@/components/league/league.css';
 import { PlayGameBackdrop } from '@/components/play/play-game-backdrop';
+import { PlayLoadingState } from '@/components/play/play-loading-state';
+import { PlayStageRail } from '@/components/play/play-stage-rail';
 import { ApiClientError } from '@/lib/api/client';
 import { getTeamReview, startLeague } from '@/lib/api/league';
 import { clearLobbySession, readLobbySession } from '@/lib/lobby-session';
@@ -93,14 +95,13 @@ export default function TeamReviewPage(): React.ReactElement {
       </header>
 
       <main className="play-main play-main--draft">
+        <PlayStageRail current="coach" />
         {error !== null ? (
           <p className="play-error" role="alert">
             {error}
           </p>
         ) : state === null ? (
-          <div className="play-arena play-arena--loading">
-            <div className="play-loader" />
-          </div>
+          <PlayLoadingState message="Takımlar hazırlanıyor…" icon="🏆" />
         ) : (
           <div className="play-arena league-layout">
             <div className="play-arena__header">
@@ -118,14 +119,19 @@ export default function TeamReviewPage(): React.ReactElement {
             <div className="team-review-grid">
               {state.participants.map((participant) => (
                 <article key={participant.participantId} className="team-review-card">
-                  <h3>{participant.displayName}</h3>
+                  <header className="team-review-card__header">
+                    <span className="team-review-card__avatar" aria-hidden>
+                      ⚽
+                    </span>
+                    <h3>{participant.displayName}</h3>
+                  </header>
                   <div className="team-review-card__meta">
-                    <span>{participant.formationCode}</span>
-                    <span>OVR {participant.teamAverageOverall.toFixed(1)}</span>
-                    <span>Kimya {participant.teamChemistry}</span>
-                    <span>Maç gücü {participant.matchPower.toFixed(1)}</span>
+                    <span>📋 {participant.formationCode}</span>
+                    <span>⭐ OVR {participant.teamAverageOverall.toFixed(1)}</span>
+                    <span>🔗 Kimya {participant.teamChemistry}</span>
+                    <span>💪 Maç gücü {participant.matchPower.toFixed(1)}</span>
                     {participant.selectedCoachName !== null ? (
-                      <span>TD: {participant.selectedCoachName}</span>
+                      <span>🧢 TD: {participant.selectedCoachName}</span>
                     ) : null}
                   </div>
                 </article>
@@ -141,7 +147,7 @@ export default function TeamReviewPage(): React.ReactElement {
                   void handleStartLeague();
                 }}
               >
-                {loading ? 'Başlatılıyor…' : 'Ligi Başlat'}
+                {loading ? 'Başlatılıyor…' : '🏟️ Ligi Başlat'}
               </button>
             ) : (
               <p className="play-subtitle">Kurucunun ligi başlatması bekleniyor…</p>

@@ -90,7 +90,7 @@ export interface MatchSimulationConfig {
 export const DEFAULT_MATCH_SIMULATION_CONFIG: MatchSimulationConfig = {
   homeAdvantagePercent: 5,
   chemistryImpactCap: 0.1,
-  targetEventCountMin: 24,
-  targetEventCountMax: 38,
+  targetEventCountMin: 28,
+  targetEventCountMax: 42,
   msPerMinute: 400,
 };
