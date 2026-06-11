@@ -27,6 +27,7 @@ import {
   toRoomLeagueStateDto,
   toTeamReviewStateDto,
 } from '../../presentation/mappers/room-league-response.mapper';
+import type { MatchPlaybackPort } from '../ports/match-playback.port';
 export class GetTeamReviewUseCase {
   private readonly lifecycle: LobbyLifecycleService;
 
@@ -192,6 +193,7 @@ export class GetLeagueStateUseCase {
   constructor(
     lobbyRepository: LobbyRepository,
     private readonly roomLeagueRepository: RoomLeagueRepository,
+    private readonly matchPlayback: MatchPlaybackPort,
   ) {
     this.lifecycle = new LobbyLifecycleService(lobbyRepository);
   }
@@ -205,7 +207,17 @@ export class GetLeagueStateUseCase {
 
     const fixtures = await this.roomLeagueRepository.listFixtures(league.id);
     const standings = await this.roomLeagueRepository.listStandings(league.id);
-    const currentMatch = await this.roomLeagueRepository.findCurrentMatch(league.id);
+    let currentMatch = await this.roomLeagueRepository.findCurrentMatch(league.id);
+
+    if (currentMatch !== null) {
+      await this.matchPlayback.ensurePlaybackRunning({
+        matchId: currentMatch.id,
+        leagueId: league.id,
+        lobbyCode: query.code,
+        status: currentMatch.status,
+      });
+      currentMatch = await this.roomLeagueRepository.findCurrentMatch(league.id);
+    }
     const completedMatchCount = await this.roomLeagueRepository.countCompletedMatches(league.id);
     const currentMatchEvents =
       currentMatch === null

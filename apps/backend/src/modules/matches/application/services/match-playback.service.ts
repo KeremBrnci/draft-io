@@ -27,8 +27,12 @@ interface ActivePlayback {
   halfTimeResumeTimer: ReturnType<typeof setTimeout> | null;
 }
 
+type MatchRecord = NonNullable<Awaited<ReturnType<RoomLeagueRepository['findMatchById']>>>;
+type MatchMilestones = ReturnType<typeof resolveMatchStoppageContext>['milestones'];
+
 const ALERT_EVENT_TYPES = new Set(['GOAL_CHANCE', 'PENALTY']);
 const ALERT_REVEAL_DELAY_MS = 3000;
+const LIVE_MATCH_STATUSES = new Set(['PRE_MATCH', 'LIVE', 'HALF_TIME', 'PAUSED']);
 
 function dedupeMatchEvents(
   events: readonly RoomMatchEventRecord[],
@@ -134,6 +138,94 @@ export class MatchPlaybackService implements MatchPlaybackPort, OnModuleDestroy 
     });
   }
 
+  async ensurePlaybackRunning(input: {
+    readonly matchId: string;
+    readonly leagueId: string;
+    readonly lobbyCode: string;
+    readonly status: string;
+  }): Promise<void> {
+    if (!LIVE_MATCH_STATUSES.has(input.status)) {
+      return;
+    }
+
+    const match = await this.roomLeagueRepository.findMatchById(input.matchId);
+    if (match === null || match.status === 'FULL_TIME') {
+      return;
+    }
+
+    const { milestones } = resolveMatchStoppageContext(match.simulationSeed);
+    if (match.currentMinute >= milestones.matchEnd) {
+      await this.finalizeMatchIfNeeded(input.lobbyCode, match, milestones);
+      this.stop(input.matchId);
+      return;
+    }
+
+    const playback = this.active.get(input.matchId);
+    if (playback !== undefined) {
+      if (
+        match.status === 'HALF_TIME' &&
+        playback.timer === null &&
+        playback.halfTimeResumeTimer === null
+      ) {
+        void this.resumeAfterHalfTime(input.matchId, input.leagueId, input.lobbyCode);
+      } else if (match.status === 'LIVE' && playback.timer === null && playback.halfTimeResumeTimer === null) {
+        this.startMatchTimer(input.matchId, input.leagueId, input.lobbyCode);
+      }
+      return;
+    }
+
+    await this.recoverOrphanedPlayback(input.matchId, input.leagueId, input.lobbyCode, match);
+  }
+
+  private async recoverOrphanedPlayback(
+    matchId: string,
+    leagueId: string,
+    lobbyCode: string,
+    match: MatchRecord,
+  ): Promise<void> {
+    if (this.active.has(matchId)) {
+      return;
+    }
+
+    this.active.set(matchId, {
+      matchId,
+      leagueId,
+      lobbyCode,
+      timer: null,
+      warmupTimer: null,
+      halfTimeResumeTimer: null,
+    });
+
+    if (match.status === 'PRE_MATCH') {
+      const warmupTimer = setTimeout(() => {
+        void this.beginLivePlayback(matchId, leagueId, lobbyCode);
+      }, DEFAULT_MATCH_SIMULATION_CONFIG.warmupDelayMs);
+      const playback = this.active.get(matchId);
+      if (playback !== undefined) {
+        playback.warmupTimer = warmupTimer;
+      }
+      return;
+    }
+
+    if (match.status === 'HALF_TIME') {
+      void this.resumeAfterHalfTime(matchId, leagueId, lobbyCode);
+      return;
+    }
+
+    this.startMatchTimer(matchId, leagueId, lobbyCode);
+  }
+
+  private startMatchTimer(matchId: string, leagueId: string, lobbyCode: string): void {
+    const playback = this.active.get(matchId);
+    if (playback === undefined || playback.timer !== null) {
+      return;
+    }
+
+    playback.timer = setInterval(() => {
+      void this.tick(matchId, leagueId, lobbyCode);
+    }, DEFAULT_MATCH_SIMULATION_CONFIG.msPerMinute);
+  }
+
   private async beginLivePlayback(
     matchId: string,
     leagueId: string,
@@ -170,11 +262,7 @@ export class MatchPlaybackService implements MatchPlaybackPort, OnModuleDestroy 
       awayScore: 0,
     });
 
-    const timer = setInterval(() => {
-      void this.tick(matchId, leagueId, lobbyCode);
-    }, DEFAULT_MATCH_SIMULATION_CONFIG.msPerMinute);
-
-    playback.timer = timer;
+    this.startMatchTimer(matchId, leagueId, lobbyCode);
   }
 
   private async tick(matchId: string, leagueId: string, lobbyCode: string): Promise<void> {
@@ -196,13 +284,24 @@ export class MatchPlaybackService implements MatchPlaybackPort, OnModuleDestroy 
         return;
       }
 
-      if (match.status === 'HALF_TIME') {
+      const { stoppage, milestones } = resolveMatchStoppageContext(match.simulationSeed);
+
+      if (match.currentMinute >= milestones.matchEnd) {
+        await this.finalizeMatchIfNeeded(lobbyCode, match, milestones);
+        this.stop(matchId);
         return;
       }
 
-      const { stoppage, milestones } = resolveMatchStoppageContext(match.simulationSeed);
+      if (match.status === 'HALF_TIME') {
+        if (playback !== undefined && playback.timer === null && playback.halfTimeResumeTimer === null) {
+          void this.resumeAfterHalfTime(matchId, leagueId, lobbyCode);
+        }
+        return;
+      }
+
       const nextMinute = match.currentMinute + 1;
       if (nextMinute > milestones.matchEnd) {
+        await this.finalizeMatchIfNeeded(lobbyCode, match, milestones);
         this.stop(matchId);
         return;
       }
@@ -219,17 +318,19 @@ export class MatchPlaybackService implements MatchPlaybackPort, OnModuleDestroy 
       const resolutionEvents = minuteEvents.filter(
         (event) => !ALERT_EVENT_TYPES.has(event.eventType),
       );
+      const shouldDelayAlertReveal =
+        alertEvents.length > 0 &&
+        resolutionEvents.length > 0 &&
+        nextMinute < milestones.matchEnd;
 
-      if (alertEvents.length > 0 && resolutionEvents.length > 0) {
-        const statusWhilePending = nextMinute >= milestones.matchEnd ? 'LIVE' : status;
-
+      if (shouldDelayAlertReveal) {
         const updated = await this.revealEvents({
           matchId,
           leagueId,
           lobbyCode,
           match,
           nextMinute,
-          status: statusWhilePending,
+          status,
           eventsToReveal: alertEvents,
           allEvents,
           milestones,
@@ -284,51 +385,64 @@ export class MatchPlaybackService implements MatchPlaybackPort, OnModuleDestroy 
     lobbyCode: string,
     eventsToReveal: readonly RoomMatchEventRecord[],
   ): Promise<void> {
-    this.pendingReveals.delete(matchId);
-
-    const match = await this.roomLeagueRepository.findMatchById(matchId);
-    if (match === null || eventsToReveal.length === 0 || match.status === 'FULL_TIME') {
+    if (this.processingTicks.has(matchId)) {
+      const timer = setTimeout(() => {
+        void this.revealDelayedEvents(matchId, leagueId, lobbyCode, eventsToReveal);
+      }, 250);
+      this.pendingReveals.set(matchId, timer);
       return;
     }
 
-    const { milestones } = resolveMatchStoppageContext(match.simulationSeed);
-    const allEvents = await this.roomLeagueRepository.listMatchEvents(matchId, false);
-    const updated = await this.revealEvents({
-      matchId,
-      leagueId,
-      lobbyCode,
-      match,
-      nextMinute: match.currentMinute,
-      status: match.status,
-      eventsToReveal,
-      allEvents,
-      advanceMinute: false,
-      milestones,
-    });
+    this.pendingReveals.delete(matchId);
+    this.processingTicks.add(matchId);
 
-    await this.handleMinuteMilestones(
-      matchId,
-      leagueId,
-      lobbyCode,
-      match,
-      updated.currentMinute,
-      updated,
-      milestones,
-    );
+    try {
+      const match = await this.roomLeagueRepository.findMatchById(matchId);
+      if (match === null || eventsToReveal.length === 0 || match.status === 'FULL_TIME') {
+        return;
+      }
+
+      const { milestones } = resolveMatchStoppageContext(match.simulationSeed);
+      const allEvents = await this.roomLeagueRepository.listMatchEvents(matchId, false);
+      const updated = await this.revealEvents({
+        matchId,
+        leagueId,
+        lobbyCode,
+        match,
+        nextMinute: match.currentMinute,
+        status: match.status,
+        eventsToReveal,
+        allEvents,
+        advanceMinute: false,
+        milestones,
+      });
+
+      await this.handleMinuteMilestones(
+        matchId,
+        leagueId,
+        lobbyCode,
+        match,
+        updated.currentMinute,
+        updated,
+        milestones,
+      );
+    } finally {
+      this.processingTicks.delete(matchId);
+    }
   }
 
   private async revealEvents(input: {
     readonly matchId: string;
     readonly leagueId: string;
     readonly lobbyCode: string;
-    readonly match: NonNullable<Awaited<ReturnType<RoomLeagueRepository['findMatchById']>>>;
+    readonly match: MatchRecord;
     readonly nextMinute: number;
     readonly status: string;
     readonly eventsToReveal: readonly RoomMatchEventRecord[];
     readonly allEvents: readonly RoomMatchEventRecord[];
     readonly advanceMinute?: boolean;
-    readonly milestones: ReturnType<typeof resolveMatchStoppageContext>['milestones'];
-  }): Promise<NonNullable<Awaited<ReturnType<RoomLeagueRepository['findMatchById']>>>> {
+    readonly milestones: MatchMilestones;
+  }): Promise<MatchRecord> {
     const advanceMinute = input.advanceMinute ?? true;
     const alreadyRevealed = input.allEvents.filter((event) => event.revealedAt !== null);
     const revealedNow = dedupeMatchEvents([...alreadyRevealed, ...input.eventsToReveal]);
@@ -386,10 +500,10 @@ export class MatchPlaybackService implements MatchPlaybackPort, OnModuleDestroy 
     matchId: string,
     _leagueId: string,
     lobbyCode: string,
-    match: NonNullable<Awaited<ReturnType<RoomLeagueRepository['findMatchById']>>>,
+    match: MatchRecord,
     nextMinute: number,
-    updated: NonNullable<Awaited<ReturnType<RoomLeagueRepository['findMatchById']>>>,
-    milestones: ReturnType<typeof resolveMatchStoppageContext>['milestones'],
+    updated: MatchRecord,
+    milestones: MatchMilestones,
   ): Promise<void> {
     if (nextMinute === milestones.firstHalfEnd) {
       const playback = this.active.get(matchId);
@@ -407,48 +521,64 @@ export class MatchPlaybackService implements MatchPlaybackPort, OnModuleDestroy 
     }
 
     if (nextMinute >= milestones.matchEnd) {
-      const latest = await this.roomLeagueRepository.findMatchById(matchId);
-      if (latest === null || latest.status === 'FULL_TIME') {
-        this.stop(matchId);
-        return;
-      }
-
-      const leagueCompleted = await this.roomLeagueRepository.finalizeMatch({
-        matchId,
-        homeScore: updated.homeScore,
-        awayScore: updated.awayScore,
-        homeParticipantId: match.homeParticipantId,
-        awayParticipantId: match.awayParticipantId,
-      });
-
-      this.roomEventsPublisher.publish(lobbyCode, RoomEventName.FULL_TIME, {
-        lobbyCode,
-        phase: 'MATCHES',
-        matchId,
-      });
-      this.roomEventsPublisher.publish(lobbyCode, RoomEventName.LEAGUE_TABLE_UPDATED, {
-        lobbyCode,
-        phase: 'MATCHES',
-      });
-
-      if (leagueCompleted) {
-        const standings = await this.roomLeagueRepository.listStandings(match.leagueId);
-        const winner = standings.find((row) => row.rank === 1);
-        this.roomEventsPublisher.publish(lobbyCode, RoomEventName.LEAGUE_COMPLETED, {
-          lobbyCode,
-          phase: 'MATCHES',
-          ...(winner !== undefined
-            ? {
-                winnerDisplayName: winner.displayName,
-                winnerParticipantId: winner.participantId,
-              }
-            : {}),
-        });
-      } else {
-        this.queueNextMatch(lobbyCode, matchId);
-      }
-
+      await this.finalizeMatchIfNeeded(lobbyCode, match, milestones, updated);
       this.stop(matchId);
+    }
+  }
+
+  private async finalizeMatchIfNeeded(
+    lobbyCode: string,
+    match: MatchRecord,
+    milestones: MatchMilestones,
+    updated: MatchRecord | null = null,
+  ): Promise<void> {
+    const latest = await this.roomLeagueRepository.findMatchById(match.id);
+    if (latest === null || latest.status === 'FULL_TIME') {
+      return;
+    }
+
+    if (
+      updated === null &&
+      latest.currentMinute < milestones.matchEnd &&
+      latest.status === 'LIVE'
+    ) {
+      return;
+    }
+
+    const snapshot = updated ?? latest;
+    const leagueCompleted = await this.roomLeagueRepository.finalizeMatch({
+      matchId: match.id,
+      homeScore: snapshot.homeScore,
+      awayScore: snapshot.awayScore,
+      homeParticipantId: match.homeParticipantId,
+      awayParticipantId: match.awayParticipantId,
+    });
+
+    this.roomEventsPublisher.publish(lobbyCode, RoomEventName.FULL_TIME, {
+      lobbyCode,
+      phase: 'MATCHES',
+      matchId: match.id,
+    });
+    this.roomEventsPublisher.publish(lobbyCode, RoomEventName.LEAGUE_TABLE_UPDATED, {
+      lobbyCode,
+      phase: 'MATCHES',
+    });
+
+    if (leagueCompleted) {
+      const standings = await this.roomLeagueRepository.listStandings(match.leagueId);
+      const winner = standings.find((row) => row.rank === 1);
+      this.roomEventsPublisher.publish(lobbyCode, RoomEventName.LEAGUE_COMPLETED, {
+        lobbyCode,
+        phase: 'MATCHES',
+        ...(winner !== undefined
+          ? {
+              winnerDisplayName: winner.displayName,
+              winnerParticipantId: winner.participantId,
+            }
+          : {}),
+      });
+    } else {
+      this.queueNextMatch(lobbyCode, match.id);
     }
   }
 
@@ -515,11 +645,7 @@ export class MatchPlaybackService implements MatchPlaybackPort, OnModuleDestroy 
       awayScore: updated.awayScore,
     });
 
-    if (playback.timer === null) {
-      playback.timer = setInterval(() => {
-        void this.tick(matchId, leagueId, lobbyCode);
-      }, DEFAULT_MATCH_SIMULATION_CONFIG.msPerMinute);
-    }
+    this.startMatchTimer(matchId, leagueId, lobbyCode);
   }
 
   private queueNextMatch(lobbyCode: string, matchId: string): void {

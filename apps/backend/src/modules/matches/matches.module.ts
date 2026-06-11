@@ -63,7 +63,11 @@ import { PrismaRoomLeagueRepository } from './infrastructure/persistence/prisma-
       ROOM_LEAGUE_REPOSITORY,
       ROOM_EVENTS_PUBLISHER,
     ]),
-    provideUseCase(GetLeagueStateUseCase, [LOBBY_REPOSITORY, ROOM_LEAGUE_REPOSITORY]),
+    provideUseCase(GetLeagueStateUseCase, [
+      LOBBY_REPOSITORY,
+      ROOM_LEAGUE_REPOSITORY,
+      MATCH_PLAYBACK_PORT,
+    ]),
     provideUseCase(StartNextMatchUseCase, [
       LOBBY_REPOSITORY,
       FORMATION_REPOSITORY,
