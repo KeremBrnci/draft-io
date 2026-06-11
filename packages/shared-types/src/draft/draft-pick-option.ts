@@ -11,7 +11,6 @@ export interface DraftPickOptionDto {
   readonly cardTypeCode: string;
   readonly cardRarityCode: string;
   readonly kind: DraftPickOptionKindDto;
-  readonly pickCost: number;
   readonly projectedChemistry: number;
   readonly positionWeight: number;
   readonly isWildcard: boolean;
@@ -22,6 +21,5 @@ export interface DraftPickOptionsDto {
   readonly positionCode: string;
   readonly participantId: string;
   readonly options: readonly DraftPickOptionDto[];
-  readonly remainingBudget: number;
   readonly picksRemaining: number;
 }

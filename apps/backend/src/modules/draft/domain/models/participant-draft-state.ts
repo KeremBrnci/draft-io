@@ -11,8 +11,6 @@ export interface DraftSlotAssignment {
 
 export interface ParticipantDraftState {
   readonly participantId: string;
-  readonly powerBudget: number;
-  readonly spentBudget: number;
   readonly surpriseDebt: number;
   readonly surpriseCredit: number;
   readonly elitePicksTaken: number;
@@ -24,12 +22,9 @@ export interface ParticipantDraftState {
 
 export function createParticipantDraftState(input: {
   readonly participantId: string;
-  readonly powerBudget: number;
 }): ParticipantDraftState {
   return {
     participantId: input.participantId,
-    powerBudget: input.powerBudget,
-    spentBudget: 0,
     surpriseDebt: 0,
     surpriseCredit: 0,
     elitePicksTaken: 0,
@@ -52,49 +47,14 @@ export function recordOfferedPlayers(
   };
 }
 
-export function remainingBudget(state: ParticipantDraftState): number {
-  return state.powerBudget - state.spentBudget;
-}
-
 export function picksRemaining(state: ParticipantDraftState, rosterSize: number): number {
   return Math.max(0, rosterSize - state.pickCount);
-}
-
-export function pickCost(card: DraftPoolCard, multiplier: number): number {
-  return Math.round(card.overall * multiplier);
-}
-
-export function canAffordPick(
-  state: ParticipantDraftState,
-  card: DraftPoolCard,
-  multiplier: number,
-  rosterSize: number,
-): boolean {
-  const remaining = picksRemaining(state, rosterSize);
-  if (remaining <= 0) {
-    return false;
-  }
-
-  const cost = pickCost(card, multiplier);
-  const budgetAfter = remainingBudget(state) - cost;
-
-  if (budgetAfter < 0) {
-    return false;
-  }
-
-  if (remaining === 1) {
-    return true;
-  }
-
-  const minFutureCost = 75 * multiplier;
-  return budgetAfter >= minFutureCost * (remaining - 1);
 }
 
 export function applyPick(
   state: ParticipantDraftState,
   card: DraftPoolCard,
   input: {
-    readonly pickCost: number;
     readonly isElite: boolean;
     readonly eliteDebtAmount: number;
     readonly eliteCreditAmount: number;
@@ -103,7 +63,6 @@ export function applyPick(
 ): ParticipantDraftState {
   return {
     ...state,
-    spentBudget: state.spentBudget + input.pickCost,
     surpriseDebt: input.isElite
       ? state.surpriseDebt + input.eliteDebtAmount
       : Math.max(0, state.surpriseDebt - input.eliteCreditAmount),

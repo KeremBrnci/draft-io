@@ -1,17 +1,13 @@
 'use client';
 
 import type { DraftPickOptionsDto } from '@draft-io/shared-types';
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useRef } from 'react';
 
 import { getDraftPickOptions } from '@/lib/api/draft';
 
 interface UseDraftPickOptionsCacheParams {
   readonly code: string;
   readonly sessionToken: string | null;
-  readonly nextSlotIndex: number | null;
-  readonly pickCount: number;
-  readonly isRosterComplete: boolean;
-  readonly enabled: boolean;
 }
 
 interface UseDraftPickOptionsCacheResult {
@@ -26,10 +22,6 @@ interface UseDraftPickOptionsCacheResult {
 export function useDraftPickOptionsCache({
   code,
   sessionToken,
-  nextSlotIndex,
-  pickCount,
-  isRosterComplete,
-  enabled,
 }: UseDraftPickOptionsCacheParams): UseDraftPickOptionsCacheResult {
   const cacheRef = useRef(new Map<number, DraftPickOptionsDto>());
   const inflightRef = useRef(new Map<number, Promise<DraftPickOptionsDto>>());
@@ -78,27 +70,6 @@ export function useDraftPickOptionsCache({
   const getCached = useCallback((slotIndex: number): DraftPickOptionsDto | undefined => {
     return cacheRef.current.get(slotIndex);
   }, []);
-
-  useEffect(() => {
-    if (!enabled || sessionToken === null || isRosterComplete || nextSlotIndex === null) {
-      return;
-    }
-
-    if (cacheRef.current.has(nextSlotIndex) || inflightRef.current.has(nextSlotIndex)) {
-      return;
-    }
-
-    void fetchOptions(nextSlotIndex).catch(() => {
-      // Prefetch failures are non-blocking; the drawer fetch will retry.
-    });
-  }, [
-    enabled,
-    fetchOptions,
-    isRosterComplete,
-    nextSlotIndex,
-    pickCount,
-    sessionToken,
-  ]);
 
   return { getCached, fetchOptions, invalidate };
 }

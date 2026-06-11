@@ -3,12 +3,7 @@ import {
   DraftSessionNotFoundError,
   InvalidDraftPickError,
 } from '../../domain/errors/draft.errors';
-import {
-  applyPick,
-  canAffordPick,
-  pickCost,
-  picksRemaining,
-} from '../../domain/models/participant-draft-state';
+import { applyPick, picksRemaining } from '../../domain/models/participant-draft-state';
 import type { DraftPoolRepository } from '../../domain/repositories/draft-pool.repository';
 import type { DraftSession } from '../../domain/repositories/draft-session.repository';
 import type { DraftSessionRepository } from '../../domain/repositories/draft-session.repository';
@@ -85,18 +80,12 @@ export class ApplyDraftPickUseCase {
       throw new InvalidDraftPickError('Card is not eligible for selected position');
     }
 
-    if (!canAffordPick(participant, card, session.config.pickCostMultiplier, session.rosterSize)) {
-      throw new InvalidDraftPickError('Pick exceeds remaining power budget');
-    }
-
     const tierClassifier = new TierClassifier(session.config);
     const surpriseLedger = new SurpriseLedgerService(session.config);
     const tierCode = tierClassifier.classify(card.overall);
     const isElite = tierClassifier.isEliteTier(tierCode);
-    const cost = pickCost(card, session.config.pickCostMultiplier);
 
     const updatedParticipant = applyPick(participant, card, {
-      pickCost: cost,
       isElite,
       eliteDebtAmount: surpriseLedger.eliteDebtAmount(tierCode),
       eliteCreditAmount: surpriseLedger.eliteCreditAmount(),

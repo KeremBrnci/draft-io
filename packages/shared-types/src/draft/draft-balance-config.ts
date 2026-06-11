@@ -31,7 +31,6 @@ export interface DraftBalanceConfigDto {
   readonly tiers: readonly DraftTierConfigDto[];
   readonly targetTeamAverageOverall: number;
   readonly rosterSize: number;
-  readonly budgetDeviationMaxPercent: number;
   readonly finalOverallSpreadMax: number;
   readonly candidatesPerPick: number;
   readonly wildcardProbability: number;
@@ -39,5 +38,4 @@ export interface DraftBalanceConfigDto {
   readonly chemistry: ChemistryConfigDto;
   readonly matchPower: MatchPowerConfigDto;
   readonly positionWeights: PositionWeightConfigDto;
-  readonly pickCostMultiplier: number;
 }

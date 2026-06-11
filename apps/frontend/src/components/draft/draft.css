@@ -98,10 +98,6 @@
   z-index: 3;
 }
 
-.draft-pitch-slot--next .draft-empty-card {
-  animation: draft-slot-pulse 1.4s ease-in-out infinite;
-}
-
 .draft-pitch-slot__filled {
   display: flex;
   align-items: center;
@@ -587,16 +583,6 @@
   }
 }
 
-@keyframes draft-slot-pulse {
-  0%,
-  100% {
-    box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 35%, transparent);
-  }
-  50% {
-    box-shadow: 0 0 0 6px transparent;
-  }
-}
-
 @keyframes draft-pick-drawer-in {
   from {
     opacity: 0;
@@ -619,11 +605,6 @@
 .play--game .draft-stats-panel {
   border-color: rgb(74 222 128 / 22%);
   background: rgb(12 32 22 / 88%);
-}
-
-body.app-overlay-open .draft-pitch-slot--next .draft-empty-card,
-.play--pick-open .draft-pitch-slot--next .draft-empty-card {
-  animation: none;
 }
 
 body.app-overlay-open .draft-pitch-board,

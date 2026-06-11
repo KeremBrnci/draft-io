@@ -5,11 +5,7 @@ import {
 import { DRAFT_PICK_POOL_FETCH_LIMIT } from '../../domain/constants/draft-pool.constants';
 import type { DraftPickOptionsResult } from '../../domain/models/draft-pick-option';
 import type { DraftPoolCard } from '../../domain/models/draft-pool-card';
-import {
-  picksRemaining,
-  recordOfferedPlayers,
-  remainingBudget,
-} from '../../domain/models/participant-draft-state';
+import { picksRemaining, recordOfferedPlayers } from '../../domain/models/participant-draft-state';
 import type { RandomSource } from '../../domain/ports/random-source.port';
 import type { DraftPoolRepository } from '../../domain/repositories/draft-pool.repository';
 import type { DraftSessionRepository } from '../../domain/repositories/draft-session.repository';
@@ -92,7 +88,6 @@ export class GeneratePickOptionsUseCase {
       participantId: command.participantId,
       options,
       optionCards,
-      remainingBudget: remainingBudget(participant),
       picksRemaining: picksRemaining(participant, session.rosterSize),
     };
   }

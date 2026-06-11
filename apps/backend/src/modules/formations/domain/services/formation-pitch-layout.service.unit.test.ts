@@ -1,6 +1,24 @@
 import { describe, expect, it } from 'vitest';
 
+import { getFormationPitchLayout } from '../constants/formation-pitch-layouts';
+import { ALL_FORMATION_CODES } from '../value-objects/formation-code.vo';
+
 import { computePitchCoordinates } from './formation-pitch-layout.service';
+
+const ROW_Y_TOLERANCE = 4;
+
+function hasHorizontalMirror(
+  layout: readonly { readonly pitchX: number; readonly pitchY: number }[],
+  pitchX: number,
+  pitchY: number,
+): boolean {
+  const mirrorX = 100 - pitchX;
+  return layout.some(
+    (point) =>
+      point.pitchX === mirrorX &&
+      Math.abs(point.pitchY - pitchY) <= ROW_Y_TOLERANCE,
+  );
+}
 
 describe('computePitchCoordinates', () => {
   it('places the goalkeeper at the bottom of the pitch', () => {
@@ -59,5 +77,40 @@ describe('computePitchCoordinates', () => {
     expect(leftBack.pitchX).toBeLessThan(25);
     expect(rightBack.pitchX).toBeGreaterThan(75);
     expect(leftBack.pitchY).toBe(rightBack.pitchY);
+  });
+
+  it('keeps every formation slot horizontally symmetric within its row', () => {
+    for (const code of ALL_FORMATION_CODES) {
+      const layout = getFormationPitchLayout(code);
+      expect(layout).not.toBeNull();
+
+      for (const point of layout ?? []) {
+        if (point.pitchX === 50) {
+          continue;
+        }
+
+        expect(
+          hasHorizontalMirror(layout ?? [], point.pitchX, point.pitchY),
+          `${code} missing mirror for (${point.pitchX}, ${point.pitchY})`,
+        ).toBe(true);
+      }
+    }
+  });
+
+  it('centers the 4-5-1 midfield line', () => {
+    const cdm = computePitchCoordinates('4-5-1', 6, 'CDM');
+    const lm = computePitchCoordinates('4-5-1', 7, 'LM');
+    const cm = computePitchCoordinates('4-5-1', 8, 'CM');
+    const rm = computePitchCoordinates('4-5-1', 9, 'RM');
+    const cam = computePitchCoordinates('4-5-1', 10, 'CAM');
+
+    expect(cm.pitchX).toBe(50);
+    expect(lm.pitchY).toBe(cm.pitchY);
+    expect(rm.pitchY).toBe(cm.pitchY);
+    expect(lm.pitchX + rm.pitchX).toBe(100);
+    expect(cam.pitchX).toBe(50);
+    expect(cdm.pitchX).toBe(50);
+    expect(cam.pitchY).toBeLessThan(cm.pitchY);
+    expect(cdm.pitchY).toBeGreaterThan(cm.pitchY);
   });
 });

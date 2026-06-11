@@ -6,11 +6,7 @@ import type { DraftPoolCard } from '../../domain/models/draft-pool-card';
 import {
   applyPick,
   createParticipantDraftState,
-  pickCost,
-  picksRemaining,
-  remainingBudget,
 } from '../../domain/models/participant-draft-state';
-import { BudgetAllocator } from '../../domain/services/budget-allocator.service';
 import { ChemistryCalculator } from '../../domain/services/chemistry-calculator.service';
 import { MatchPowerCalculator } from '../../domain/services/match-power-calculator.service';
 import { PickOptionGenerator } from '../../domain/services/pick-option-generator.service';
@@ -49,15 +45,9 @@ export class SimulateDraftFairnessUseCase {
 
     for (let run = 0; run < runCount; run += 1) {
       const random = new SeededRandomSource((command.seed ?? 42) + run);
-      const budgetAllocator = new BudgetAllocator(config, random);
-      const budgets = budgetAllocator.allocateForParticipants(participantIds);
 
       const states = participantIds.map((participantId) =>
-        createParticipantDraftState({
-          participantId,
-          powerBudget:
-            budgets.get(participantId) ?? config.targetTeamAverageOverall * config.rosterSize,
-        }),
+        createParticipantDraftState({ participantId }),
       );
 
       const usedCardIds = new Set<string>();
@@ -96,7 +86,7 @@ export class SimulateDraftFairnessUseCase {
           draftedRoster,
         });
 
-        const selected = this.selectSimulationPick(state, options, config);
+        const selected = this.selectSimulationPick(options, config);
         if (selected === undefined) {
           continue;
         }
@@ -111,7 +101,6 @@ export class SimulateDraftFairnessUseCase {
         const isElite = tierClassifier.isEliteTier(tierCode);
 
         const updated = applyPick(state, card, {
-          pickCost: pickCost(card, config.pickCostMultiplier),
           isElite,
           eliteDebtAmount: surpriseLedger.eliteDebtAmount(tierCode),
           eliteCreditAmount: surpriseLedger.eliteCreditAmount(),
@@ -246,7 +235,6 @@ export class SimulateDraftFairnessUseCase {
   }
 
   private selectSimulationPick(
-    state: ReturnType<typeof createParticipantDraftState>,
     options: readonly DraftPickOption[],
     config: typeof DEFAULT_DRAFT_BALANCE_CONFIG,
   ): DraftPickOption | undefined {
@@ -254,9 +242,7 @@ export class SimulateDraftFairnessUseCase {
       return undefined;
     }
 
-    const slotsLeft = picksRemaining(state, config.rosterSize);
-    const budgetLeft = remainingBudget(state);
-    const targetOverall = slotsLeft <= 0 ? config.targetTeamAverageOverall : budgetLeft / slotsLeft;
+    const targetOverall = config.targetTeamAverageOverall;
 
     return [...options].sort((left, right) => {
       const leftDistance = Math.abs(left.overall - targetOverall);

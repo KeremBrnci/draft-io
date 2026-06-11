@@ -23,8 +23,6 @@ interface DraftParticipantRecord {
   id: string;
   draftSessionId: string;
   lobbyParticipantId: string;
-  powerBudget: number;
-  spentBudget: number;
   surpriseDebt: number;
   surpriseCredit: number;
   elitePicksTaken: number;
@@ -57,8 +55,6 @@ export function toParticipantDomain(record: DraftParticipantRecord): Participant
 
   return {
     participantId: record.lobbyParticipantId,
-    powerBudget: record.powerBudget,
-    spentBudget: record.spentBudget,
     surpriseDebt: record.surpriseDebt,
     surpriseCredit: record.surpriseCredit,
     elitePicksTaken: record.elitePicksTaken,
@@ -83,8 +79,6 @@ export function toDraftSessionPersistence(session: DraftSession): {
     id: string;
     draftSessionId: string;
     lobbyParticipantId: string;
-    powerBudget: number;
-    spentBudget: number;
     surpriseDebt: number;
     surpriseCredit: number;
     elitePicksTaken: number;
@@ -108,8 +102,6 @@ export function toDraftSessionPersistence(session: DraftSession): {
       id: `${session.id}-participant-${index}`,
       draftSessionId: session.id,
       lobbyParticipantId: participant.participantId,
-      powerBudget: participant.powerBudget,
-      spentBudget: participant.spentBudget,
       surpriseDebt: participant.surpriseDebt,
       surpriseCredit: participant.surpriseCredit,
       elitePicksTaken: participant.elitePicksTaken,

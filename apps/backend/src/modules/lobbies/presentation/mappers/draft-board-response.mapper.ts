@@ -21,7 +21,6 @@ export function toDraftBoardStateDto(state: DraftBoardState): DraftBoardStateDto
     nextSlotIndex: state.nextSlotIndex,
     rosterSize: state.rosterSize,
     pickCount: state.pickCount,
-    remainingBudget: state.remainingBudget,
     teamAverageOverall: state.teamAverageOverall,
     chemistry: strength.chemistry,
     matchPower: strength.matchPower,

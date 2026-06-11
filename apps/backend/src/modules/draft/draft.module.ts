@@ -22,7 +22,7 @@ import { DraftBalanceController } from './presentation/controllers/draft-balance
     { provide: RANDOM_SOURCE, useClass: MathRandomSource },
     { provide: DRAFT_POOL_REPOSITORY, useClass: PrismaDraftPoolRepository },
     { provide: DRAFT_SESSION_REPOSITORY, useClass: PrismaDraftSessionRepository },
-    provideUseCase(InitializeDraftSessionUseCase, [DRAFT_SESSION_REPOSITORY, RANDOM_SOURCE]),
+    provideUseCase(InitializeDraftSessionUseCase, [DRAFT_SESSION_REPOSITORY]),
     provideUseCase(GetDraftSessionByLobbyUseCase, [DRAFT_SESSION_REPOSITORY]),
     provideUseCase(GeneratePickOptionsUseCase, [
       DRAFT_SESSION_REPOSITORY,

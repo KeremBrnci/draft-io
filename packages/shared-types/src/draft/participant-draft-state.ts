@@ -2,9 +2,6 @@ import type { DraftSlotAssignmentDto } from './draft-board.js';
 
 export interface ParticipantDraftStateDto {
   readonly participantId: string;
-  readonly powerBudget: number;
-  readonly spentBudget: number;
-  readonly remainingBudget: number;
   readonly surpriseDebt: number;
   readonly surpriseCredit: number;
   readonly elitePicksTaken: number;

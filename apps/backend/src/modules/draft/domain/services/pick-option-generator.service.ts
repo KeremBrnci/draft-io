@@ -6,13 +6,13 @@ import {
   PICK_BOARD_OVERALL_FLOOR,
   PICK_BOARD_WINDOWS,
   RECENTLY_OFFERED_WEIGHT_MULTIPLIER,
+  pickBoardOverallFloor,
   type PickBoardProfile,
 } from '../constants/pick-board-profile.constants';
 import type { PlayerIdentityLink } from '../models/chemistry-result';
 import type { DraftPickOption, DraftPickOptionKind } from '../models/draft-pick-option';
 import type { DraftPoolCard } from '../models/draft-pool-card';
 import type { ParticipantDraftState } from '../models/participant-draft-state';
-import { canAffordPick, pickCost } from '../models/participant-draft-state';
 import type { RandomSource } from '../ports/random-source.port';
 
 import { ChemistryCalculator } from './chemistry-calculator.service';
@@ -52,23 +52,13 @@ export class PickOptionGenerator {
         ? input.eligiblePositionCodes
         : [positionCode];
     const teammateLinks = this.toIdentityLinks(draftedRoster);
-    const draftedPlayerIds = new Set(draftedRoster.map((card) => card.playerId));
-
-    const eligible = pool
-      .filter((card) =>
-        eligiblePositionCodes.some((code) => this.positionCompatibility.isEligible(card, code)),
-      )
-      .filter((card) => !participantState.draftedCardIds.includes(card.cardId))
-      .filter((card) => !draftedPlayerIds.has(card.playerId))
-      .filter((card) =>
-        canAffordPick(
-          participantState,
-          card,
-          this.config.pickCostMultiplier,
-          this.config.rosterSize,
-        ),
-      )
-      .filter((card) => card.overall >= PICK_BOARD_OVERALL_FLOOR);
+    const eligible = this.resolveEligibleCards({
+      positionCode,
+      eligiblePositionCodes,
+      participantState,
+      pool,
+      draftedRoster,
+    });
 
     if (eligible.length === 0) {
       return [];
@@ -97,6 +87,35 @@ export class PickOptionGenerator {
     });
 
     return this.buildOptionsFromCards(selectedCards, teammateLinks, positionCode);
+  }
+
+  private resolveEligibleCards(input: {
+    readonly positionCode: string;
+    readonly eligiblePositionCodes: readonly string[];
+    readonly participantState: ParticipantDraftState;
+    readonly pool: readonly DraftPoolCard[];
+    readonly draftedRoster: readonly DraftPoolCard[];
+  }): DraftPoolCard[] {
+    const draftedPlayerIds = new Set(input.draftedRoster.map((card) => card.playerId));
+    const base = input.pool
+      .filter((card) =>
+        input.eligiblePositionCodes.some((code) =>
+          this.positionCompatibility.isEligible(card, code),
+        ),
+      )
+      .filter((card) => !input.participantState.draftedCardIds.includes(card.cardId))
+      .filter((card) => !draftedPlayerIds.has(card.playerId));
+
+    for (const relaxedFloor of [false, true]) {
+      const floor = pickBoardOverallFloor(input.positionCode, relaxedFloor);
+      const eligible = base.filter((card) => card.overall >= floor);
+
+      if (eligible.length > 0) {
+        return eligible;
+      }
+    }
+
+    return [];
   }
 
   private sampleBoardProfile(): PickBoardProfile {
@@ -399,7 +418,6 @@ export class PickOptionGenerator {
       cardTypeCode: input.card.cardTypeCode,
       cardRarityCode: input.card.cardRarityCode,
       kind: input.kind,
-      pickCost: pickCost(input.card, this.config.pickCostMultiplier),
       projectedChemistry: this.projectedChemistry(input.card, input.teammateLinks),
       positionWeight: this.positionCompatibility.getWeight(input.card, input.positionCode),
       isWildcard: input.isWildcard,

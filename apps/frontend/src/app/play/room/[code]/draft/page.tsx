@@ -68,15 +68,10 @@ export default function DraftRoomPage(): React.ReactElement {
   const activeSlotIndexRef = useRef<number | null>(null);
   const redirectForPhase = usePhaseRedirect(code);
 
-  const { getCached, fetchOptions, invalidate: invalidatePickOptions } =
-    useDraftPickOptionsCache({
-      code,
-      sessionToken: session?.sessionToken ?? null,
-      nextSlotIndex: board?.nextSlotIndex ?? null,
-      pickCount: board?.pickCount ?? 0,
-      isRosterComplete: board?.isRosterComplete ?? false,
-      enabled: session !== null && board !== null && error === null,
-    });
+  const { getCached, fetchOptions, invalidate: invalidatePickOptions } = useDraftPickOptionsCache({
+    code,
+    sessionToken: session?.sessionToken ?? null,
+  });
 
   useEffect(() => {
     skipPollBoardUpdateRef.current = activeSlotIndex !== null || pickingCardId !== null;

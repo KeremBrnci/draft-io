@@ -9,7 +9,6 @@ import type {
 
 import type { TeamStrengthResult } from '../../application/use-cases/calculate-team-strength.use-case';
 import type { DraftPickOptionsResult } from '../../domain/models/draft-pick-option';
-import { remainingBudget } from '../../domain/models/participant-draft-state';
 import type { DraftSession } from '../../domain/repositories/draft-session.repository';
 import { toDraftCardFace } from '../../infrastructure/mappers/draft-card-face.mapper';
 
@@ -18,9 +17,6 @@ export function toParticipantDraftStateDto(
 ): ParticipantDraftStateDto {
   return {
     participantId: participant.participantId,
-    powerBudget: participant.powerBudget,
-    spentBudget: participant.spentBudget,
-    remainingBudget: remainingBudget(participant),
     surpriseDebt: participant.surpriseDebt,
     surpriseCredit: participant.surpriseCredit,
     elitePicksTaken: participant.elitePicksTaken,
@@ -79,14 +75,12 @@ export function toDraftPickOptionsDto(result: DraftPickOptionsResult): DraftPick
         cardTypeCode: option.cardTypeCode,
         cardRarityCode: option.cardRarityCode,
         kind: option.kind,
-        pickCost: option.pickCost,
         projectedChemistry: option.projectedChemistry,
         positionWeight: option.positionWeight,
         isWildcard: option.isWildcard,
         face: toDraftCardFace(card ?? fallbackCard, result.positionCode),
       };
     }),
-    remainingBudget: result.remainingBudget,
     picksRemaining: result.picksRemaining,
   };
 }

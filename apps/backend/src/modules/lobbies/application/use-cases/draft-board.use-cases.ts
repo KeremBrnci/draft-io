@@ -8,7 +8,6 @@ import { InvalidDraftPickError } from '../../../draft/domain/errors/draft.errors
 import {
   findNextEmptySlotIndex,
   picksRemaining,
-  remainingBudget,
 } from '../../../draft/domain/models/participant-draft-state';
 import type { DraftPoolRepository } from '../../../draft/domain/repositories/draft-pool.repository';
 import { toDraftCardFace } from '../../../draft/infrastructure/mappers/draft-card-face.mapper';
@@ -43,7 +42,6 @@ export interface DraftBoardState {
   }[];
   readonly rosterSize: number;
   readonly pickCount: number;
-  readonly remainingBudget: number;
   readonly nextSlotIndex: number | null;
   readonly teamAverageOverall: number;
   readonly chemistry: Awaited<ReturnType<CalculateTeamStrengthUseCase['execute']>>['chemistry'];
@@ -154,7 +152,6 @@ export class GetDraftBoardUseCase {
       slotAssignments: draftState.slotAssignments,
       rosterSize: session.rosterSize,
       pickCount: draftState.pickCount,
-      remainingBudget: remainingBudget(draftState),
       nextSlotIndex,
       teamAverageOverall: strength.matchPower.teamAverageOverall,
       chemistry: strength.chemistry,
@@ -269,14 +266,12 @@ export class GetDraftPickOptionsForSlotUseCase {
           cardTypeCode: option.cardTypeCode,
           cardRarityCode: option.cardRarityCode,
           kind: option.kind,
-          pickCost: option.pickCost,
           projectedChemistry: option.projectedChemistry,
           positionWeight: option.positionWeight,
           isWildcard: option.isWildcard,
           face: toDraftCardFace(card ?? fallbackCard, positionCode),
         };
       }),
-      remainingBudget: result.remainingBudget,
       picksRemaining: result.picksRemaining,
     };
   }

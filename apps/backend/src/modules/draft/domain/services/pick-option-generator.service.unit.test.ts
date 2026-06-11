@@ -144,6 +144,33 @@ describe('PickOptionGenerator', () => {
     expect(options.every((option) => option.playerId !== draftedPlayer.playerId)).toBe(true);
   });
 
+  it('offers GK options regardless of prior outfield picks', () => {
+    const pool = Array.from({ length: 8 }, (_, index) =>
+      buildTestDraftPoolCard({
+        cardId: `gk-${index}`,
+        playerId: `gk-player-${index}`,
+        overall: 80 + (index % 3),
+        displayName: `Keeper ${index + 1}`,
+        positions: [{ positionCode: 'GK', isPrimary: true, sortOrder: 0 }],
+      }),
+    );
+    const generator = new PickOptionGenerator(
+      DEFAULT_DRAFT_BALANCE_CONFIG,
+      new SeededRandomSource(13),
+    );
+
+    const options = generator.generate({
+      positionCode: 'GK',
+      eligiblePositionCodes: ['GK'],
+      participantState: buildTestParticipantState({ pickCount: 5 }),
+      pool,
+      draftedRoster: [],
+    });
+
+    expect(options.length).toBeGreaterThan(0);
+    expect(options.every((option) => option.overall >= 80)).toBe(true);
+  });
+
   it('offers LW players when drafting an LM slot', () => {
     const generator = new PickOptionGenerator(
       DEFAULT_DRAFT_BALANCE_CONFIG,

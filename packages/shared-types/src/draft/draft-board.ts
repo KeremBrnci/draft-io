@@ -50,7 +50,6 @@ export interface DraftBoardStateDto {
   readonly nextSlotIndex: number | null;
   readonly rosterSize: number;
   readonly pickCount: number;
-  readonly remainingBudget: number;
   readonly teamAverageOverall: number;
   readonly chemistry: TeamChemistryResultDto;
   readonly matchPower: MatchPowerResultDto;

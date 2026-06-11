@@ -11,7 +11,6 @@ export interface DraftPickOption {
   readonly cardTypeCode: string;
   readonly cardRarityCode: string;
   readonly kind: DraftPickOptionKind;
-  readonly pickCost: number;
   readonly projectedChemistry: number;
   readonly positionWeight: number;
   readonly isWildcard: boolean;
@@ -22,6 +21,5 @@ export interface DraftPickOptionsResult {
   readonly participantId: string;
   readonly options: readonly DraftPickOption[];
   readonly optionCards: readonly DraftPoolCard[];
-  readonly remainingBudget: number;
   readonly picksRemaining: number;
 }

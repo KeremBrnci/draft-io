@@ -44,7 +44,6 @@ export const DEFAULT_DRAFT_BALANCE_CONFIG: DraftBalanceConfigDto = {
   tiers: DEFAULT_DRAFT_TIERS,
   targetTeamAverageOverall: 87,
   rosterSize: 11,
-  budgetDeviationMaxPercent: 3,
   finalOverallSpreadMax: 3,
   candidatesPerPick: 5,
   wildcardProbability: 0.1,
@@ -52,9 +51,4 @@ export const DEFAULT_DRAFT_BALANCE_CONFIG: DraftBalanceConfigDto = {
   chemistry: DEFAULT_CHEMISTRY_CONFIG,
   matchPower: DEFAULT_MATCH_POWER_CONFIG,
   positionWeights: DEFAULT_POSITION_WEIGHTS,
-  pickCostMultiplier: 1,
 };
-
-export function computeBasePowerBudget(config: DraftBalanceConfigDto): number {
-  return config.targetTeamAverageOverall * config.rosterSize;
-}

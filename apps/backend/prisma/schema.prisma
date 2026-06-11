@@ -564,8 +564,6 @@ model DraftParticipantState {
   id                 String   @id @default(uuid()) @db.Uuid
   draftSessionId     String   @map("draft_session_id") @db.Uuid
   lobbyParticipantId String   @map("lobby_participant_id") @db.Uuid
-  powerBudget        Int      @map("power_budget") @db.SmallInt
-  spentBudget        Int      @default(0) @map("spent_budget") @db.SmallInt
   surpriseDebt       Int      @default(0) @map("surprise_debt") @db.SmallInt
   surpriseCredit     Int      @default(0) @map("surprise_credit") @db.SmallInt
   elitePicksTaken    Int      @default(0) @map("elite_picks_taken") @db.SmallInt

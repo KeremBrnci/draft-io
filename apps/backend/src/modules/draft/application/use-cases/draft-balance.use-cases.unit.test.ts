@@ -61,10 +61,7 @@ describe('Draft balance use cases', () => {
   beforeEach(() => {
     sessionRepository = new InMemoryDraftSessionRepository();
     poolRepository = new InMemoryDraftPoolRepository(buildTestPool());
-    initializeUseCase = new InitializeDraftSessionUseCase(
-      sessionRepository,
-      new SeededRandomSource(1),
-    );
+    initializeUseCase = new InitializeDraftSessionUseCase(sessionRepository);
     generateOptionsUseCase = new GeneratePickOptionsUseCase(
       sessionRepository,
       poolRepository,
@@ -73,15 +70,15 @@ describe('Draft balance use cases', () => {
     applyPickUseCase = new ApplyDraftPickUseCase(sessionRepository, poolRepository);
   });
 
-  it('initializes hidden budgets for all participants', async () => {
+  it('initializes draft state for all participants', async () => {
     const session = await initializeUseCase.execute({
       lobbyId: 'lobby-1',
       participantIds: ['p1', 'p2'],
     });
 
     expect(session.participants).toHaveLength(2);
-    expect(session.participants[0]?.powerBudget).toBeGreaterThan(900);
-    expect(session.participants[1]?.powerBudget).toBeGreaterThan(900);
+    expect(session.participants[0]?.pickCount).toBe(0);
+    expect(session.participants[1]?.pickCount).toBe(0);
   });
 
   it('generates pick options and applies a pick', async () => {

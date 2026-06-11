@@ -6,7 +6,7 @@ import { mapCardTypeToVariant } from './map-card-type-to-variant';
 import { mapDraftCardFace } from './map-draft-card-face';
 
 import { FootballCard } from '@/components/cards/football-card';
-import { mapPitchDisplayPercent } from '@/lib/map-pitch-display-percent';
+import { mapDraftPitchDisplayX, mapDraftPitchDisplayY } from '@/lib/map-pitch-display-percent';
 
 interface DraftPitchBoardProps {
   readonly board: DraftBoardStateDto;
@@ -33,7 +33,6 @@ export const DraftPitchBoard = memo(function DraftPitchBoard({
           key={slot.slotIndex}
           slot={slot}
           isActive={activeSlotIndex === slot.slotIndex}
-          isNext={board.nextSlotIndex === slot.slotIndex}
           locked={isSelectionLocked && activeSlotIndex !== slot.slotIndex && slot.card === null}
           onSelectSlot={onSelectSlot}
         />
@@ -45,13 +44,11 @@ export const DraftPitchBoard = memo(function DraftPitchBoard({
 const DraftPitchSlot = memo(function DraftPitchSlot({
   slot,
   isActive,
-  isNext,
   locked,
   onSelectSlot,
 }: {
   readonly slot: DraftSlotStateDto;
   readonly isActive: boolean;
-  readonly isNext: boolean;
   readonly locked: boolean;
   readonly onSelectSlot: (slotIndex: number) => void;
 }): React.ReactElement {
@@ -63,20 +60,20 @@ const DraftPitchSlot = memo(function DraftPitchSlot({
   }, [locked, onSelectSlot, slot.card, slot.slotIndex]);
 
   const style = {
-    left: `${mapPitchDisplayPercent(slot.pitchX)}%`,
-    top: `${mapPitchDisplayPercent(slot.pitchY)}%`,
+    left: `${mapDraftPitchDisplayX(slot.pitchX)}%`,
+    top: `${mapDraftPitchDisplayY(slot.pitchY)}%`,
   };
 
   return (
     <div
-      className={`draft-pitch-slot${isActive ? ' draft-pitch-slot--active' : ''}${isNext ? ' draft-pitch-slot--next' : ''}`}
+      className={`draft-pitch-slot${isActive ? ' draft-pitch-slot--active' : ''}`}
       style={style}
     >
       {slot.card === null ? (
         locked ? (
-          <DraftEmptyCard label={slot.label} active={isActive || isNext} locked />
+          <DraftEmptyCard label={slot.label} active={isActive} locked />
         ) : (
-          <DraftEmptyCard label={slot.label} active={isActive || isNext} onClick={handleSelect} />
+          <DraftEmptyCard label={slot.label} active={isActive} onClick={handleSelect} />
         )
       ) : (
         <div className="draft-pitch-slot__filled">

@@ -27,7 +27,6 @@ export function buildTestParticipantState(
   return {
     ...createParticipantDraftState({
       participantId: 'participant-1',
-      powerBudget: 960,
     }),
     ...overrides,
   };
