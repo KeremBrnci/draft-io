@@ -86,57 +86,57 @@ export default function JoinLobbyPage(): React.ReactElement {
                 </span>
                 <label htmlFor="lobby-code">Oda kodu</label>
               </div>
-            <input
-              id="lobby-code"
-              value={code}
-              onChange={(event) => {
-                setCode(event.target.value.toUpperCase());
-              }}
-              placeholder="ABC123"
-              minLength={6}
-              maxLength={6}
-              required
-            />
-          </div>
-
-          <div className="play-field">
-            <div className="play-field__label-row">
-              <span className="play-field__icon" aria-hidden>
-                👤
-              </span>
-              <label htmlFor="display-name">Senin adın</label>
+              <input
+                id="lobby-code"
+                value={code}
+                onChange={(event) => {
+                  setCode(event.target.value.toUpperCase());
+                }}
+                placeholder="ABC123"
+                minLength={6}
+                maxLength={6}
+                required
+              />
             </div>
-            <input
-              id="display-name"
-              value={displayName}
-              onChange={(event) => {
-                setDisplayName(event.target.value);
-              }}
-              placeholder="Misafir"
-              minLength={2}
-              maxLength={40}
-              required
-            />
-          </div>
 
-          {existingSessionCode !== null ? (
-            <p className="play-callout">
-              Bu odaya daha önce{' '}
-              <strong>{readLobbySession(existingSessionCode)?.displayName}</strong> olarak katıldın.{' '}
-              <Link href={`/play/room/${existingSessionCode}`}>Odaya devam et</Link>
-            </p>
-          ) : null}
+            <div className="play-field">
+              <div className="play-field__label-row">
+                <span className="play-field__icon" aria-hidden>
+                  👤
+                </span>
+                <label htmlFor="display-name">Senin adın</label>
+              </div>
+              <input
+                id="display-name"
+                value={displayName}
+                onChange={(event) => {
+                  setDisplayName(event.target.value);
+                }}
+                placeholder="Misafir"
+                minLength={2}
+                maxLength={40}
+                required
+              />
+            </div>
 
-          {error !== null ? (
-            <p className="play-error" role="alert">
-              {error}
-            </p>
-          ) : null}
+            {existingSessionCode !== null ? (
+              <p className="play-callout">
+                Bu odaya daha önce{' '}
+                <strong>{readLobbySession(existingSessionCode)?.displayName}</strong> olarak
+                katıldın. <Link href={`/play/room/${existingSessionCode}`}>Odaya devam et</Link>
+              </p>
+            ) : null}
 
-          <button className="play-btn" type="submit" disabled={loading}>
-            {loading ? 'Katılınıyor…' : '⚽ Odaya Katıl'}
-          </button>
-        </form>
+            {error !== null ? (
+              <p className="play-error" role="alert">
+                {error}
+              </p>
+            ) : null}
+
+            <button className="play-btn" type="submit" disabled={loading}>
+              {loading ? 'Katılınıyor…' : '⚽ Odaya Katıl'}
+            </button>
+          </form>
         </div>
       </main>
     </div>

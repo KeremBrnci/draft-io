@@ -3,11 +3,7 @@
 import { useEffect, useRef } from 'react';
 
 /** Runs callback on an interval only while the document tab is visible. */
-export function useVisibleInterval(
-  callback: () => void,
-  intervalMs: number,
-  enabled = true,
-): void {
+export function useVisibleInterval(callback: () => void, intervalMs: number, enabled = true): void {
   const callbackRef = useRef(callback);
   callbackRef.current = callback;
 

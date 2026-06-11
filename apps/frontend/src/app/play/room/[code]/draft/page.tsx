@@ -177,7 +177,12 @@ export default function DraftRoomPage(): React.ReactElement {
 
   const openSlot = useCallback(
     async (slotIndex: number): Promise<void> => {
-      if (session === null || board === null || board.isRosterComplete || activeSlotIndex !== null) {
+      if (
+        session === null ||
+        board === null ||
+        board.isRosterComplete ||
+        activeSlotIndex !== null
+      ) {
         return;
       }
 

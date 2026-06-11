@@ -183,10 +183,7 @@ function FootballCardComponent({
   );
 }
 
-function footballCardPropsAreEqual(
-  prev: FootballCardProps,
-  next: FootballCardProps,
-): boolean {
+function footballCardPropsAreEqual(prev: FootballCardProps, next: FootballCardProps): boolean {
   return (
     prev.variant === next.variant &&
     prev.entityKind === next.entityKind &&

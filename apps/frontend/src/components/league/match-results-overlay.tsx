@@ -80,11 +80,11 @@ export function MatchResultsOverlay({
                 >
                   <span className="league-results__fixture-round">#{fixture.roundNumber}</span>
                   <span className="league-results__fixture-home">{fixture.homeDisplayName}</span>
-                  <span className="league-results__fixture-score">{formatFixtureScore(fixture)}</span>
+                  <span className="league-results__fixture-score">
+                    {formatFixtureScore(fixture)}
+                  </span>
                   <span className="league-results__fixture-away">{fixture.awayDisplayName}</span>
-                  {isLatest ? (
-                    <span className="league-results__fixture-badge">Son maç</span>
-                  ) : null}
+                  {isLatest ? <span className="league-results__fixture-badge">Son maç</span> : null}
                 </li>
               );
             })}

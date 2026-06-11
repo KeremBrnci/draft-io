@@ -83,69 +83,69 @@ export default function CreateLobbyPage(): React.ReactElement {
                 </span>
                 <label htmlFor="lobby-name">Oda adı</label>
               </div>
-            <input
-              id="lobby-name"
-              value={name}
-              onChange={(event) => {
-                setName(event.target.value);
-              }}
-              placeholder="Cuma Draft"
-              minLength={2}
-              maxLength={80}
-              required
-            />
-          </div>
-
-          <div className="play-field">
-            <div className="play-field__label-row">
-              <span className="play-field__icon" aria-hidden>
-                👤
-              </span>
-              <label htmlFor="display-name">Senin adın</label>
+              <input
+                id="lobby-name"
+                value={name}
+                onChange={(event) => {
+                  setName(event.target.value);
+                }}
+                placeholder="Cuma Draft"
+                minLength={2}
+                maxLength={80}
+                required
+              />
             </div>
-            <input
-              id="display-name"
-              value={displayName}
-              onChange={(event) => {
-                setDisplayName(event.target.value);
-              }}
-              placeholder="Turhan"
-              minLength={2}
-              maxLength={40}
-              required
-            />
-          </div>
 
-          <div className="play-field">
-            <div className="play-field__label-row">
-              <span className="play-field__icon" aria-hidden>
-                👥
-              </span>
-              <label htmlFor="max-players">Maksimum oyuncu</label>
+            <div className="play-field">
+              <div className="play-field__label-row">
+                <span className="play-field__icon" aria-hidden>
+                  👤
+                </span>
+                <label htmlFor="display-name">Senin adın</label>
+              </div>
+              <input
+                id="display-name"
+                value={displayName}
+                onChange={(event) => {
+                  setDisplayName(event.target.value);
+                }}
+                placeholder="Turhan"
+                minLength={2}
+                maxLength={40}
+                required
+              />
             </div>
-            <input
-              id="max-players"
-              type="number"
-              min={2}
-              max={12}
-              value={maxPlayers}
-              onChange={(event) => {
-                setMaxPlayers(event.target.value);
-              }}
-              required
-            />
-          </div>
 
-          {error !== null ? (
-            <p className="play-error" role="alert">
-              {error}
-            </p>
-          ) : null}
+            <div className="play-field">
+              <div className="play-field__label-row">
+                <span className="play-field__icon" aria-hidden>
+                  👥
+                </span>
+                <label htmlFor="max-players">Maksimum oyuncu</label>
+              </div>
+              <input
+                id="max-players"
+                type="number"
+                min={2}
+                max={12}
+                value={maxPlayers}
+                onChange={(event) => {
+                  setMaxPlayers(event.target.value);
+                }}
+                required
+              />
+            </div>
 
-          <button className="play-btn" type="submit" disabled={loading}>
-            {loading ? 'Oluşturuluyor…' : '⚽ Odayı Oluştur'}
-          </button>
-        </form>
+            {error !== null ? (
+              <p className="play-error" role="alert">
+                {error}
+              </p>
+            ) : null}
+
+            <button className="play-btn" type="submit" disabled={loading}>
+              {loading ? 'Oluşturuluyor…' : '⚽ Odayı Oluştur'}
+            </button>
+          </form>
         </div>
       </main>
     </div>

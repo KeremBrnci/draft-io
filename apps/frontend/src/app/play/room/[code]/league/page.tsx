@@ -155,12 +155,9 @@ export default function LeaguePage(): React.ReactElement {
     match?.status === 'FULL_TIME' &&
     league !== null &&
     league.completedMatchCount >= league.totalMatchCount;
-  const showMatchResults =
-    match?.status === 'FULL_TIME' && !resultsDismissed && !startingNext;
+  const showMatchResults = match?.status === 'FULL_TIME' && !resultsDismissed && !startingNext;
   const leagueFinished =
-    league !== null &&
-    isLeagueFinished(league) &&
-    (!showMatchResults || resultsDismissed);
+    league !== null && isLeagueFinished(league) && (!showMatchResults || resultsDismissed);
   const winnerName = league !== null ? resolveWinnerName(league) : '—';
 
   async function handleStartNext(): Promise<void> {
@@ -191,14 +188,10 @@ export default function LeaguePage(): React.ReactElement {
     () => (match === null ? null : getActiveLiveMatchAlert(match.events)),
     [match],
   );
-  const goalCelebration = useGoalCelebration(
-    match?.id ?? null,
-    match?.events ?? [],
-    {
-      home: match?.homeDisplayName ?? 'Ev sahibi',
-      away: match?.awayDisplayName ?? 'Deplasman',
-    },
-  );
+  const goalCelebration = useGoalCelebration(match?.id ?? null, match?.events ?? [], {
+    home: match?.homeDisplayName ?? 'Ev sahibi',
+    away: match?.awayDisplayName ?? 'Deplasman',
+  });
 
   return (
     <div className="play play--game play--draft">
@@ -381,7 +374,9 @@ export default function LeaguePage(): React.ReactElement {
                   {league.standings.map((row) => (
                     <tr
                       key={row.participantId}
-                      className={row.rank === 1 && leagueFinished ? 'league-table__champion' : undefined}
+                      className={
+                        row.rank === 1 && leagueFinished ? 'league-table__champion' : undefined
+                      }
                     >
                       <td>{row.rank === 1 && leagueFinished ? '👑' : row.rank}</td>
                       <td>{row.displayName}</td>

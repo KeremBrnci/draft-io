@@ -8,8 +8,6 @@ import { mapDraftCardFace } from './map-draft-card-face';
 import { FootballCard } from '@/components/cards/football-card';
 import { formatCardNameCompactLabel } from '@/components/cards/format-card-name';
 
-
-
 interface DraftPitchBoardProps {
   readonly board: DraftBoardStateDto;
   readonly activeSlotIndex: number | null;

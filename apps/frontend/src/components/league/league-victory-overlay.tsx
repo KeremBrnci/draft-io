@@ -44,7 +44,11 @@ export function LeagueVictoryOverlay({
       <div className="app-overlay__backdrop league-victory__backdrop" aria-hidden />
       <div className="league-victory__fx" aria-hidden>
         {Array.from({ length: 6 }, (_, index) => (
-          <span key={index} className="league-victory__spark" style={{ ['--i' as string]: index }} />
+          <span
+            key={index}
+            className="league-victory__spark"
+            style={{ ['--i' as string]: index }}
+          />
         ))}
         {Array.from({ length: 10 }, (_, index) => (
           <span
