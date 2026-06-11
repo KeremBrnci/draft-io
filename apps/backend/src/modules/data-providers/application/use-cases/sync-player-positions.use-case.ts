@@ -24,6 +24,7 @@ import type { ImportPlayerUseCase } from './import-player.use-case';
 export interface SyncPlayerPositionsCommand {
   readonly provider: string;
   readonly clubExternalId?: string;
+  readonly competitionExternalId?: string;
 }
 
 export interface SyncPlayerPositionsResult {
@@ -53,7 +54,7 @@ export class SyncPlayerPositionsUseCase {
 
   async execute(command: SyncPlayerPositionsCommand): Promise<SyncPlayerPositionsResult> {
     const provider = parseExternalProvider(command.provider);
-    const players = await this.loadPlayers(command.clubExternalId, provider);
+    const players = await this.loadPlayers(command, provider);
 
     const enrichedPlayers: {
       externalId: string;
@@ -118,25 +119,46 @@ export class SyncPlayerPositionsUseCase {
   }
 
   private async loadPlayers(
-    clubExternalId: string | undefined,
+    command: SyncPlayerPositionsCommand,
     provider: ReturnType<typeof parseExternalProvider>,
   ): Promise<readonly Player[]> {
-    if (clubExternalId === undefined) {
+    if (command.clubExternalId !== undefined) {
+      const team = await this.teamRepository.findByExternalReference(
+        provider,
+        command.clubExternalId,
+      );
+      if (team === null) {
+        throw new Error(`Club ${command.clubExternalId} is not imported yet.`);
+      }
+
       const page = await this.playerRepository.findPaginated(
-        {},
+        { teamId: team.id.value },
         { field: 'name', direction: 'asc' },
         { page: 1, pageSize: 10_000 },
       );
       return page.items;
     }
 
-    const team = await this.teamRepository.findByExternalReference(provider, clubExternalId);
-    if (team === null) {
-      throw new Error(`Club ${clubExternalId} is not imported yet.`);
+    if (command.competitionExternalId !== undefined) {
+      const league = await this.leagueRepository.findByExternalReference(
+        provider,
+        command.competitionExternalId,
+      );
+
+      if (league === null) {
+        throw new Error(`Competition ${command.competitionExternalId} is not imported yet.`);
+      }
+
+      const page = await this.playerRepository.findPaginated(
+        { leagueId: league.id.value },
+        { field: 'name', direction: 'asc' },
+        { page: 1, pageSize: 10_000 },
+      );
+      return page.items;
     }
 
     const page = await this.playerRepository.findPaginated(
-      { teamId: team.id.value },
+      {},
       { field: 'name', direction: 'asc' },
       { page: 1, pageSize: 10_000 },
     );

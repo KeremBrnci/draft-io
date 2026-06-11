@@ -15,6 +15,7 @@ import type { ImportPlayerUseCase } from './import-player.use-case';
 export interface SyncMissingSquadPlayersCommand {
   readonly provider: string;
   readonly clubExternalId?: string;
+  readonly competitionExternalId?: string;
 }
 
 export interface SyncMissingSquadPlayersResult {
@@ -49,10 +50,7 @@ export class SyncMissingSquadPlayersUseCase {
   async execute(command: SyncMissingSquadPlayersCommand): Promise<SyncMissingSquadPlayersResult> {
     const provider = parseExternalProvider(command.provider);
     const seasonId = resolveTransfermarktSeasonId();
-    const teams =
-      command.clubExternalId !== undefined
-        ? await this.resolveSingleTeam(provider, command.clubExternalId)
-        : await this.teamRepository.findAll();
+    const teams = await this.resolveTeams(provider, command);
 
     const importedPlayers: { externalId: string; displayName: string }[] = [];
     const failures: { externalId: string; displayName: string; reason: string }[] = [];
@@ -135,6 +133,30 @@ export class SyncMissingSquadPlayersUseCase {
       importedPlayers,
       failures,
     };
+  }
+
+  private async resolveTeams(
+    provider: ReturnType<typeof parseExternalProvider>,
+    command: SyncMissingSquadPlayersCommand,
+  ) {
+    if (command.clubExternalId !== undefined) {
+      return this.resolveSingleTeam(provider, command.clubExternalId);
+    }
+
+    if (command.competitionExternalId !== undefined) {
+      const league = await this.leagueRepository.findByExternalReference(
+        provider,
+        command.competitionExternalId,
+      );
+
+      if (league === null) {
+        throw new Error(`Competition ${command.competitionExternalId} is not imported yet.`);
+      }
+
+      return this.teamRepository.findByLeagueId(league.id.value);
+    }
+
+    return this.teamRepository.findAll();
   }
 
   private async resolveSingleTeam(

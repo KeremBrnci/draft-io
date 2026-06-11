@@ -9,20 +9,55 @@ export const PICK_BOARD_OVERALL_FLOOR = 75;
 /** Last-resort overall floor when strict filters would return no options. */
 export const PICK_BOARD_RELAXED_OVERALL_FLOOR = 72;
 
-/** Position-specific relaxed floors (e.g. thin GK pool at 80+). */
-export const PICK_BOARD_RELAXED_POSITION_FLOORS: Readonly<Partial<Record<string, number>>> = {
-  GK: PICK_BOARD_RELAXED_OVERALL_FLOOR,
+/** Emergency floor — used when a position/league slice is still too thin. */
+export const PICK_BOARD_EMERGENCY_OVERALL_FLOOR = 58;
+
+/** Position-specific strict floors (GK pools are much smaller per league). */
+export const PICK_BOARD_POSITION_FLOORS: Readonly<Partial<Record<string, number>>> = {
+  GK: 65,
 };
 
-export function pickBoardOverallFloor(positionCode: string, relaxed = false): number {
-  if (!relaxed) {
-    return PICK_BOARD_OVERALL_FLOOR;
+/** Position-specific relaxed floors (e.g. thin GK pool in single-league lobbies). */
+export const PICK_BOARD_RELAXED_POSITION_FLOORS: Readonly<Partial<Record<string, number>>> = {
+  GK: 60,
+};
+
+export function pickBoardOverallFloor(
+  positionCode: string,
+  mode: 'strict' | 'relaxed' | 'emergency' = 'strict',
+): number {
+  const normalized = positionCode.toUpperCase();
+
+  if (mode === 'emergency') {
+    return PICK_BOARD_EMERGENCY_OVERALL_FLOOR;
   }
 
-  return (
-    PICK_BOARD_RELAXED_POSITION_FLOORS[positionCode.toUpperCase()] ??
-    PICK_BOARD_RELAXED_OVERALL_FLOOR
-  );
+  if (mode === 'relaxed') {
+    return PICK_BOARD_RELAXED_POSITION_FLOORS[normalized] ?? PICK_BOARD_RELAXED_OVERALL_FLOOR;
+  }
+
+  return PICK_BOARD_POSITION_FLOORS[normalized] ?? PICK_BOARD_OVERALL_FLOOR;
+}
+
+const GK_PICK_BOARD_WINDOWS: Record<
+  PickBoardProfile,
+  { readonly minOverall: number; readonly maxOverall: number | null }
+> = {
+  ELITE: { minOverall: 72, maxOverall: null },
+  COMPACT: { minOverall: 68, maxOverall: 76 },
+  SPREAD: { minOverall: 64, maxOverall: 78 },
+  VALUE: { minOverall: 58, maxOverall: 70 },
+};
+
+export function resolvePickBoardWindow(
+  profile: PickBoardProfile,
+  positionCode: string,
+): { readonly minOverall: number; readonly maxOverall: number | null } {
+  if (positionCode.toUpperCase() === 'GK') {
+    return GK_PICK_BOARD_WINDOWS[profile];
+  }
+
+  return PICK_BOARD_WINDOWS[profile];
 }
 
 export const RECENTLY_OFFERED_PLAYER_LIMIT = 30;

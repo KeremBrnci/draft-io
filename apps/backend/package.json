@@ -23,6 +23,7 @@
     "db:wipe-import": "tsx scripts/wipe-import-data.ts",
     "db:seed": "nest build && node dist/cli/seed-football-data.js",
     "db:resume-import": "nest build && node dist/cli/resume-football-data.js",
+    "db:refresh-competition": "nest build && node dist/cli/refresh-competition.js",
     "db:recalculate-overall": "nest build && node dist/cli/recalculate-overall.js",
     "db:import-player": "nest build && node dist/cli/import-player.js",
     "db:audit-rosters": "nest build && node dist/cli/audit-thin-rosters.js",

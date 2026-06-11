@@ -168,7 +168,34 @@ describe('PickOptionGenerator', () => {
     });
 
     expect(options.length).toBeGreaterThan(0);
-    expect(options.every((option) => option.overall >= 80)).toBe(true);
+    expect(options.every((option) => option.overall >= 65)).toBe(true);
+  });
+
+  it('fills five GK options from a thin single-league pool with lower overalls', () => {
+    const pool = Array.from({ length: 14 }, (_, index) =>
+      buildTestDraftPoolCard({
+        cardId: `gk-thin-${index}`,
+        playerId: `gk-thin-player-${index}`,
+        overall: 62 + index,
+        displayName: `Keeper Thin ${index + 1}`,
+        positions: [{ positionCode: 'GK', isPrimary: true, sortOrder: 0 }],
+      }),
+    );
+    const generator = new PickOptionGenerator(
+      DEFAULT_DRAFT_BALANCE_CONFIG,
+      new SeededRandomSource(17),
+    );
+
+    const options = generator.generate({
+      positionCode: 'GK',
+      eligiblePositionCodes: ['GK'],
+      participantState: buildTestParticipantState(),
+      pool,
+      draftedRoster: [],
+    });
+
+    expect(options.length).toBe(5);
+    expect(options.every((option) => option.overall >= 60)).toBe(true);
   });
 
   it('offers LW players when drafting an LM slot', () => {

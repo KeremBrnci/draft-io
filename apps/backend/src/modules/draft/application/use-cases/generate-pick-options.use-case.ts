@@ -1,4 +1,4 @@
-import { DRAFT_PICK_POOL_FETCH_LIMIT } from '../../domain/constants/draft-pool.constants';
+import { resolveDraftPoolFetchLimit } from '../../domain/constants/draft-pool.constants';
 import {
   DraftParticipantNotFoundError,
   DraftSessionNotFoundError,
@@ -51,7 +51,10 @@ export class GeneratePickOptionsUseCase {
       excludeCardIds: participant.draftedCardIds,
       excludePlayerIds: draftedPlayerIds,
       ...(poolLeagueIds.length > 0 ? { leagueIds: poolLeagueIds } : {}),
-      limit: DRAFT_PICK_POOL_FETCH_LIMIT,
+      limit: resolveDraftPoolFetchLimit({
+        positionCode: command.positionCode,
+        leagueIds: poolLeagueIds,
+      }),
     });
 
     const generator = new PickOptionGenerator(session.config, this.random);

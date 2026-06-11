@@ -3,11 +3,10 @@ import type { DraftBalanceConfigDto } from '@draft-io/shared-types';
 import {
   PICK_BOARD_COMPACT_RATE,
   PICK_BOARD_ELITE_RATE,
-  PICK_BOARD_OVERALL_FLOOR,
   PICK_BOARD_SPREAD_RATE,
-  PICK_BOARD_WINDOWS,
   RECENTLY_OFFERED_WEIGHT_MULTIPLIER,
   pickBoardOverallFloor,
+  resolvePickBoardWindow,
   type PickBoardProfile,
 } from '../constants/pick-board-profile.constants';
 import type { PlayerIdentityLink } from '../models/chemistry-result';
@@ -66,14 +65,12 @@ export class PickOptionGenerator {
     }
 
     const profile = this.sampleBoardProfile();
-    const boardCandidates = this.resolveBoardCandidates(eligible, profile);
+    const boardCandidates = this.resolveBoardCandidates(eligible, profile, positionCode);
+    const compactWindow = resolvePickBoardWindow('COMPACT', positionCode);
     const compactAnchor =
-      profile === 'COMPACT'
-        ? PICK_BOARD_WINDOWS.COMPACT.minOverall +
-          this.random.nextInt(
-            0,
-            PICK_BOARD_WINDOWS.COMPACT.maxOverall! - PICK_BOARD_WINDOWS.COMPACT.minOverall,
-          )
+      profile === 'COMPACT' && compactWindow.maxOverall !== null
+        ? compactWindow.minOverall +
+          this.random.nextInt(0, compactWindow.maxOverall - compactWindow.minOverall)
         : null;
 
     const selectedCards = this.selectDistinctCards({
@@ -107,16 +104,26 @@ export class PickOptionGenerator {
       .filter((card) => !input.participantState.draftedCardIds.includes(card.cardId))
       .filter((card) => !draftedPlayerIds.has(card.playerId));
 
-    for (const relaxedFloor of [false, true]) {
-      const floor = pickBoardOverallFloor(input.positionCode, relaxedFloor);
+    let widestEligible: DraftPoolCard[] = [];
+
+    for (const mode of ['strict', 'relaxed', 'emergency'] as const) {
+      const floor = pickBoardOverallFloor(input.positionCode, mode);
       const eligible = base.filter((card) => card.overall >= floor);
 
-      if (eligible.length > 0) {
+      if (eligible.length > widestEligible.length) {
+        widestEligible = eligible;
+      }
+
+      if (eligible.length >= this.config.candidatesPerPick) {
         return eligible;
       }
     }
 
-    return [];
+    if (widestEligible.length > 0) {
+      return widestEligible;
+    }
+
+    return base.length > 0 ? [...base] : [];
   }
 
   private sampleBoardProfile(): PickBoardProfile {
@@ -136,8 +143,9 @@ export class PickOptionGenerator {
   private resolveBoardCandidates(
     eligible: readonly DraftPoolCard[],
     profile: PickBoardProfile,
+    positionCode: string,
   ): DraftPoolCard[] {
-    const window = PICK_BOARD_WINDOWS[profile];
+    const window = resolvePickBoardWindow(profile, positionCode);
     const target = this.config.candidatesPerPick;
 
     const inWindow = (card: DraftPoolCard, min: number, max: number | null): boolean => {
@@ -169,7 +177,9 @@ export class PickOptionGenerator {
       }
     }
 
-    candidates = eligible.filter((card) => card.overall >= PICK_BOARD_OVERALL_FLOOR);
+    candidates = eligible.filter(
+      (card) => card.overall >= pickBoardOverallFloor(positionCode, 'relaxed'),
+    );
     return candidates.length > 0 ? [...candidates] : [...eligible];
   }
 
