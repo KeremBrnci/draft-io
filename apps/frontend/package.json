@@ -5,7 +5,7 @@
   "description": "draft.io Next.js frontend",
   "scripts": {
     "dev": "next dev --port 3000",
-    "build": "next build",
+    "build": "NODE_ENV=production next build",
     "start": "next start --port 3000",
     "lint": "eslint src/",
     "lint:fix": "eslint src/ --fix",
