@@ -13,7 +13,7 @@ Draft.io matches are **pre-simulated** and revealed minute-by-minute. V1 adds a 
 | Middle | Scoreboard + `MatchMomentumBar` + `MatchLiveStatsPanel` | Score, xG, shots, possession, momentum           |
 | Bottom | `MatchCommentaryFeed`                                   | Synchronized text commentary                     |
 
-Lineups (all 22 players) are hidden during live play and shown after full time.
+Lineups (all 22 players) stay visible below the commentary feed during live play.
 
 ## Pitch Zones
 
@@ -57,9 +57,9 @@ WebSocket events: `BALL_MOVED`, `ATTACK_STARTED`, `ATTACK_PROGRESS`, `SHOT`, `GO
 
 ## Match Speed
 
-Default `msPerMinute: 1000` → ~90 football minutes in ~90 real seconds (configurable in `DEFAULT_MATCH_SIMULATION_CONFIG`).
+Default `msPerMinute: 500` → ~90 football minutes in ~45 real seconds (configurable in `DEFAULT_MATCH_SIMULATION_CONFIG`).
 
-Target range: **60–120 seconds** per match.
+With warmup and half-time pauses, target total watch time is roughly **50–60 seconds** per match.
 
 ## Replay Storage
 

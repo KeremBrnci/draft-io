@@ -417,13 +417,6 @@ export default function LeaguePage(): React.ReactElement {
                     </>
                   ) : null}
 
-                  {!isLivePlay && !isWarmup ? (
-                    <MatchLineupsPanel
-                      homeLineup={match.homeLineup}
-                      awayLineup={match.awayLineup}
-                    />
-                  ) : null}
-
                   {match.status === 'FULL_TIME' && match.manOfTheMatchPlayerName !== null ? (
                     <p className="league-motm">
                       Maçın oyuncusu: <strong>{match.manOfTheMatchPlayerName}</strong>
@@ -445,6 +438,10 @@ export default function LeaguePage(): React.ReactElement {
                           firstHalfMinutes: match.firstHalfStoppageMinutes,
                           secondHalfMinutes: match.secondHalfStoppageMinutes,
                         }}
+                      />
+                      <MatchLineupsPanel
+                        homeLineup={match.homeLineup}
+                        awayLineup={match.awayLineup}
                       />
                     </>
                   )}

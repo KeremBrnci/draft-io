@@ -31,7 +31,7 @@ type MatchRecord = NonNullable<Awaited<ReturnType<RoomLeagueRepository['findMatc
 type MatchMilestones = ReturnType<typeof resolveMatchStoppageContext>['milestones'];
 
 const ALERT_EVENT_TYPES = new Set(['GOAL_CHANCE', 'PENALTY']);
-const ALERT_REVEAL_DELAY_MS = 3000;
+const ALERT_REVEAL_DELAY_MS = 1500;
 const LIVE_MATCH_STATUSES = new Set(['PRE_MATCH', 'LIVE', 'HALF_TIME', 'PAUSED']);
 
 function dedupeMatchEvents(
