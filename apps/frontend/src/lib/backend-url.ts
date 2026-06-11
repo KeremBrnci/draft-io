@@ -4,8 +4,10 @@ export function resolveBackendUrl(): string {
     return 'http://localhost:3001';
   }
 
+  const normalized = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
+
   try {
-    const parsed = new URL(raw);
+    const parsed = new URL(normalized);
     if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
       return 'http://localhost:3001';
     }
